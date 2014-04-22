@@ -26,4 +26,6 @@ public class EventstoreTest {
         eventstore.addEventListener(new WorkshopAggregate());
         assertThat(eventstore.numberOfListeners()).isGreaterThan(0);
     }
+
+
 }

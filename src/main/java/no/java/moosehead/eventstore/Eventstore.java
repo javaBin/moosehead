@@ -5,11 +5,15 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import java.util.ArrayList;
 
 public class Eventstore {
+
     private ArrayList<Event> eventstorage = new ArrayList<>();
     private ArrayList<EventListener> eventListeners = new ArrayList<>();
 
     public void addEvent(Event workshopAddedByAdmin) {
         eventstorage.add(workshopAddedByAdmin);
+        for (EventListener eventListener : eventListeners) {
+            eventListener.eventAdded(workshopAddedByAdmin);
+        }
     }
 
     public int numberOfEvents() {
