@@ -9,4 +9,8 @@ public class WorkshopAggregate implements EventListener {
     public void eventAdded(Event event) {
 
     }
+
+    public boolean canWorkshopBeAdded(AddWorkshopCommand addWorkshopCommand) {
+        return true;
+    }
 }
