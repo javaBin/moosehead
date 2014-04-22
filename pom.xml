@@ -7,7 +7,7 @@
     <artifactId>mooshead</artifactId>
     <name>moosehead</name>
     <version>0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -102,7 +102,8 @@
                 </executions>
             </plugin>
 
-            
+
+            <!--
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -123,7 +124,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
     <repositories>
