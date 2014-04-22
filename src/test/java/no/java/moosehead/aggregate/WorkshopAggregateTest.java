@@ -12,7 +12,7 @@ public class WorkshopAggregateTest {
         Eventstore eventstore = new Eventstore();
         WorkshopAggregate workshopAggregate = new WorkshopAggregate();
         eventstore.addEventListener(workshopAggregate);
-        eventstore.addEvent(new WorkshopAddedByAdmin());
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis()));
         AddWorkshopCommand command = new AddWorkshopCommand();
         assertThat(workshopAggregate.canWorkshopBeAdded(command)).isFalse();
     }

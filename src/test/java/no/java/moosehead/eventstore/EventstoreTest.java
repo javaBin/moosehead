@@ -16,7 +16,7 @@ public class EventstoreTest {
     @Test
     public void shouldAddWorkshopToEventstore() {
         Eventstore eventstore = new Eventstore();
-        eventstore.addEvent(new WorkshopAddedByAdmin());
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis()));
         assertThat(eventstore.numberOfEvents()).isGreaterThan(0);
     }
 
