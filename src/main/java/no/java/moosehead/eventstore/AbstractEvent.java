@@ -3,12 +3,18 @@ package no.java.moosehead.eventstore;
 
 public abstract class AbstractEvent {
     private long systemTimeInMillis;
+    private long revisionId;
 
-    protected AbstractEvent(long systemTimeInMillis) {
+    public AbstractEvent(long systemTimeInMillis, long revisionId) {
         this.systemTimeInMillis = systemTimeInMillis;
+        this.revisionId = revisionId;
     }
 
     public long getSystemTimeInMillis() {
         return systemTimeInMillis;
+    }
+
+    public long getRevisionId() {
+        return revisionId;
     }
 }
