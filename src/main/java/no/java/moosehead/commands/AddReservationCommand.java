@@ -22,4 +22,10 @@ public class AddReservationCommand {
     public String getFullname() {
         return fullname;
     }
+
+    public String toString() {
+        return "AddReservationCommand for workshop:" + workshopId +
+                " for user:" + fullname +
+                " with email:" + email;
+    }
 }

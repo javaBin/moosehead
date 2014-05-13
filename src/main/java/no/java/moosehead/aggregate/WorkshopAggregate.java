@@ -28,7 +28,7 @@ public class WorkshopAggregate implements EventListener {
             nextRevisionId++;
             return event;
         } else {
-            throw new WorkshopCanNotBeAddedException(addWorkshopCommand.getWorkshopId() + " already exists");
+            throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
         }
     }
 
@@ -37,7 +37,7 @@ public class WorkshopAggregate implements EventListener {
         if (workshop.isPresent()) {
             return new ReservationAddedByUser(System.currentTimeMillis(), nextRevisionId, "TEST@SOMEWHERE", "JONAS TESTESEN", addReservationCommand.getWorkshopId());
         } else {
-            throw new ReservationCanNotBeAddedException(addReservationCommand.getWorkshopId() + " does not exists");
+            throw new ReservationCanNotBeAddedException("The workshop in [" + addReservationCommand + "] does not exists");
         }
     }
 

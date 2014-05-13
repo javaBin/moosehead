@@ -10,4 +10,8 @@ public class AddWorkshopCommand {
     public String getWorkshopId() {
         return workshopId;
     }
+
+    public String toString() {
+        return "AddWorkshopCommand for workshop " + workshopId;
+    }
 }
