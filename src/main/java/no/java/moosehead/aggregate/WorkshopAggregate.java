@@ -35,7 +35,12 @@ public class WorkshopAggregate implements EventListener {
     public ReservationAddedByUser createEvent(AddReservationCommand addReservationCommand) {
         Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addReservationCommand.getWorkshopId());
         if (workshop.isPresent()) {
-            return new ReservationAddedByUser(System.currentTimeMillis(), nextRevisionId, "TEST@SOMEWHERE", "JONAS TESTESEN", addReservationCommand.getWorkshopId());
+            ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), nextRevisionId, addReservationCommand.getEmail(),
+                    addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
+            if (getReservation(reservationAddedByUser).isPresent()) {
+                throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + reservationAddedByUser + "]");
+            }
+            return reservationAddedByUser;
         } else {
             throw new ReservationCanNotBeAddedException("The workshop in [" + addReservationCommand + "] does not exists");
         }
@@ -48,9 +53,23 @@ public class WorkshopAggregate implements EventListener {
                .map(event ->(WorkshopAddedByAdmin) event);
     }
 
+    private Stream<ReservationAddedByUser> getReservationsForWorkshop(String workshopId) {
+        return eventArrayList
+                .parallelStream()
+                .filter(event -> event instanceof ReservationAddedByUser)
+                .map(event -> (ReservationAddedByUser) event)
+                .filter(reservation -> reservation.getWorkshopId().equals(workshopId));
+    }
+
     private Optional<WorkshopAddedByAdmin> getWorkshop(String workshopId) {
         return getAllWorkshops()
                 .filter(workshop -> workshop.getWorkshopId().equals(workshopId))
+                .findFirst();
+    }
+
+    private Optional<ReservationAddedByUser> getReservation(ReservationAddedByUser reservationAddedByUser) {
+        return getReservationsForWorkshop(reservationAddedByUser.getWorkshopId())
+                .filter(reservation -> reservation.getEmail().equals(reservationAddedByUser.getEmail()))
                 .findFirst();
     }
 }

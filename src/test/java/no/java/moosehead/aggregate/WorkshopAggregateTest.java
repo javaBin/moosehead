@@ -53,4 +53,28 @@ public class WorkshopAggregateTest {
         ReservationAddedByUser reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
     }
+
+    @Test
+    public void multipleReservationsIsOk() throws Exception {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1);
+        ReservationAddedByUser reservationAddedByUser =  workshopAggregate.createEvent(cmd);
+        assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
+        eventstore.addEvent(reservationAddedByUser);
+        AddReservationCommand cmd2 = new AddReservationCommand("haha@email","Darth Vader",w1);
+        ReservationAddedByUser reservationAddedByUser2 =  workshopAggregate.createEvent(cmd2);
+        assertThat(reservationAddedByUser2.getWorkshopId()).isEqualTo(w1);
+    }
+
+    @Test(expected = ReservationCanNotBeAddedException.class)
+    public void sameEmailIsNotAllowedToReserveTwice() throws Exception {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1);
+        ReservationAddedByUser event = workshopAggregate.createEvent(cmd);
+        eventstore.addEvent(event);
+        AddReservationCommand cmd2 = new AddReservationCommand("bla@email","Donnie Darko",w1);
+        workshopAggregate.createEvent(cmd2);
+    }
+
+
 }

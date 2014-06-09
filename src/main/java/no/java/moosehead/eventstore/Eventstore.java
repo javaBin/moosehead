@@ -9,10 +9,10 @@ public class Eventstore {
     private ArrayList<AbstractEvent> eventstorage = new ArrayList<>();
     private ArrayList<EventListener> eventListeners = new ArrayList<>();
 
-    public void addEvent(AbstractEvent workshopAddedByAdmin) {
-        eventstorage.add(workshopAddedByAdmin);
+    public void addEvent(AbstractEvent event) {
+        eventstorage.add(event);
         for (EventListener eventListener : eventListeners) {
-            eventListener.eventAdded(workshopAddedByAdmin);
+            eventListener.eventAdded(event);
         }
     }
 
