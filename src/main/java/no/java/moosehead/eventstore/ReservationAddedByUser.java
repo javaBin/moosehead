@@ -1,9 +1,6 @@
 package no.java.moosehead.eventstore;
 
-/**
- * Created by Tor Egil Refsahl on 13.05.2014.
- */
-public class ReservationAddedByUser extends AbstractEvent {
+public class ReservationAddedByUser extends AbstractEvent implements UserWorkshopEvent {
     private String email;
     private String fullname;
     private String workshopId;

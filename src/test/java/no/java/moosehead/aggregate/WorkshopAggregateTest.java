@@ -2,8 +2,10 @@ package no.java.moosehead.aggregate;
 
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
+import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.eventstore.Eventstore;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import org.junit.*;
 
@@ -55,7 +57,7 @@ public class WorkshopAggregateTest {
     }
 
     @Test
-    public void multipleReservationsIsOk() throws Exception {
+    public void multipleReservationsAreOk() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
         AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1);
         ReservationAddedByUser reservationAddedByUser =  workshopAggregate.createEvent(cmd);
@@ -76,5 +78,18 @@ public class WorkshopAggregateTest {
         workshopAggregate.createEvent(cmd2);
     }
 
+    @Test
+    public void shouldBeAbleToCancelReservation() throws Exception {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1);
+        ReservationAddedByUser reservationAddedByUser =  workshopAggregate.createEvent(cmd);
+        eventstore.addEvent(reservationAddedByUser);
 
+        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1);
+        ReservationCancelledByUser rcbu = workshopAggregate.createEvent(cancel);
+
+        assertThat(rcbu).isNotNull();
+
+
+    }
 }

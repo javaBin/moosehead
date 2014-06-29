@@ -2,10 +2,8 @@ package no.java.moosehead.aggregate;
 
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
-import no.java.moosehead.eventstore.AbstractEvent;
-import no.java.moosehead.eventstore.EventListener;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
+import no.java.moosehead.commands.CancelReservationCommand;
+import no.java.moosehead.eventstore.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -46,6 +44,20 @@ public class WorkshopAggregate implements EventListener {
         }
     }
 
+    public ReservationCancelledByUser createEvent(CancelReservationCommand cancel) {
+        //userWorkshopEvents(cancel.getWorkshopId(),cancel.getEmail()).count()
+        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(), nextRevisionId, cancel.getEmail(), cancel.getWorkshopId());
+        return reservationCancelledByUser;
+    }
+
+    private Stream<? extends UserWorkshopEvent> userWorkshopEvents(String workshopid,String email) {
+        return eventArrayList
+                .stream()
+                .filter(event -> event instanceof UserWorkshopEvent)
+                .map(event -> (UserWorkshopEvent) event)
+                .filter(uwe -> uwe.getEmail().equals(email) && uwe.getWorkshopId().equals(workshopid));
+    }
+
     private Stream<WorkshopAddedByAdmin> getAllWorkshops() {
        return eventArrayList
                .parallelStream()
@@ -72,4 +84,5 @@ public class WorkshopAggregate implements EventListener {
                 .filter(reservation -> reservation.getEmail().equals(reservationAddedByUser.getEmail()))
                 .findFirst();
     }
+
 }
