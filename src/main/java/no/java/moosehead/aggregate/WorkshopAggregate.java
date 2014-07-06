@@ -45,7 +45,9 @@ public class WorkshopAggregate implements EventListener {
     }
 
     public ReservationCancelledByUser createEvent(CancelReservationCommand cancel) {
-        //userWorkshopEvents(cancel.getWorkshopId(),cancel.getEmail()).count()
+        if (userWorkshopEvents(cancel.getWorkshopId(),cancel.getEmail()).count() % 2 == 0) {
+            throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancel.getEmail(),cancel.getWorkshopId()));
+        }
         ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(), nextRevisionId, cancel.getEmail(), cancel.getWorkshopId());
         return reservationCancelledByUser;
     }

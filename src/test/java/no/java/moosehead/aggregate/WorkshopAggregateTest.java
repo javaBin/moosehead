@@ -89,7 +89,14 @@ public class WorkshopAggregateTest {
         ReservationCancelledByUser rcbu = workshopAggregate.createEvent(cancel);
 
         assertThat(rcbu).isNotNull();
+    }
 
+    @Test(expected = NoReservationFoundException.class)
+    public void shouldNotBeAbleToCancelNonExsistingReservation() throws Exception {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+
+        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1);
+        workshopAggregate.createEvent(cancel);
 
     }
 }
