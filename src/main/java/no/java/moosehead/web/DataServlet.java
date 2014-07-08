@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DataServlet extends HttpServlet {
@@ -47,6 +48,33 @@ public class DataServlet extends HttpServlet {
 
     }
 
+    private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+        String workshopid = readField(jsonInput, "workshopid");
+        String email = readField(jsonInput,"email");
+        String fullname = readField(jsonInput,"fullname");
+
+        if (workshopid == null || email == null || fullname == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return Optional.empty();
+        }
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname);
+
+        return Optional.of(reservation);
+    }
+
+    private Optional<ParticipantActionResult> doCancelation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+        String workshopid = readField(jsonInput, "workshopid");
+        String email = readField(jsonInput,"email");
+
+        if (workshopid == null || email == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return Optional.empty();
+        }
+        ParticipantActionResult cancel = participantApi.cancellation(workshopid, email);
+
+        return Optional.of(cancel);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JSONObject jsonInput = readJson(req.getInputStream(),resp);
@@ -54,20 +82,19 @@ public class DataServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return;
         }
-        String workshopid = readField(jsonInput, "workshopid");
-        String email = readField(jsonInput,"email");
-        String fullname = readField(jsonInput,"fullname");
-
-        if (workshopid == null || email == null || fullname == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+        Optional<ParticipantActionResult> apiResult;
+        if ("/cancel".equals(req.getPathInfo())) {
+            apiResult = doCancelation(jsonInput, resp);
+        } else {
+            apiResult = doReservation(jsonInput, resp);
+        }
+        if (!apiResult.isPresent()) {
             return;
         }
-
         resp.setContentType("text/json");
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname);
         JSONObject result = new JSONObject();
         try {
-            result.put("status",reservation.getStatus());
+            result.put("status", apiResult.get().getStatus());
             result.write(resp.getWriter());
         } catch (JSONException e) {
             throw new RuntimeException(e);
