@@ -1,9 +1,6 @@
 package no.java.moosehead.web;
 
-import no.java.moosehead.api.ParticipantActionResult;
-import no.java.moosehead.api.ParticipantApi;
-import no.java.moosehead.api.ParticipantReservation;
-import no.java.moosehead.api.WorkshopInfo;
+import no.java.moosehead.api.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +18,11 @@ import java.util.stream.Collectors;
 
 public class DataServlet extends HttpServlet {
     private ParticipantApi participantApi;
+
+    @Override
+    public void init() throws ServletException {
+        participantApi = new MockApi();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
