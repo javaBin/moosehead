@@ -108,6 +108,24 @@ public class DataServletTest {
 
         verify(participantApi,never()).reservation(anyString(),anyString(),anyString());
         verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+    }
+
+    @Test
+    public void shouldRespondWith400WhenIllegalCharacters() throws Exception {
+        when(req.getMethod()).thenReturn("POST");
+        when(req.getPathInfo()).thenReturn("/reserve");
+
+        JSONObject reservationJson = new JSONObject();
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
+
+        mockInputStream(reservationJson.toString());
+
+        servlet.service(req, resp);
+
+        verify(participantApi,never()).reservation(anyString(),anyString(),anyString());
+        verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
 
     }
 }

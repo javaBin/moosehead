@@ -50,26 +50,42 @@ public class DataServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JSONObject jsonInput = readJson(req.getInputStream(),resp);
         if (jsonInput == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return;
         }
-        try {
-            String workshopid = jsonInput.getString("workshopid");
-            String email = jsonInput.getString("email");
-            String fullname = jsonInput.getString("fullname");
+        String workshopid = readField(jsonInput, "workshopid");
+        String email = readField(jsonInput,"email");
+        String fullname = readField(jsonInput,"fullname");
 
-            resp.setContentType("text/json");
-            participantApi.reservation(workshopid, email, fullname);
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+        if (workshopid == null || email == null || fullname == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return;
         }
+
+        resp.setContentType("text/json");
+        participantApi.reservation(workshopid, email, fullname);
+    }
+
+    private String readField(JSONObject jsonInput, String name) {
+        String value;
+        try {
+            value = jsonInput.getString(name);
+        } catch (JSONException e) {
+            return null;
+        }
+        for (char c : value.toCharArray()) {
+            if (Character.isLetterOrDigit(c) || "-_ @.".indexOf(c) != -1) {
+                continue;
+            }
+            return null;
+        }
+        return value;
     }
 
     private JSONObject readJson(ServletInputStream inputStream, HttpServletResponse resp) throws IOException {
         try {
             return new JSONObject(toString(inputStream));
         } catch (JSONException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return null;
         }
     }
