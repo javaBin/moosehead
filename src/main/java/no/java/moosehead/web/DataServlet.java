@@ -2,6 +2,7 @@ package no.java.moosehead.web;
 
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
+import no.java.moosehead.api.ParticipantReservation;
 import no.java.moosehead.api.WorkshopInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +25,35 @@ public class DataServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/json");
+        if ("/workshopList".equals(req.getPathInfo())) {
+            printWorkshops(resp);
+        } else {
+            printMyReservations(req,resp);
+        }
+
+    }
+
+    private void printMyReservations(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String email = req.getParameter("email");
+        List<ParticipantReservation> participantReservations = participantApi.myReservations(email);
+        List<JSONObject> reservations = participantReservations.stream().map(res -> {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("workshopid", res.getWorkshopid());
+                jsonObject.put("email", res.getEmail());
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            return jsonObject;
+        }).collect(Collectors.toList());
+        try {
+            new JSONArray(reservations).write(resp.getWriter());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void printWorkshops(HttpServletResponse resp) throws IOException {
         List<WorkshopInfo> workshops = participantApi.workshops();
         List<JSONObject> jsons = workshops.stream().map(workshop -> {
                     JSONObject jsonObject = new JSONObject();
@@ -45,7 +75,6 @@ public class DataServlet extends HttpServlet {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {

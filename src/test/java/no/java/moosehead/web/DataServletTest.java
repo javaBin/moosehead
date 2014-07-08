@@ -1,9 +1,6 @@
 package no.java.moosehead.web;
 
-import no.java.moosehead.api.ParticipantActionResult;
-import no.java.moosehead.api.ParticipantApi;
-import no.java.moosehead.api.WorkshopInfo;
-import no.java.moosehead.api.WorkshopStatus;
+import no.java.moosehead.api.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -13,6 +10,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +63,26 @@ public class DataServletTest {
         assertThat(obtwo.getString("status")).isEqualTo(WorkshopStatus.FREE_SPOTS.name());
     }
 
+    @Test
+    public void shouldDisplayMyWorkshops() throws Exception {
+        when(req.getMethod()).thenReturn("GET");
+        when(req.getPathInfo()).thenReturn("/myReservations");
+        when(req.getParameter("email")).thenReturn("a@a.com");
+
+        when(participantApi.myReservations(anyString())).thenReturn(Arrays.asList(
+           new ParticipantReservation("1","a@a.com"),
+           new ParticipantReservation("2","a@a.com")
+        ));
+
+        servlet.service(req,resp);
+
+        verify(participantApi).myReservations("a@a.com");
+        verify(resp).setContentType("text/json");
+        JSONArray jsonArray = new JSONArray(jsonContent.toString());
+        assertThat(jsonArray.length()).isEqualTo(2);
+
+    }
+
     private void mockInputStream(String inputjson) throws IOException {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(inputjson.getBytes("UTF-8"));
         when(req.getInputStream()).thenReturn(new ServletInputStream() {
@@ -113,7 +131,7 @@ public class DataServletTest {
         reservationJson.put("workshopid", "123");
         reservationJson.put("email", "darth@a.com");
 
-        when(participantApi.cancellation(anyString(),anyString())).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.cancellation(anyString(), anyString())).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
