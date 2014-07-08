@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.api.WorkshopStatus;
@@ -89,12 +90,18 @@ public class DataServletTest {
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth Vader");
 
+        when(participantApi.reservation(anyString(),anyString(),anyString())).thenReturn(ParticipantActionResult.ok());
+
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
         verify(participantApi).reservation("123","darth@a.com","Darth Vader");
+
+        JSONObject jsonObject = new JSONObject(jsonContent.toString());
+        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+
     }
 
     @Test
@@ -126,6 +133,6 @@ public class DataServletTest {
 
         verify(participantApi,never()).reservation(anyString(),anyString(),anyString());
         verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
-
     }
+
 }

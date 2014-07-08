@@ -19,4 +19,12 @@ public class ParticipantActionResult {
     public static ParticipantActionResult error(String message) {
         return new ParticipantActionResult(Status.ERROR,message);
     }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public String getErrormessage() {
+        return errormessage;
+    }
 }

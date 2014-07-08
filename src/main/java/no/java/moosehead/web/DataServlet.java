@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import org.json.JSONArray;
@@ -63,7 +64,14 @@ public class DataServlet extends HttpServlet {
         }
 
         resp.setContentType("text/json");
-        participantApi.reservation(workshopid, email, fullname);
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname);
+        JSONObject result = new JSONObject();
+        try {
+            result.put("status",reservation.getStatus());
+            result.write(resp.getWriter());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String readField(JSONObject jsonInput, String name) {
