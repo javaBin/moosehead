@@ -75,6 +75,18 @@ public class DataServlet extends HttpServlet {
         return Optional.of(cancel);
     }
 
+    private Optional<ParticipantActionResult> doConfirmEmail(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+        String token = readField(jsonInput, "token");
+
+        if (token == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return Optional.empty();
+        }
+        ParticipantActionResult cancel = participantApi.confirmEmail(token);
+
+        return Optional.of(cancel);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JSONObject jsonInput = readJson(req.getInputStream(),resp);
@@ -85,8 +97,13 @@ public class DataServlet extends HttpServlet {
         Optional<ParticipantActionResult> apiResult;
         if ("/cancel".equals(req.getPathInfo())) {
             apiResult = doCancelation(jsonInput, resp);
-        } else {
+        } else if ("/reserve".equals(req.getPathInfo())) {
             apiResult = doReservation(jsonInput, resp);
+        } else if ("/confirmEmail".equals(req.getPathInfo())) {
+            apiResult = doConfirmEmail(jsonInput, resp);
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
+            return;
         }
         if (!apiResult.isPresent()) {
             return;
@@ -95,6 +112,10 @@ public class DataServlet extends HttpServlet {
         JSONObject result = new JSONObject();
         try {
             result.put("status", apiResult.get().getStatus());
+            String errormessage = apiResult.get().getErrormessage();
+            if (errormessage != null) {
+                result.put("message",errormessage);
+            }
             result.write(resp.getWriter());
         } catch (JSONException e) {
             throw new RuntimeException(e);

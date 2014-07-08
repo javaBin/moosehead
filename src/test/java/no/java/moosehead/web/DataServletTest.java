@@ -124,7 +124,27 @@ public class DataServletTest {
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+    }
 
+    @Test
+    public void shouldConfirmEmail() throws Exception {
+        when(req.getMethod()).thenReturn("POST");
+        when(req.getPathInfo()).thenReturn("/confirmEmail");
+
+        JSONObject reservationJson = new JSONObject();
+        reservationJson.put("token", "123");
+
+        when(participantApi.confirmEmail(anyString())).thenReturn(ParticipantActionResult.ok());
+
+        mockInputStream(reservationJson.toString());
+
+        servlet.service(req, resp);
+
+        verify(resp).setContentType("text/json");
+        verify(participantApi).confirmEmail("123");
+
+        JSONObject jsonObject = new JSONObject(jsonContent.toString());
+        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
     }
 
     @Test
