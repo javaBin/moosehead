@@ -6,5 +6,8 @@ angular.module('mooseheadModule')
                 .success(function(workshopList) {
                     $scope.workshops = workshopList;
                 });
+            $scope.workshopOpen = function(workshop) {
+                return (workshop.status === "FREE_SPOTS" || workshop.status === "FEW_SPOTS");
+            }
         }]);
 
