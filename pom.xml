@@ -103,7 +103,6 @@
             </plugin>
 
 
-            <!--
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -112,7 +111,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>no.javazone.cake.redux.WebServer</mainClass>
+                            <mainClass>no.java.moosehead.web.WebServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -124,7 +123,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
     <repositories>
