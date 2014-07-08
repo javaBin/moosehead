@@ -96,4 +96,18 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verify(participantApi).reservation("123","darth@a.com","Darth Vader");
     }
+
+    @Test
+    public void shouldRespondWith400IfBadRequest() throws Exception {
+        when(req.getMethod()).thenReturn("POST");
+        when(req.getPathInfo()).thenReturn("/reserve");
+
+        mockInputStream("I am garbage");
+
+        servlet.service(req,resp);
+
+        verify(participantApi,never()).reservation(anyString(),anyString(),anyString());
+        verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+
+    }
 }

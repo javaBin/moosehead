@@ -48,25 +48,29 @@ public class DataServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/json");
-        JSONObject jsonInput = readJson(req.getInputStream());
+        JSONObject jsonInput = readJson(req.getInputStream(),resp);
+        if (jsonInput == null) {
+            return;
+        }
         try {
             String workshopid = jsonInput.getString("workshopid");
             String email = jsonInput.getString("email");
             String fullname = jsonInput.getString("fullname");
 
-            participantApi.reservation(workshopid,email,fullname);
+            resp.setContentType("text/json");
+            participantApi.reservation(workshopid, email, fullname);
 
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private JSONObject readJson(ServletInputStream inputStream) throws IOException {
+    private JSONObject readJson(ServletInputStream inputStream, HttpServletResponse resp) throws IOException {
         try {
             return new JSONObject(toString(inputStream));
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return null;
         }
     }
 
