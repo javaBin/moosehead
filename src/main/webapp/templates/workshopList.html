@@ -1,4 +1,8 @@
 <div ng-controller="WorkshopListCtrl">
-    <h1>{{title}}</h1>
-    <p>bdfhgdf</p>
+    <h1>Workshops</h1>
+    <div ng-repeat="workshop in workshops">
+        <h2>{{workshop.title}}</h2>
+        <p>{{workshop.description}}</p>
+        <p>Status: {{workshop.status}}</p>
+    </div>
 </div>
