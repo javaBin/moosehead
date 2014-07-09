@@ -1,0 +1,1 @@
+<no.java.moosehead.eventstore.WorkshopAddedByAdmin;workshopId=W1;numberOfSeats=0;systemTimeInMillis=1404824751186;revisionId=1>
