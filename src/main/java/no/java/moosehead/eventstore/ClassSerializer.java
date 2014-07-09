@@ -9,7 +9,7 @@ import java.util.*;
 public class ClassSerializer {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
-    public String asString(Object object) {
+    public String asString(AbstractEvent object) {
         String encodedValue = encodeValue(object);
         if (object != null && !encodedValue.startsWith("<")) {
             return "<" + object.getClass().getName() + ";" + encodedValue + ">";
@@ -17,7 +17,7 @@ public class ClassSerializer {
         return encodedValue;
     }
 
-    public Object asObject(String serializedValue) {
+    public AbstractEvent asObject(String serializedValue) {
         if ("<null>".equals(serializedValue)) {
             return null;
         }
@@ -27,9 +27,9 @@ public class ClassSerializer {
             try {
                 Class<?> clazz=null;
                 if ("list".equals(parts[0]) || "map".equals(parts[0])) {
-                    return objectValueFromString(serializedValue,null);
+                    return (AbstractEvent)objectValueFromString(serializedValue,null);
                 }
-                return objectValueFromString(parts[1], Class.forName(parts[0]));
+                return (AbstractEvent)objectValueFromString(parts[1], Class.forName(parts[0]));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -37,26 +37,26 @@ public class ClassSerializer {
 
         Object object = initObject(parts[0]);
 
+        List<Field> declaredFields = getAllFields(new LinkedList<Field>(), object.getClass());
+
         for (int i=1;i<parts.length;i++) {
-            //String[] fieldParts = parts[i].split("=");
             int eqPos=parts[i].indexOf("=");
             String fieldName = parts[i].substring(0,eqPos);
             String encFieldValue = parts[i].substring(eqPos+1);
 
-            try {
-                Field field = object.getClass().getDeclaredField(fieldName);
-
-                setFieldValue(object, encFieldValue, field);
-
-            } catch (NoSuchFieldException | IllegalAccessError e) {
-                throw new RuntimeException(e);
-            }
+            Optional<Field> opt = declaredFields.stream()
+                                                .filter(f -> f.getName().equals(fieldName))
+                                                .findFirst();
+            if (opt.isPresent())
+                setFieldValue(object, encFieldValue, opt.get());
+            else
+                throw new RuntimeException(new NoSuchFieldError(fieldName));
         }
 
-        return object;
+        return (AbstractEvent)object;
     }
 
-    public String[] splitToParts(String serializedValue) {
+    private String[] splitToParts(String serializedValue) {
         List<String> result = new ArrayList<>();
 
         int level = 0;
@@ -86,7 +86,7 @@ public class ClassSerializer {
         return result.toArray(new String[result.size()]);
     }
 
-    public Object objectValueFromString(String fieldValue, Class<?> type) {
+    private Object objectValueFromString(String fieldValue, Class<?> type) {
         Object value;
 
         if ("&null".equals(fieldValue)) {
@@ -128,7 +128,7 @@ public class ClassSerializer {
         return value;
     }
 
-    public String encodeValue(Object fieldValue) {
+    private String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "<null>";
         }
@@ -189,8 +189,25 @@ public class ClassSerializer {
         return "<" + classname + fieldsCode + ">";
     }
 
+    /**
+     * Recursivly getting all fields from superclasses as well
+     * @param fields
+     * @param type
+     * @return
+     */
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        for (Field field: type.getDeclaredFields()) {
+            fields.add(field);
+        }
+        if (type.getSuperclass() != null) {
+            fields = getAllFields(fields, type.getSuperclass());
+        }
+        return fields;
+    }
+
     private String computeFields(Object object) {
-        Field[] declaredFields = object.getClass().getDeclaredFields();
+        List<Field> declaredFields = getAllFields(new LinkedList<Field>(), object.getClass());
+
         StringBuilder result = new StringBuilder();
         for (Field field : declaredFields) {
             result.append(";");

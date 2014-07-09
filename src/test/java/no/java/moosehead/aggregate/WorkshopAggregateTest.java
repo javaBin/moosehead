@@ -3,10 +3,7 @@ package no.java.moosehead.aggregate;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
-import no.java.moosehead.eventstore.Eventstore;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.ReservationCancelledByUser;
-import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
+import no.java.moosehead.eventstore.*;
 import org.junit.*;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -21,7 +18,7 @@ public class WorkshopAggregateTest {
 
     @Before
     public void beforeTest() {
-        eventstore = new Eventstore();
+        eventstore = new Eventstore(new FileHandler());
         workshopAggregate = new WorkshopAggregate();
         eventstore.addEventListener(workshopAggregate);
     }
