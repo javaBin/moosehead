@@ -21,13 +21,13 @@ public class Eventstore {
     }
 
     private ArrayList<AbstractEvent> eventstorage = new ArrayList<>();
-    private ArrayList<EventListener> eventListeners = new ArrayList<>();
+    private ArrayList<EventSubscription> eventSubscribers = new ArrayList<>();
 
     public void addEvent(AbstractEvent event) {
         fileHandler.writeToFile(classSerializer.asString(event));
         eventstorage.add(event);
-        for (EventListener eventListener : eventListeners) {
-            eventListener.eventAdded(event);
+        for (EventSubscription eventSubscribers : this.eventSubscribers) {
+            eventSubscribers.eventAdded(event);
         }
     }
 
@@ -36,11 +36,11 @@ public class Eventstore {
     }
 
     public int numberOfListeners() {
-        return eventListeners.size();
+        return eventSubscribers.size();
     }
 
-    public void addEventListener(WorkshopAggregate workshopAggregate) {
-        eventListeners.add(workshopAggregate);
+    public void addEventSubscriber(WorkshopAggregate workshopAggregate) {
+        eventSubscribers.add(workshopAggregate);
     }
 
     /**

@@ -23,7 +23,7 @@ public class EventstoreTest {
     @Test
     public void shouldAddProjectionToEventStore() {
         Eventstore eventstore = new Eventstore(new FileHandler());
-        eventstore.addEventListener(new WorkshopAggregate());
+        eventstore.addEventSubscriber(new WorkshopAggregate());
         assertThat(eventstore.numberOfListeners()).isGreaterThan(0);
     }
 

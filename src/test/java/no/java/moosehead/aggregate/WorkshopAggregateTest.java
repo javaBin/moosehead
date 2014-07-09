@@ -20,7 +20,7 @@ public class WorkshopAggregateTest {
     public void beforeTest() {
         eventstore = new Eventstore(new FileHandler());
         workshopAggregate = new WorkshopAggregate();
-        eventstore.addEventListener(workshopAggregate);
+        eventstore.addEventSubscriber(workshopAggregate);
     }
 
     @Test(expected = WorkshopCanNotBeAddedException.class)

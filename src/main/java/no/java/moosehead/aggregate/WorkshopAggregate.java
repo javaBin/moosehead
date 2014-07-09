@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class WorkshopAggregate implements EventListener {
+public class WorkshopAggregate implements EventSubscription {
 
     private long nextRevisionId=0;
     private ArrayList<AbstractEvent> eventArrayList = new ArrayList<>();
