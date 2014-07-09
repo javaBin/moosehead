@@ -1,5 +1,7 @@
 package no.java.moosehead.eventstore;
 
+import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.utils.FileHandler;
 import org.junit.Test;
 
 import java.io.*;

@@ -4,6 +4,8 @@ import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.eventstore.*;
+import no.java.moosehead.eventstore.core.AbstractEvent;
+import no.java.moosehead.eventstore.core.EventSubscription;
 
 import java.util.ArrayList;
 import java.util.Optional;

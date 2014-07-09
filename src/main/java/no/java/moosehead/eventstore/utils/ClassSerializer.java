@@ -1,4 +1,6 @@
-package no.java.moosehead.eventstore;
+package no.java.moosehead.eventstore.utils;
+
+import no.java.moosehead.eventstore.core.AbstractEvent;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;

@@ -4,6 +4,8 @@ import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.eventstore.*;
+import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.utils.FileHandler;
 import org.junit.*;
 
 import static org.fest.assertions.Assertions.assertThat;

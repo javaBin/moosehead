@@ -1,4 +1,4 @@
-package no.java.moosehead.eventstore;
+package no.java.moosehead.eventstore.utils;
 
 import java.io.*;
 

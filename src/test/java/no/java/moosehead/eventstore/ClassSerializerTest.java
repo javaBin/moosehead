@@ -1,5 +1,6 @@
 package no.java.moosehead.eventstore;
 
+import no.java.moosehead.eventstore.utils.ClassSerializer;
 import org.junit.*;
 import static org.fest.assertions.Assertions.assertThat;
 

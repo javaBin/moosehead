@@ -1,6 +1,8 @@
-package no.java.moosehead.eventstore;
+package no.java.moosehead.eventstore.core;
 
 import no.java.moosehead.aggregate.WorkshopAggregate;
+import no.java.moosehead.eventstore.utils.ClassSerializer;
+import no.java.moosehead.eventstore.utils.FileHandler;
 
 import java.io.*;
 import java.util.ArrayList;
