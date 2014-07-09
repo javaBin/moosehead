@@ -1,7 +1,7 @@
 package no.java.moosehead.eventstore.core;
 
 
-public abstract class AbstractEvent {
+public abstract class AbstractEvent implements BaseEvent{
     private Long systemTimeInMillis;
     private Long revisionId;
 

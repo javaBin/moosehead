@@ -1,6 +1,7 @@
 package no.java.moosehead.eventstore.core;
 
 import no.java.moosehead.aggregate.WorkshopAggregate;
+import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.eventstore.utils.FileHandler;
 
@@ -9,8 +10,11 @@ import java.util.ArrayList;
 
 public class Eventstore {
 
-    FileHandler fileHandler;
-    ClassSerializer classSerializer = new ClassSerializer();
+    private FileHandler fileHandler;
+    private long currentRevisionId=0;
+    private ClassSerializer classSerializer = new ClassSerializer();
+    private ArrayList<AbstractEvent> eventstorage = new ArrayList<>();
+    private ArrayList<EventSubscription> eventSubscribers = new ArrayList<>();
 
     /**
      * Will persist all events. Boostraps the eventstore with events from the file.
@@ -20,13 +24,25 @@ public class Eventstore {
     public Eventstore(FileHandler fileHandler) {
         this.fileHandler = fileHandler;
         initEventStoreWithFileHandler();
+        playbackEventsToSubscribers();
     }
 
-    private ArrayList<AbstractEvent> eventstorage = new ArrayList<>();
-    private ArrayList<EventSubscription> eventSubscribers = new ArrayList<>();
+    private void playbackEventsToSubscribers() {
+        for (AbstractEvent event: eventstorage) {
+            for (EventSubscription eventSubscribers : this.eventSubscribers) {
+                eventSubscribers.eventAdded(event);
+            }
+        }
+        if (eventstorage.size() > 0)
+            currentRevisionId = eventstorage.get(eventstorage.size()).getRevisionId();
+        addEvent(new SystemBootstrapDone(currentRevisionId));
+    }
+
 
     public void addEvent(AbstractEvent event) {
-        fileHandler.writeToFile(classSerializer.asString(event));
+        if (! (event instanceof TransientEvent))
+            fileHandler.writeToFile(classSerializer.asString(event));
+
         eventstorage.add(event);
         for (EventSubscription eventSubscribers : this.eventSubscribers) {
             eventSubscribers.eventAdded(event);
