@@ -3,9 +3,6 @@ package no.java.moosehead.eventstore;
 import org.junit.*;
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Created by Tor Egil Refsahl on 08.07.2014.
- */
 public class ClassSerializerTest {
 
     @Test

@@ -6,7 +6,7 @@ import java.io.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class EventStorePersitenceTest {
+public class EventStorePersistenceTest {
 
     @Test
     public void testSerialiseringAvEventer() throws IOException {
@@ -19,7 +19,7 @@ public class EventStorePersitenceTest {
 
     @Test
     public void testDeSerialiseringAvEventer() throws IOException {
-        Eventstore eventstore = new Eventstore(new FileHandler("src/test/resources/EventStorePersitenceTest.txt"));
+        Eventstore eventstore = new Eventstore(new FileHandler("src/test/resources/EventStorePersistenceTest.txt"));
         assertThat(eventstore.numberOfEvents()).isEqualTo(1);
 
     }
