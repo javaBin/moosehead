@@ -1,6 +1,10 @@
 angular.module('mooseheadModule')
-    .controller('WorkshopListCtrl', ['$scope', '$http',
-        function($scope, $http) {
+    .controller('WorkshopListCtrl', ['$scope', '$http','workshopFactory',
+        function($scope, $http,workshopFactory) {
+            workshopFactory.then(function(value) {
+                $scope.dummy = value;
+            }
+            );
             $scope.workshops = [];
             $http({method: "GET", url: "data/workshopList"})
                 .success(function(workshopList) {
