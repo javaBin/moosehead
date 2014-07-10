@@ -1,12 +1,11 @@
 angular.module('mooseheadModule')
-    .factory("workshopFactory",["$http","$q", "$rootScope", function($http,$q,$rootScope) {
+    .factory("workshopFactory",["$http","$q", function($http,$q) {
         var deferred = $q.defer();
 
-        setTimeout(function() {
-            $rootScope.$apply(function() {
-                deferred.resolve("Hi " + new Date());
+        $http({method: "GET", url: "data/workshopList"})
+            .success(function(workshopList) {
+                deferred.resolve(workshopList);
             });
-        }, 2000);
 
         return deferred.promise;
     }]);
