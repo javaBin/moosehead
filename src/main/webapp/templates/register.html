@@ -1,4 +1,7 @@
 <div ng-controller="RegisterCtrl">
-    <h1>Register for workshop {{workshopid}}</h1>
-    <h2>It says {{dummy}}</h2>
+    <h1>Register for workshop "{{workshop.title}}"</h1>
+    <form>
+        <input type="email" placeholder="Your email" ng-model="email"/>
+        <button ng-click="register()">Register</button>
+    </form>
 </div>
