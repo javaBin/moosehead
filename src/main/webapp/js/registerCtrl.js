@@ -39,7 +39,7 @@ angular.module('mooseheadModule')
                     data: postData
                 }).success(function(data) {
                     if (data.status === "OK") {
-                        $scope.message = "Registration. You will receive an email to confirm your registration";
+                        $scope.message = "Registration registered. You will receive an email to confirm your registration";
                         $scope.showForm = false;
                     } else if (data.status === "WRONG_CAPTCHA") {
                         $scope.message ="Captcha was wrong. Please try again";

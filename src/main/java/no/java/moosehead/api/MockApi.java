@@ -32,7 +32,7 @@ public class MockApi implements  ParticipantApi {
 
     @Override
     public ParticipantActionResult reservation(String workshopid, String email, String fullname) {
-        if (!"1".equals(workshopid) || !"4".equals(workshopid)) {
+        if (!("1".equals(workshopid) || "4".equals(workshopid))) {
             return ParticipantActionResult.error("Workshop not open");
         }
         Set<String> myWorkshops = participants.get(email);
