@@ -10,6 +10,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +86,9 @@ public class DataServlet extends HttpServlet {
         String fullname = readField(jsonInput,"fullname");
         String capthca = readField(jsonInput,"captcha");
 
-        if (capthca == null || !capthca.equals(req.getSession().getAttribute("captchaAnswer"))) {
+        HttpSession session = req.getSession();
+        Object captchaAnswer = session.getAttribute("captchaAnswer");
+        if (capthca == null || !capthca.equals(captchaAnswer)) {
             return Optional.of(ParticipantActionResult.wrongCaptcha());
         }
 
