@@ -14,4 +14,12 @@
         <url-pattern>data/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>capthcaServlet</servlet-name>
+        <servlet-class>no.java.moosehead.web.CaptchaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>capthcaServlet</servlet-name>
+        <url-pattern>captcha/*</url-pattern>
+    </servlet-mapping>
 </web-app>

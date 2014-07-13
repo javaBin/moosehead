@@ -79,10 +79,15 @@ public class DataServlet extends HttpServlet {
         }
     }
 
-    private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+    private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String workshopid = readField(jsonInput, "workshopid");
         String email = readField(jsonInput,"email");
         String fullname = readField(jsonInput,"fullname");
+        String capthca = readField(jsonInput,"captcha");
+
+        if (capthca == null || !capthca.equals(req.getSession().getAttribute("captchaAnswer"))) {
+            return Optional.of(ParticipantActionResult.wrongCaptcha());
+        }
 
         if (workshopid == null || email == null || fullname == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
@@ -129,7 +134,7 @@ public class DataServlet extends HttpServlet {
         if ("/cancel".equals(req.getPathInfo())) {
             apiResult = doCancelation(jsonInput, resp);
         } else if ("/reserve".equals(req.getPathInfo())) {
-            apiResult = doReservation(jsonInput, resp);
+            apiResult = doReservation(jsonInput, req, resp);
         } else if ("/confirmEmail".equals(req.getPathInfo())) {
             apiResult = doConfirmEmail(jsonInput, resp);
         } else {

@@ -9,6 +9,7 @@ import org.junit.Test;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ public class DataServletTest {
     public void setUp() throws Exception {
         when(resp.getWriter()).thenReturn(new PrintWriter(jsonContent));
         servlet.setParticipantApi(participantApi);
+
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("captchaAnswer")).thenReturn("123");
+        when(req.getSession()).thenReturn(session);
     }
 
     @Test
@@ -107,8 +112,9 @@ public class DataServletTest {
         reservationJson.put("workshopid", "123");
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth Vader");
+        reservationJson.put("captcha","123");
 
-        when(participantApi.reservation(anyString(),anyString(),anyString())).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.reservation(anyString(), anyString(), anyString())).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
@@ -120,6 +126,28 @@ public class DataServletTest {
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
 
+    }
+
+    @Test
+    public void shouldReturnErrorWhenWrongCaptcha() throws Exception {
+        when(req.getMethod()).thenReturn("POST");
+        when(req.getPathInfo()).thenReturn("/reserve");
+
+        JSONObject reservationJson = new JSONObject();
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth Vader");
+        reservationJson.put("captcha","456");
+
+        mockInputStream(reservationJson.toString());
+
+        servlet.service(req, resp);
+
+        verify(resp).setContentType("text/json");
+        verifyNoMoreInteractions(participantApi);
+
+        JSONObject jsonObject = new JSONObject(jsonContent.toString());
+        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.WRONG_CAPTCHA.name());
     }
 
     @Test
@@ -187,6 +215,7 @@ public class DataServletTest {
         reservationJson.put("workshopid", "123");
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
+        reservationJson.put("captcha", "123");
 
         mockInputStream(reservationJson.toString());
 
