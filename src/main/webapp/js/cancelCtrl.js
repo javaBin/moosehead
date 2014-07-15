@@ -15,12 +15,9 @@ angular.module('mooseheadModule')
             $scope.reloadCaptcha = function() {
                 $scope.captchasrc = "captcha/img?cb=" + Date.now();
             };
-            $scope.register = function() {
+            $scope.cancel = function() {
                 $scope.showMessage = true;
-                if (!$scope.fullname || $scope.fullname == "") {
-                    $scope.message = "Please enter your name";
-                    return;
-                }
+
                 if (!$scope.email || $scope.email == "") {
                     $scope.message = "Please enter a valid email";
                     return;
@@ -29,16 +26,15 @@ angular.module('mooseheadModule')
                 var postData = {
                     workshopid: $scope.workshopid,
                     email: $scope.email,
-                    fullname: $scope.fullname,
                     captcha: $scope.captcha
                 };
                 $http({
                     method: "POST",
-                    url: "data/reserve",
+                    url: "data/cancel",
                     data: postData
                 }).success(function(data) {
                     if (data.status === "OK") {
-                        $scope.message = "Registration registered. You will receive an email to confirm your registration";
+                        $scope.message = "Cancellation registered. You will receive an email to confirm your cancellation";
                         $scope.showForm = false;
                     } else if (data.status === "WRONG_CAPTCHA") {
                         $scope.message ="Captcha was wrong. Please try again";
