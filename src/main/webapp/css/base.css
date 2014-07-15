@@ -11,17 +11,18 @@ body {
 }
 
 .header {
-	width: 60em;
+	width: 55em;
 	margin: 0 auto;
 	padding: 1em 3em 2em 1em;
 	position: relative;
 }
 
 .wrapper {
-	width: 60em;
+	width: 55em;
 	margin: 0 auto;
 	padding: 2em;
 	background: #fff;
+	position: relative;
 }
 
 h1 {
@@ -45,7 +46,7 @@ p.errormessage {
 
 .headerlink {
 	position: absolute;
-	top: 1.7em;
+	top: 1.9em;
 	right: .5em;
 	font-size: 1.5em;
 	color: #fff;
@@ -68,6 +69,15 @@ p.errormessage {
 	background-image: url(../images/javazone.horizontal.light@2x.png);
 	width: 19.444em;
 	height: 4.889em;
+}
+
+.img-figur {
+	background-image: url(../images/figur.png);
+	width: 29.102em;
+	height: 37.179em;
+	position: absolute;
+	bottom: -4em;
+	right: -9em;
 }
 
 form {
@@ -119,11 +129,12 @@ input {
 
 
 .button { 
-	font-size: 1.2em;
+	font-size: 1em;
 	color:#fff !important; 
-	padding: .5em 1em; 
+	padding: .8em 1.5em; 
 	text-decoration: none;
 	border: none;
+	text-transform: uppercase;
 
 background-color: #a10035;
 background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(161, 0, 53)), to(rgb(146, 0, 38)));
@@ -169,4 +180,15 @@ filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr=
 .button i { 
 	display: inline-block; 
 	margin: 0 .3em 0 0; 
+}
+
+
+
+
+@media only screen and (max-width: 1350px) {
+    body { font-size:16px; }
+}
+
+@media only screen and (max-width: 1200px) {
+    body { font-size:14px; }
 }
