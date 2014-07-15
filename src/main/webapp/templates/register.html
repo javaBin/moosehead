@@ -1,11 +1,32 @@
 <div ng-controller="RegisterCtrl">
-    <h1>Register for workshop "{{workshop.title}}"</h1>
+    <h1>Registration for workshop "{{workshop.title}}"</h1>
+
+    <p class="info"><strong>Enter your information below</strong> to register for the workshop "{{workshop.title}}". We'll send you a confirmation e-mail, and you'll have to press the link in this e-mail to confirm (you probably know the drill…)</p>
+    <p class="info">After you have confirmed your e-mail address, you will be assigned a spot immediately. If the workshop is full, you'll get a spot at the waiting list. If any spots becomes availiable, you'll get an e-mail telling you about this.</p>
+
+    <p class="errormessage" ng-show="showMessage">{{message}}</p>
+
     <form ng-show="showForm">
-        <p><input type="text" placeholder="Your name" ng-model="fullname"/></p>
-        <p><input type="email" placeholder="Your email" ng-model="email"/></p>
-        <p><img ng-src="{{captchasrc}}"/><button ng-click="reloadCaptcha()">Reload captcha</button></p>
-        <p><input type="text" ng-model="captcha" placeholder="Type the text above"/></p>
-        <p><button ng-click="register()">Register</button></p>
+        <p>
+        	<!-- <label for="name">Full name</label> -->
+        	<input type="text" placeholder="Your name" ng-model="fullname" id="name"/>
+        </p>
+        <p>
+        	<!-- <label for="email">E-mail</label> -->
+        	<input type="email" placeholder="Your email (we'll newer spam you!)" ng-model="email" id="email"/>
+        </p>
+        <p>
+        	<!-- <label for="captcha">Are you a robot?</label> -->
+        	<input type="text" ng-model="captcha" placeholder="Type the captcha text you see below" id="captcha"/>
+        </p>
+        <p>
+        	<img ng-src="{{captchasrc}}"/>
+        	<br>
+        	<button ng-click="reloadCaptcha()">Reload captcha</button>
+        </p>
+
+        <p>
+        	<button ng-click="register()" class="button">Register for Workshop</button>
+        </p>
     </form>
-    <p ng-show="showMessage">{{message}}</p>
 </div>
