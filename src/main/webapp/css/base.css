@@ -1,0 +1,52 @@
+body {
+	font-size: 18px;
+	background: #101010;
+	font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+}
+
+.header {
+	width: 60em;
+	margin: 0 auto;
+	padding: 1em 3em 2em 1em;
+	position: relative;
+}
+
+.wrapper {
+	width: 60em;
+	margin: 0 auto;
+	padding: 2em;
+	background: #fff;
+}
+
+h1 {
+	font-weight: inherit;
+}
+
+.headerlink {
+	position: absolute;
+	top: 1.7em;
+	right: .5em;
+	font-size: 1.5em;
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 1px solid #555;
+}
+
+.img {
+	background-size: 100% 100%;
+	display: inline-block;
+	text-indent: -999em;
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 128px;
+	height: 128px;
+	position: relative;
+}
+
+.img-logo {
+	background-image: url(../images/javazone.horizontal.light@2x.png);
+	width: 19.444em;
+	height: 4.889em;
+}
