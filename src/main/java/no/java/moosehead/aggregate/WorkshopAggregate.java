@@ -3,6 +3,7 @@ package no.java.moosehead.aggregate;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
+import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -89,4 +90,15 @@ public class WorkshopAggregate implements EventSubscription {
                 .findFirst();
     }
 
+    public EmailConfirmedByUser createEvent(ConfirmEmailCommand confirmEmailCommand) {
+        Optional<AbstractEvent> event = eventArrayList
+                .stream()
+                .filter(ae -> ae.getRevisionId() == confirmEmailCommand.getReservationRevisionId())
+                .findFirst();
+        if (!(event.isPresent() && (event.get() instanceof ReservationAddedByUser))) {
+            throw new NoReservationFoundException("Could not find reservation with id " + confirmEmailCommand.getReservationRevisionId());
+        }
+        ReservationAddedByUser reservation = (ReservationAddedByUser) event.get();
+        return new EmailConfirmedByUser(reservation.getEmail());
+    }
 }

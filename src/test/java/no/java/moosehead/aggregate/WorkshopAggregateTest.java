@@ -3,6 +3,7 @@ package no.java.moosehead.aggregate;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
+import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
@@ -90,12 +91,33 @@ public class WorkshopAggregateTest {
         assertThat(rcbu).isNotNull();
     }
 
+   
+
     @Test(expected = NoReservationFoundException.class)
     public void shouldNotBeAbleToCancelNonExsistingReservation() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
 
         CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1);
         workshopAggregate.createEvent(cancel);
+
+    }
+
+    @Test
+    public void shouldConfirmEmail() throws Exception {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        eventstore.addEvent(new ReservationAddedByUser(System.currentTimeMillis(),2L,"bal@gmail.com","Darth Vader",w1));
+
+        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(2L);
+
+        EmailConfirmedByUser emailConfirmedByUser = workshopAggregate.createEvent(confirmEmailCommand);
+
+        assertThat(emailConfirmedByUser.getEmail()).isEqualToIgnoringCase("bal@gmail.com");
+    }
+
+    @Test(expected = NoReservationFoundException.class)
+    public void shouldNotConfirmWhenReservationDoesNotExist() throws Exception {
+        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(2L);
+        workshopAggregate.createEvent(confirmEmailCommand);
 
     }
 }
