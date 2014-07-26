@@ -27,6 +27,10 @@ public class Eventstore {
         playbackEventsToSubscribers();
     }
 
+    public Eventstore() {
+        playbackEventsToSubscribers();
+    }
+
     private void playbackEventsToSubscribers() {
         for (AbstractEvent event: eventstorage) {
             for (EventSubscription eventSubscribers : this.eventSubscribers) {
@@ -40,8 +44,9 @@ public class Eventstore {
 
 
     public void addEvent(AbstractEvent event) {
-        if (! (event instanceof TransientEvent))
+        if ((!(event instanceof TransientEvent)) && fileHandler != null) {
             fileHandler.writeToFile(classSerializer.asString(event));
+        }
 
         eventstorage.add(event);
         for (EventSubscription eventSubscribers : this.eventSubscribers) {
@@ -57,8 +62,8 @@ public class Eventstore {
         return eventSubscribers.size();
     }
 
-    public void addEventSubscriber(WorkshopAggregate workshopAggregate) {
-        eventSubscribers.add(workshopAggregate);
+    public void addEventSubscriber(EventSubscription eventSubscriber) {
+        eventSubscribers.add(eventSubscriber);
     }
 
     /**

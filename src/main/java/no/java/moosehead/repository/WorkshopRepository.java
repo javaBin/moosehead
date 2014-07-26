@@ -46,7 +46,7 @@ public class WorkshopRepository {
     }
 
     private List<Item> readItems() {
-        URL url = null;
+        URL url;
         try {
             url = new URL(Configuration.emsEventLocation());
         } catch (MalformedURLException e) {
