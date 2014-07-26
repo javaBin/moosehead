@@ -9,7 +9,7 @@ public class MockApi implements  ParticipantApi {
     private static Map<String,Set<String>> participants = initMap();
     private static Map<String,WorkshopInfo> workshops = initWorkshops();
 
-    private static Map<String,WorkshopInfo> initWorkshops() {
+    public static Map<String,WorkshopInfo> initWorkshops() {
         LoremIpsum lips = new LoremIpsum();
         Map<String, WorkshopInfo> result = new HashMap<>();
 
