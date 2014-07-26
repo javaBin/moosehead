@@ -1,6 +1,7 @@
 package no.java.moosehead.web;
 
 import no.java.moosehead.api.*;
+import no.java.moosehead.controller.SystemSetup;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ public class DataServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        participantApi = new MockApi();
+        participantApi = SystemSetup.workshopController();
     }
 
     @Override

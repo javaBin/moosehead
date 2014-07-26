@@ -17,6 +17,10 @@ public class WorkshopAggregate implements EventSubscription {
     private long nextRevisionId=0;
     private ArrayList<AbstractEvent> eventArrayList = new ArrayList<>();
 
+    private long nextRevision() {
+        return nextRevisionId++;
+    }
+
     @Override
     public void eventAdded(AbstractEvent event) {
         eventArrayList.add(event);
@@ -25,8 +29,7 @@ public class WorkshopAggregate implements EventSubscription {
     public WorkshopAddedByAdmin createEvent(AddWorkshopCommand addWorkshopCommand){
         Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
         if (!workshop.isPresent()) {
-            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevisionId, addWorkshopCommand.getWorkshopId(), 0);
-            nextRevisionId++;
+            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), 0);
             return event;
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
@@ -36,7 +39,7 @@ public class WorkshopAggregate implements EventSubscription {
     public ReservationAddedByUser createEvent(AddReservationCommand addReservationCommand) {
         Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addReservationCommand.getWorkshopId());
         if (workshop.isPresent()) {
-            ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), nextRevisionId, addReservationCommand.getEmail(),
+            ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                     addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
             if (getReservation(reservationAddedByUser).isPresent()) {
                 throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + reservationAddedByUser + "]");
@@ -51,7 +54,7 @@ public class WorkshopAggregate implements EventSubscription {
         if (userWorkshopEvents(cancel.getWorkshopId(),cancel.getEmail()).count() % 2 == 0) {
             throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancel.getEmail(),cancel.getWorkshopId()));
         }
-        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(), nextRevisionId, cancel.getEmail(), cancel.getWorkshopId());
+        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancel.getEmail(), cancel.getWorkshopId());
         return reservationCancelledByUser;
     }
 
@@ -99,6 +102,6 @@ public class WorkshopAggregate implements EventSubscription {
             throw new NoReservationFoundException("Could not find reservation with id " + confirmEmailCommand.getReservationRevisionId());
         }
         ReservationAddedByUser reservation = (ReservationAddedByUser) event.get();
-        return new EmailConfirmedByUser(reservation.getEmail());
+        return new EmailConfirmedByUser(reservation.getEmail(),nextRevision(),System.currentTimeMillis());
     }
 }
