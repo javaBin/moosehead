@@ -81,7 +81,11 @@
             <artifactId>jj-simplecaptcha</artifactId>
             <version>1.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.hamnaberg.rest</groupId>
+            <artifactId>json-collection</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
