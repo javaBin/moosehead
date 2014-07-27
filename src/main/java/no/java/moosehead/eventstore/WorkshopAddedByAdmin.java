@@ -7,6 +7,8 @@ public class WorkshopAddedByAdmin extends AbstractEvent {
     private int numberOfSeats;
 
 
+    public WorkshopAddedByAdmin() {
+    }
 
     public WorkshopAddedByAdmin(long systemTimeInMillis, long revisionId, String workshopId, int numberOfSeats) {
         super(systemTimeInMillis, revisionId);

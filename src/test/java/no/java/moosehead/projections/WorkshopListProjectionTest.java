@@ -1,6 +1,7 @@
 package no.java.moosehead.projections;
 
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
@@ -17,6 +18,20 @@ import static org.mockito.Mockito.when;
 public class WorkshopListProjectionTest {
     @Test
     public void shouldReturnAddedWorkshop() throws Exception {
+        WorkshopListProjection workshopListProjection = setupOneWorkshop();
+
+        List<Workshop> workshops = workshopListProjection.getWorkshops();
+
+        assertThat(workshops).hasSize(1);
+
+        WorkshopData workshopData = workshops.get(0).getWorkshopData();
+
+        assertThat(workshopData.getId()).isEqualTo("one");
+
+
+    }
+
+    private WorkshopListProjection setupOneWorkshop() {
         SystemSetup systemSetup = mock(SystemSetup.class);
         WorkshopRepository workshopRepository = mock(WorkshopRepository.class);
         Optional<WorkshopData> optworkshop = Optional.of(new WorkshopData("one","title","description"));
@@ -28,15 +43,18 @@ public class WorkshopListProjectionTest {
 
         WorkshopListProjection workshopListProjection = new WorkshopListProjection();
         workshopListProjection.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L,"one",30));
+        return workshopListProjection;
+    }
 
-        List<Workshop> workshops = workshopListProjection.getWorkshops();
+    @Test
+    public void shouldShowParticipants() throws Exception {
+        WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        assertThat(workshops).hasSize(1);
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one"));
 
-        WorkshopData workshopData = workshops.get(0).getWorkshopData();
-
-        assertThat(workshopData).isEqualTo(optworkshop.get());
-
+        List<Participant> participants = workshopListProjection.getWorkshops().get(0).getParticipants();
+        assertThat(participants).hasSize(1);
+        assertThat(participants.get(0).getEmail()).isEqualToIgnoringCase("a@a.com");
 
     }
 }
