@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class WorkshopController implements ParticipantApi {
     @Override
     public List<WorkshopInfo> workshops() {
-        List<Workshop> workshops = SystemSetup.workshopListProjection().getWorkshops();
+        List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
         return workshops.stream()
                 .map(ws -> ws.getWorkshopData())
                 .map(wd -> new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), WorkshopStatus.FREE_SPOTS))

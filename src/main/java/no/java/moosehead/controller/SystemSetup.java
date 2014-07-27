@@ -11,11 +11,7 @@ import no.java.moosehead.projections.WorkshopListProjection;
 import java.util.List;
 
 public class SystemSetup {
-    private static final SystemSetup setup = new SystemSetup();
-
-    static {
-        setup.createAllWorkshops();
-    }
+    private static SystemSetup setup;
 
     private Eventstore eventstore;
     private WorkshopRepository workshopRepository;
@@ -45,19 +41,35 @@ public class SystemSetup {
     }
 
 
-    public static Eventstore eventstore() {
+    private static void ensureInit() {
+        if (setup == null) {
+            setup = new SystemSetup();
+            setup.createAllWorkshops();
+        }
+    }
+
+    public static SystemSetup instance() {
+        ensureInit();
+        return setup;
+    }
+
+    public static void setSetup(SystemSetup setup) {
+        SystemSetup.setup = setup;
+    }
+
+    public Eventstore eventstore() {
         return setup.eventstore;
     }
 
-    public static WorkshopRepository workshopRepository() {
+    public WorkshopRepository workshopRepository() {
         return setup.workshopRepository;
     }
 
-    public static WorkshopController workshopController() {
+    public WorkshopController workshopController() {
         return setup.workshopController;
     }
 
-    public static WorkshopListProjection workshopListProjection() {
+    public WorkshopListProjection workshopListProjection() {
         return setup.workshopListProjection;
     }
 }

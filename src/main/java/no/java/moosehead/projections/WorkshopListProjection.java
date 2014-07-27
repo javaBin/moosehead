@@ -16,7 +16,7 @@ public class WorkshopListProjection implements EventSubscription {
     public void eventAdded(AbstractEvent event) {
         if (event instanceof WorkshopAddedByAdmin) {
             WorkshopAddedByAdmin workshopAddedByAdmin = (WorkshopAddedByAdmin) event;
-            WorkshopData workshopData = SystemSetup.workshopRepository().workshopById(workshopAddedByAdmin.getWorkshopId()).get();
+            WorkshopData workshopData = SystemSetup.instance().workshopRepository().workshopById(workshopAddedByAdmin.getWorkshopId()).get();
             workshops.add(new Workshop(workshopData));
         }
     }

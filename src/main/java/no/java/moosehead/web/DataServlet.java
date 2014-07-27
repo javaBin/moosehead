@@ -23,7 +23,7 @@ public class DataServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        participantApi = SystemSetup.workshopController();
+        participantApi = SystemSetup.instance().workshopController();
     }
 
     @Override

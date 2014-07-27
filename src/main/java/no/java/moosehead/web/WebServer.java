@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import no.java.moosehead.controller.SystemSetup;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ShutdownHandler;
@@ -41,6 +42,7 @@ public class WebServer {
             handlerList.addHandler(new WebAppContext("src/main/webapp", "/"));
             server.setHandler(handlerList);
         }
+        SystemSetup.instance().eventstore();
         server.start();
         System.out.println(server.getURI());
     }
