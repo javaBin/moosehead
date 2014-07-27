@@ -1,6 +1,10 @@
 package no.java.moosehead.controller;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.WorkshopInfo;
+import no.java.moosehead.commands.AddReservationCommand;
+import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.repository.WorkshopData;
@@ -12,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,5 +41,21 @@ public class WorkshopControllerTest {
         assertThat(workshopInfo.getId()).isEqualTo("one");
         assertThat(workshopInfo.getTitle()).isEqualTo("title");
         assertThat(workshopInfo.getDescription()).isEqualTo("description");
+    }
+
+    @Test
+    @Ignore
+    public void shouldHandleRegistration() throws Exception {
+        SystemSetup systemSetup = mock(SystemSetup.class);
+        WorkshopAggregate workshopAggregate = mock(WorkshopAggregate.class);
+        when(systemSetup.workshopAggregate()).thenReturn(workshopAggregate);
+
+        WorkshopController workshopController = new WorkshopController();
+
+        workshopController.reservation("one","darth@deathstar.com","Darth Vader");
+
+        ReservationAddedByUser rad = null;
+        when(workshopAggregate.createEvent(any(AddReservationCommand.class))).thenReturn(rad);
+
     }
 }

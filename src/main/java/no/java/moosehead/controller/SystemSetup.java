@@ -58,11 +58,11 @@ public class SystemSetup {
     }
 
     public Eventstore eventstore() {
-        return setup.eventstore;
+        return eventstore;
     }
 
     public WorkshopRepository workshopRepository() {
-        return setup.workshopRepository;
+        return workshopRepository;
     }
 
     public WorkshopController workshopController() {
@@ -71,5 +71,9 @@ public class SystemSetup {
 
     public WorkshopListProjection workshopListProjection() {
         return setup.workshopListProjection;
+    }
+
+    public WorkshopAggregate workshopAggregate() {
+        return workshopAggregate;
     }
 }
