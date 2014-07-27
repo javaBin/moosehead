@@ -1,5 +1,9 @@
 package no.java.moosehead.web;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 public class Configuration {
     public static void init(String filename) {
 
@@ -15,5 +19,10 @@ public class Configuration {
 
     public static int placesPerWorkshop() {
         return 30;
+    }
+
+    public static OffsetDateTime openTime() {
+        LocalDateTime now = LocalDateTime.now();
+        return now.atOffset(ZoneOffset.ofHours(2)).minusDays(2);
     }
 }

@@ -2,7 +2,10 @@ package no.java.moosehead.controller;
 
 import no.java.moosehead.api.*;
 import no.java.moosehead.projections.Workshop;
+import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.web.Configuration;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,10 +15,28 @@ public class WorkshopController implements ParticipantApi {
     public List<WorkshopInfo> workshops() {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
         return workshops.stream()
-                .map(ws -> ws.getWorkshopData())
-                .map(wd -> new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), WorkshopStatus.FREE_SPOTS))
+                .map(ws -> {
+                    WorkshopData wd = ws.getWorkshopData();
+                    WorkshopStatus status = computeWorkshopStatus(ws);
+
+                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), status);
+                })
                 .collect(Collectors.toList())
         ;
+    }
+
+    private WorkshopStatus computeWorkshopStatus(Workshop ws) {
+        if (Configuration.openTime().isAfter(OffsetDateTime.now())) {
+            return WorkshopStatus.NOT_OPENED;
+        }
+        int seatsLeft = ws.getParticipants().size() - ws.getNumberOfSeats();
+        if (seatsLeft <= 0) {
+            return WorkshopStatus.FULL;
+        }
+        if (seatsLeft < 5) {
+            return WorkshopStatus.FEW_SPOTS;
+        }
+        return WorkshopStatus.FREE_SPOTS;
     }
 
     @Override

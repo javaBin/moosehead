@@ -2,7 +2,7 @@ package no.java.moosehead.api;
 
 public class ParticipantActionResult {
     public static enum Status {
-        OK,WRONG_CAPTCHA,ERROR;
+        OK,CONFIRM_EMAIL,WAITING_LIST,WRONG_CAPTCHA,ERROR
     }
     private final Status status;
     private final String errormessage;
@@ -22,6 +22,14 @@ public class ParticipantActionResult {
 
     public static ParticipantActionResult wrongCaptcha() {
         return new ParticipantActionResult(Status.WRONG_CAPTCHA,null);
+    }
+
+    public static ParticipantActionResult confirmEmail() {
+        return new ParticipantActionResult(Status.CONFIRM_EMAIL,null);
+    }
+
+    public static ParticipantActionResult waitingList() {
+        return new ParticipantActionResult(Status.CONFIRM_EMAIL,null);
     }
 
 
