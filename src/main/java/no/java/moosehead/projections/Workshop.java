@@ -7,10 +7,12 @@ import java.util.List;
 
 public class Workshop {
     private WorkshopData workshopData;
+    private int numberOfSeats;
     private List<Participant> participants = new ArrayList<>();
 
-    public Workshop(WorkshopData workshopData) {
+    public Workshop(WorkshopData workshopData, int numberOfSeats) {
         this.workshopData = workshopData;
+        this.numberOfSeats = numberOfSeats;
     }
 
 
@@ -24,5 +26,9 @@ public class Workshop {
 
     public void addParticipant(Participant participant) {
         participants.add(participant);
+    }
+
+    public int getNumberOfSeats() {
+        return numberOfSeats;
     }
 }

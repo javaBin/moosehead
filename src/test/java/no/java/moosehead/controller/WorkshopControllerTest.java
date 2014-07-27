@@ -23,7 +23,7 @@ public class WorkshopControllerTest {
         WorkshopController workshopController = new WorkshopController();
 
         when(systemSetup.workshopListProjection()).thenReturn(workshopListProjection);
-        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one","title","description"))));
+        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one","title","description"),30)));
 
         SystemSetup.setSetup(systemSetup);
 

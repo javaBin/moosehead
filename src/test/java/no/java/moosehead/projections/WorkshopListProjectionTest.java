@@ -27,6 +27,7 @@ public class WorkshopListProjectionTest {
         WorkshopData workshopData = workshops.get(0).getWorkshopData();
 
         assertThat(workshopData.getId()).isEqualTo("one");
+        assertThat(workshops.get(0).getNumberOfSeats()).isEqualTo(30);
 
 
     }
