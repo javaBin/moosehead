@@ -31,4 +31,12 @@ public class Workshop {
     public int getNumberOfSeats() {
         return numberOfSeats;
     }
+
+    public void removeParticipant(String email) {
+        int pos = participants.indexOf(new Participant(email, null));
+        if (pos == -1) {
+            throw new IllegalArgumentException("Participant not found " + email);
+        }
+        participants.remove(pos);
+    }
 }

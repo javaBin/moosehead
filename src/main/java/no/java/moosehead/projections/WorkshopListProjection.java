@@ -2,6 +2,7 @@ package no.java.moosehead.projections;
 
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -22,14 +23,24 @@ public class WorkshopListProjection implements EventSubscription {
             workshops.add(new Workshop(workshopData,workshopAddedByAdmin.getNumberOfSeats()));
         } else if (event instanceof ReservationAddedByUser) {
             ReservationAddedByUser reservationAddedByUser = (ReservationAddedByUser) event;
-            Optional<Workshop> optWs = workshops.stream().filter(ws -> ws.getWorkshopData().getId().equals(reservationAddedByUser.getWorkshopId())).findFirst();
-            if (!optWs.isPresent()) {
-                throw new IllegalArgumentException("No workshop with id " + reservationAddedByUser.getWorkshopId());
-            }
-            Workshop workshop = optWs.get();
+            Workshop workshop = findWorkshop(reservationAddedByUser.getWorkshopId());
             Participant participant = new Participant(reservationAddedByUser.getEmail(), reservationAddedByUser.getFullname());
             workshop.addParticipant(participant);
+        } else if (event instanceof ReservationCancelledByUser) {
+            ReservationCancelledByUser reservationCancelledByUser = (ReservationCancelledByUser) event;
+            Workshop workshop = findWorkshop(reservationCancelledByUser.getWorkshopId());
+            workshop.removeParticipant(reservationCancelledByUser.getEmail());
         }
+    }
+
+    private Workshop findWorkshop(String workshopId) {
+        Optional<Workshop> optWs = workshops.stream().filter(ws -> {
+            return ws.getWorkshopData().getId().equals(workshopId);
+        }).findFirst();
+        if (!optWs.isPresent()) {
+            throw new IllegalArgumentException("No workshop with id " + workshopId);
+        }
+        return optWs.get();
     }
 
     public List<Workshop> getWorkshops() {
