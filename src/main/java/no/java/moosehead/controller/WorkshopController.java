@@ -1,5 +1,6 @@
 package no.java.moosehead.controller;
 
+import no.java.moosehead.MoosheadException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
@@ -44,7 +45,13 @@ public class WorkshopController implements ParticipantApi {
     @Override
     public ParticipantActionResult reservation(String workshopid, String email, String fullname) {
         AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid);
-        ReservationAddedByUser event = SystemSetup.instance().workshopAggregate().createEvent(arc);
+        ReservationAddedByUser event;
+
+        try {
+            event = SystemSetup.instance().workshopAggregate().createEvent(arc);
+        } catch (MoosheadException e) {
+            return ParticipantActionResult.error(e.getMessage());
+        }
         SystemSetup.instance().eventstore().addEvent(event);
         return ParticipantActionResult.confirmEmail();
     }
