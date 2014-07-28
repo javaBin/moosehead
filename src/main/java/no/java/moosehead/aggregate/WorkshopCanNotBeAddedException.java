@@ -1,6 +1,8 @@
 package no.java.moosehead.aggregate;
 
-public class WorkshopCanNotBeAddedException extends RuntimeException{
+import no.java.moosehead.MoosheadException;
+
+public class WorkshopCanNotBeAddedException extends MoosheadException{
     WorkshopCanNotBeAddedException(String message){
         super(message);
     }
