@@ -1,8 +1,9 @@
 package no.java.moosehead.projections;
 
 public class Participant {
-    private String name;
-    private String email;
+    private final String name;
+    private final String email;
+    private boolean emailConfirmed = false;
 
     public Participant(String email, String name) {
         if (email == null) {
@@ -18,6 +19,14 @@ public class Participant {
 
     public String getEmail() {
         return email;
+    }
+
+    public void confirmEmail() {
+        emailConfirmed = true;
+    }
+
+    public boolean isEmailConfirmed() {
+        return emailConfirmed;
     }
 
     @Override

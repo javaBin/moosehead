@@ -1,6 +1,7 @@
 package no.java.moosehead.projections;
 
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
@@ -30,6 +31,12 @@ public class WorkshopListProjection implements EventSubscription {
             ReservationCancelledByUser reservationCancelledByUser = (ReservationCancelledByUser) event;
             Workshop workshop = findWorkshop(reservationCancelledByUser.getWorkshopId());
             workshop.removeParticipant(reservationCancelledByUser.getEmail());
+        } else if (event instanceof EmailConfirmedByUser) {
+            EmailConfirmedByUser emailConfirmedByUser = (EmailConfirmedByUser) event;
+            workshops.stream()
+                    .flatMap(ws -> ws.getParticipants().stream())
+                    .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
+                    .forEach(participant -> participant.confirmEmail());
         }
     }
 

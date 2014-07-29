@@ -83,7 +83,7 @@ public class WorkshopControllerTest {
     }
 
     @Test
-    public void shouldReturnErrorIfAggregateThroesError() throws Exception {
+    public void shouldReturnErrorIfAggregateThrowsError() throws Exception {
         doThrow(new MoosheadException("This is errormessage")).when(workshopAggregate).createEvent(any(AddReservationCommand.class));
 
         ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader");
