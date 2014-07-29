@@ -10,7 +10,7 @@ public class Configuration {
     }
 
     public static Integer serverPort() {
-        return 8081;
+        return 8088;
     }
 
     public static String emsEventLocation() {

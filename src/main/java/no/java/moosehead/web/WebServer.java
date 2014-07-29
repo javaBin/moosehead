@@ -26,7 +26,7 @@ public class WebServer {
             warFile = args[1];
         }
         Configuration.init(configFilename);
-        new WebServer(getPort(8081),warFile).start();
+        new WebServer(getPort(8088),warFile).start();
     }
 
     private void start() throws Exception {
