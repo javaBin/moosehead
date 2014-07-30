@@ -32,7 +32,7 @@ public class WorkshopController implements ParticipantApi {
         if (Configuration.openTime().isAfter(OffsetDateTime.now())) {
             return WorkshopStatus.NOT_OPENED;
         }
-        int seatsLeft = ws.getParticipants().size() - ws.getNumberOfSeats();
+        int seatsLeft = ws.getNumberOfSeats() - ws.getParticipants().size();
         if (seatsLeft <= 0) {
             return WorkshopStatus.FULL;
         }

@@ -7,6 +7,7 @@ import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
+import no.java.moosehead.web.Configuration;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -29,7 +30,7 @@ public class WorkshopAggregate implements EventSubscription {
     public WorkshopAddedByAdmin createEvent(AddWorkshopCommand addWorkshopCommand){
         Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
         if (!workshop.isPresent()) {
-            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), 0);
+            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), Configuration.placesPerWorkshop());
             return event;
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
