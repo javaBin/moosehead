@@ -84,7 +84,21 @@ public class WorkshopListProjectionTest {
         Participant participant = workshopListProjection.getWorkshops().get(0).getParticipants().get(0);
 
         assertThat(participant.isEmailConfirmed()).isTrue();
+    }
 
+    @Test
+    public void queueShouldBeOrderedAccordingToConfirmTime() throws Exception {
+        WorkshopListProjection workshopListProjection = setupOneWorkshop();
+
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one"));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 3L, "b@a.com", "Darth Maul","one"));
+        workshopListProjection.eventAdded(new EmailConfirmedByUser("b@a.com",System.currentTimeMillis(),4L));
+        workshopListProjection.eventAdded(new EmailConfirmedByUser("a@a.com",System.currentTimeMillis(),5L));
+
+        List<Participant> participants = workshopListProjection.getWorkshops().get(0).getParticipants();
+        assertThat(participants).hasSize(2);
+        assertThat(participants.get(0).getEmail()).isEqualTo("b@a.com");
+        assertThat(participants.get(1).getEmail()).isEqualTo("a@a.com");
 
     }
 }
