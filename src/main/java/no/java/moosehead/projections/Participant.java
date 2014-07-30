@@ -3,15 +3,32 @@ package no.java.moosehead.projections;
 public class Participant {
     private final String name;
     private final String email;
-    private boolean emailConfirmed = false;
+    private boolean emailConfirmed;
+    private Workshop workshop;
 
-    public Participant(String email, String name) {
+
+    private Participant(String email, String fullname, Workshop workshop,boolean emailConfirmed) {
+        this.workshop = workshop;
         if (email == null) {
             throw new NullPointerException("Email can not be null");
         }
-        this.name = name;
+        this.name = fullname;
         this.email = email;
+        this.emailConfirmed = emailConfirmed;
     }
+
+    public static Participant confirmedParticipant(String email, String fullname,Workshop workshop) {
+        return new Participant(email,fullname,workshop,true);
+    }
+
+    public static Participant unconfirmedParticipant(String email, String fullname,Workshop workshop) {
+        return new Participant(email,fullname,workshop,false);
+    }
+
+    public static Participant dummyParticipant(String email) {
+        return new Participant(email,null,null,false);
+    }
+
 
     public String getName() {
         return name;
@@ -23,6 +40,7 @@ public class Participant {
 
     public void confirmEmail() {
         emailConfirmed = true;
+        workshop.moveToConfirmed(this);
     }
 
     public boolean isEmailConfirmed() {

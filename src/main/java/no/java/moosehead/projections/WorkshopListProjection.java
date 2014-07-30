@@ -9,12 +9,12 @@ import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.repository.WorkshopData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class WorkshopListProjection implements EventSubscription {
     public List<Workshop> workshops = new ArrayList<Workshop>();
+    public Set<String> confirmedEmails = new HashSet<>();
+
 
     @Override
     public void eventAdded(AbstractEvent event) {
@@ -25,7 +25,17 @@ public class WorkshopListProjection implements EventSubscription {
         } else if (event instanceof ReservationAddedByUser) {
             ReservationAddedByUser reservationAddedByUser = (ReservationAddedByUser) event;
             Workshop workshop = findWorkshop(reservationAddedByUser.getWorkshopId());
-            Participant participant = new Participant(reservationAddedByUser.getEmail(), reservationAddedByUser.getFullname());
+
+            Optional<String> confirmedPart = confirmedEmails.stream()
+                    .filter(email -> email.equals(reservationAddedByUser.getEmail()))
+                    .findAny();
+
+            Participant participant;
+            if (confirmedPart.isPresent()) {
+                participant = Participant.confirmedParticipant(reservationAddedByUser.getEmail(), reservationAddedByUser.getFullname(), workshop);
+            } else {
+                participant = Participant.unconfirmedParticipant(reservationAddedByUser.getEmail(), reservationAddedByUser.getFullname(), workshop);
+            }
             workshop.addParticipant(participant);
         } else if (event instanceof ReservationCancelledByUser) {
             ReservationCancelledByUser reservationCancelledByUser = (ReservationCancelledByUser) event;
@@ -37,6 +47,7 @@ public class WorkshopListProjection implements EventSubscription {
                     .flatMap(ws -> ws.getParticipants().stream())
                     .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
                     .forEach(participant -> participant.confirmEmail());
+            confirmedEmails.add(emailConfirmedByUser.getEmail());
         }
     }
 
