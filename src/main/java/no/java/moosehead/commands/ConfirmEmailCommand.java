@@ -10,4 +10,9 @@ public class ConfirmEmailCommand {
     public long getReservationRevisionId() {
         return reservationRevisionId;
     }
+
+    @Override
+    public String toString() {
+        return "Confirm email command for " + reservationRevisionId;
+    }
 }
