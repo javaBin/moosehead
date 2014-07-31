@@ -45,6 +45,8 @@ public class DataServlet extends HttpServlet {
             try {
                 jsonObject.put("workshopid", res.getWorkshopid());
                 jsonObject.put("email", res.getEmail());
+                jsonObject.put("confirmed", res.isConfirmed());
+                jsonObject.put("workshopname",res.getWorkshopname());
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }

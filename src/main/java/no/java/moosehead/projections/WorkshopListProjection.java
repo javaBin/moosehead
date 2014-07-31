@@ -10,6 +10,7 @@ import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.repository.WorkshopData;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WorkshopListProjection implements EventSubscription {
     public List<Workshop> workshops = new ArrayList<Workshop>();
@@ -72,6 +73,12 @@ public class WorkshopListProjection implements EventSubscription {
                 .flatMap(ws -> ws.getParticipants().stream())
                 .filter(pa -> pa.getReservationEventRevisionId() == reservationid)
                 .findAny();
+    }
+    public List<Participant> findAllReservations(String email) {
+        return workshops.stream()
+                .flatMap(ws -> ws.getParticipants().stream())
+                .filter(pa -> pa.getEmail().equals(email))
+                .collect(Collectors.toList());
     }
 }
 

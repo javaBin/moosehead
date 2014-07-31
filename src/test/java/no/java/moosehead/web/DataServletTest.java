@@ -75,8 +75,8 @@ public class DataServletTest {
         when(req.getParameter("email")).thenReturn("a@a.com");
 
         when(participantApi.myReservations(anyString())).thenReturn(Arrays.asList(
-           new ParticipantReservation("1","a@a.com"),
-           new ParticipantReservation("2","a@a.com")
+           new ParticipantReservation("1","a@a.com","One",true),
+           new ParticipantReservation("2","a@a.com","Two",true)
         ));
 
         servlet.service(req,resp);

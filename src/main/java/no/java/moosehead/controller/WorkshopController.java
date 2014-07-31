@@ -9,6 +9,7 @@ import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.web.Configuration;
 
 import java.time.OffsetDateTime;
@@ -99,6 +100,15 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public List<ParticipantReservation> myReservations(String email) {
-        return new ArrayList<>();
+        List<Participant> allReservations = SystemSetup.instance().workshopListProjection().findAllReservations(email);
+        WorkshopRepository workshopRepository = SystemSetup.instance().workshopRepository();
+        return allReservations.stream()
+                .map(pa -> {
+                    Optional<WorkshopData> workshopDataOptional = workshopRepository.workshopById(pa.getWorkshopId());
+                    String name = workshopDataOptional.map(wd -> wd.getTitle()).orElse("xxx");
+
+                    return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, pa.isEmailConfirmed());
+                })
+                .collect(Collectors.toList());
     }
 }
