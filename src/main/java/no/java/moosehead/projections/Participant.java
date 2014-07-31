@@ -59,6 +59,10 @@ public class Participant {
         return true;
     }
 
+    public String getWorkshopId() {
+        return (workshop != null && workshop.getWorkshopData().getId() != null) ? workshop.getWorkshopData().getId() : null;
+    }
+
     @Override
     public int hashCode() {
         return email.hashCode();

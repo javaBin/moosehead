@@ -3,7 +3,10 @@ package no.java.moosehead.controller;
 import no.java.moosehead.MoosheadException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
+import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
+import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.web.Configuration;
@@ -11,6 +14,7 @@ import no.java.moosehead.web.Configuration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WorkshopController implements ParticipantApi {
@@ -61,11 +65,18 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult cancellation(String reservationId) {
+        long id = Long.parseLong(reservationId);
+        Optional<Participant> optByReservationId = SystemSetup.instance().workshopListProjection().findByReservationId(id);
+        Participant participant = optByReservationId.get();
+        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId());
+        ReservationCancelledByUser event = SystemSetup.instance().workshopAggregate().createEvent(cancelReservationCommand);
+        SystemSetup.instance().eventstore().addEvent(event);
         return ParticipantActionResult.ok();
     }
 
     @Override
     public ParticipantActionResult confirmEmail(String token) {
+
         return ParticipantActionResult.ok();
     }
 

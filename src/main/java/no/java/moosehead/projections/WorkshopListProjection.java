@@ -68,5 +68,9 @@ public class WorkshopListProjection implements EventSubscription {
     public List<Workshop> getWorkshops() {
         return new ArrayList<Workshop>(workshops);
     }
+
+    public Optional<Participant> findByReservationId(long reservationid) {
+        return Optional.empty();
+    }
 }
 

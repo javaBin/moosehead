@@ -6,8 +6,11 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AddReservationCommand;
+import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.repository.WorkshopData;
@@ -15,10 +18,12 @@ import org.fest.assertions.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -71,7 +76,8 @@ public class WorkshopControllerTest {
     public void shouldHandleRegistration() throws Exception {
 
         ReservationAddedByUser rad = new ReservationAddedByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","Darth Vader","one");
-        when(workshopAggregate.createEvent(any(AddReservationCommand.class))).thenReturn(rad);
+        ArgumentCaptor<AddReservationCommand> resCmndCapture = ArgumentCaptor.forClass(AddReservationCommand.class);
+        when(workshopAggregate.createEvent(resCmndCapture.capture())).thenReturn(rad);
 
         when(workshopListProjection.isEmailConfirmed("darth@deathstar.com")).thenReturn(false);
 
@@ -80,7 +86,12 @@ public class WorkshopControllerTest {
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.CONFIRM_EMAIL);
 
         verify(eventstore).addEvent(rad);
+        verify(workshopAggregate).createEvent(any(AddReservationCommand.class));
+        AddReservationCommand value = resCmndCapture.getValue();
 
+        assertThat(value.getEmail()).isEqualTo("darth@deathstar.com");
+        assertThat(value.getFullname()).isEqualTo("Darth Vader");
+        assertThat(value.getWorkshopId()).isEqualTo("one");
     }
 
     @Test
@@ -91,6 +102,33 @@ public class WorkshopControllerTest {
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");
+    }
+
+    @Test
+    public void shouldHandleCancellation() throws Exception {
+        ArgumentCaptor<CancelReservationCommand> cancelReservationCommandArgumentCaptor = ArgumentCaptor.forClass(CancelReservationCommand.class);
+
+        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","one");
+        when(workshopAggregate.createEvent(cancelReservationCommandArgumentCaptor.capture())).thenReturn(reservationCancelledByUser);
+
+        Participant participant = mock(Participant.class);
+        when(participant.getEmail()).thenReturn("darth@deathstar.com");
+        when(participant.getWorkshopId()).thenReturn("one");
+
+        when(workshopListProjection.findByReservationId(2456L)).thenReturn(Optional.of(participant));
+
+        ParticipantActionResult result = workshopController.cancellation("2456");
+
+        assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.OK);
+
+        verify(workshopAggregate).createEvent(any(CancelReservationCommand.class));
+
+        CancelReservationCommand cancelReservationCommand = cancelReservationCommandArgumentCaptor.getValue();
+
+        assertThat(cancelReservationCommand.getEmail()).isEqualTo("darth@deathstar.com");
+        assertThat(cancelReservationCommand.getWorkshopId()).isEqualTo("one");
 
     }
+
+    
 }
