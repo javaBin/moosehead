@@ -130,5 +130,41 @@ public class WorkshopControllerTest {
 
     }
 
-    
+    @Test
+    public void shouldHandleCorruptCancelId() throws Exception {
+        ParticipantActionResult participantActionResult = workshopController.cancellation("dfg");
+
+        verify(workshopAggregate, never()).createEvent(any(CancelReservationCommand.class));
+        assertThat(participantActionResult.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
+        assertThat(participantActionResult.getErrormessage()).isEqualTo("Unknown token, reservation not found");
+
+    }
+
+    @Test
+    public void shouldHandleNonExsistingReservationId() throws Exception {
+        when(workshopListProjection.findByReservationId(anyLong())).thenReturn(Optional.empty());
+
+        ParticipantActionResult participantActionResult = workshopController.cancellation("123");
+
+        verify(workshopAggregate, never()).createEvent(any(CancelReservationCommand.class));
+        assertThat(participantActionResult.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
+        assertThat(participantActionResult.getErrormessage()).isEqualTo("Unknown token, reservation not found");
+    }
+
+    @Test
+    public void shouldHandleErrorFromAggregate() throws Exception {
+        doThrow(new MoosheadException("This is errormessage")).when(workshopAggregate).createEvent(any(CancelReservationCommand.class));
+
+        Participant participant = mock(Participant.class);
+        when(participant.getEmail()).thenReturn("darth@deathstar.com");
+        when(participant.getWorkshopId()).thenReturn("one");
+
+        when(workshopListProjection.findByReservationId(2456L)).thenReturn(Optional.of(participant));
+
+        ParticipantActionResult result = workshopController.cancellation("2456");
+
+        assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
+        assertThat(result.getErrormessage()).isEqualTo("This is errormessage");
+
+    }
 }

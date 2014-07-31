@@ -65,11 +65,26 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult cancellation(String reservationId) {
-        long id = Long.parseLong(reservationId);
+        long id = 0;
+        try {
+            id = Long.parseLong(reservationId);
+        } catch (NumberFormatException e) {
+            return ParticipantActionResult.error("Unknown token, reservation not found");
+        }
         Optional<Participant> optByReservationId = SystemSetup.instance().workshopListProjection().findByReservationId(id);
+
+        if (!optByReservationId.isPresent()) {
+            return ParticipantActionResult.error("Unknown token, reservation not found");
+        }
+
         Participant participant = optByReservationId.get();
         CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId());
-        ReservationCancelledByUser event = SystemSetup.instance().workshopAggregate().createEvent(cancelReservationCommand);
+        ReservationCancelledByUser event;
+        try {
+            event = SystemSetup.instance().workshopAggregate().createEvent(cancelReservationCommand);
+        } catch (MoosheadException e) {
+            return ParticipantActionResult.error(e.getMessage());
+        }
         SystemSetup.instance().eventstore().addEvent(event);
         return ParticipantActionResult.ok();
     }
