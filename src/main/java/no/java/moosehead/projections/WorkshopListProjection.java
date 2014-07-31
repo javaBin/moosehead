@@ -61,6 +61,10 @@ public class WorkshopListProjection implements EventSubscription {
         return optWs.get();
     }
 
+    public boolean isEmailConfirmed(String email) {
+        return confirmedEmails.contains(email);
+    }
+
     public List<Workshop> getWorkshops() {
         return new ArrayList<Workshop>(workshops);
     }

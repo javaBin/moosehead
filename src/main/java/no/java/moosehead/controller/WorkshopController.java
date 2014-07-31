@@ -53,11 +53,15 @@ public class WorkshopController implements ParticipantApi {
             return ParticipantActionResult.error(e.getMessage());
         }
         SystemSetup.instance().eventstore().addEvent(event);
+        if (SystemSetup.instance().workshopListProjection().isEmailConfirmed(event.getEmail())) {
+            return ParticipantActionResult.ok();
+        }
         return ParticipantActionResult.confirmEmail();
     }
 
     @Override
     public ParticipantActionResult confirmEmail(String token) {
+
         return ParticipantActionResult.ok();
     }
 

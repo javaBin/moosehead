@@ -73,6 +73,7 @@ public class WorkshopControllerTest {
         ReservationAddedByUser rad = new ReservationAddedByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","Darth Vader","one");
         when(workshopAggregate.createEvent(any(AddReservationCommand.class))).thenReturn(rad);
 
+        when(workshopListProjection.isEmailConfirmed("darth@deathstar.com")).thenReturn(false);
 
         ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader");
 
