@@ -32,9 +32,9 @@ public class WorkshopListProjection implements EventSubscription {
 
             Participant participant;
             if (confirmedPart.isPresent()) {
-                participant = Participant.confirmedParticipant(reservationAddedByUser.getEmail(), reservationAddedByUser.getFullname(), workshop);
+                participant = Participant.confirmedParticipant(reservationAddedByUser, workshop);
             } else {
-                participant = Participant.unconfirmedParticipant(reservationAddedByUser.getEmail(), reservationAddedByUser.getFullname(), workshop);
+                participant = Participant.unconfirmedParticipant(reservationAddedByUser, workshop);
             }
             workshop.addParticipant(participant);
         } else if (event instanceof ReservationCancelledByUser) {
@@ -52,9 +52,7 @@ public class WorkshopListProjection implements EventSubscription {
     }
 
     private Workshop findWorkshop(String workshopId) {
-        Optional<Workshop> optWs = workshops.stream().filter(ws -> {
-            return ws.getWorkshopData().getId().equals(workshopId);
-        }).findFirst();
+        Optional<Workshop> optWs = workshops.stream().filter(ws -> ws.getWorkshopData().getId().equals(workshopId)).findFirst();
         if (!optWs.isPresent()) {
             throw new IllegalArgumentException("No workshop with id " + workshopId);
         }
@@ -70,7 +68,10 @@ public class WorkshopListProjection implements EventSubscription {
     }
 
     public Optional<Participant> findByReservationId(long reservationid) {
-        return Optional.empty();
+        return workshops.stream()
+                .flatMap(ws -> ws.getParticipants().stream())
+                .filter(pa -> pa.getReservationEventRevisionId() == reservationid)
+                .findAny();
     }
 }
 

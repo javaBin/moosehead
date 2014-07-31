@@ -1,32 +1,36 @@
 package no.java.moosehead.projections;
 
+import no.java.moosehead.eventstore.ReservationAddedByUser;
+
 public class Participant {
     private final String name;
     private final String email;
     private boolean emailConfirmed;
     private Workshop workshop;
+    private long reservationEventRevisionId;
 
 
-    private Participant(String email, String fullname, Workshop workshop,boolean emailConfirmed) {
-        this.workshop = workshop;
+    private Participant(String email, String fullname, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId) {
         if (email == null) {
             throw new NullPointerException("Email can not be null");
         }
+        this.workshop = workshop;
+        this.reservationEventRevisionId = reservationEventRevisionId;
         this.name = fullname;
         this.email = email;
         this.emailConfirmed = emailConfirmed;
     }
 
-    public static Participant confirmedParticipant(String email, String fullname,Workshop workshop) {
-        return new Participant(email,fullname,workshop,true);
+    public static Participant confirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
+        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,true, reservationAddedByUser.getRevisionId());
     }
 
-    public static Participant unconfirmedParticipant(String email, String fullname,Workshop workshop) {
-        return new Participant(email,fullname,workshop,false);
+    public static Participant unconfirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
+        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,false, reservationAddedByUser.getRevisionId());
     }
 
     public static Participant dummyParticipant(String email) {
-        return new Participant(email,null,null,false);
+        return new Participant(email,null,null,false, 0);
     }
 
 
@@ -66,5 +70,9 @@ public class Participant {
     @Override
     public int hashCode() {
         return email.hashCode();
+    }
+
+    public long getReservationEventRevisionId() {
+        return reservationEventRevisionId;
     }
 }
