@@ -60,15 +60,16 @@ public class WorkshopController implements ParticipantApi {
     }
 
     @Override
-    public ParticipantActionResult confirmEmail(String token) {
-
+    public ParticipantActionResult cancellation(String reservationId) {
         return ParticipantActionResult.ok();
     }
 
     @Override
-    public ParticipantActionResult cancellation(String workshopid, String email) {
+    public ParticipantActionResult confirmEmail(String token) {
         return ParticipantActionResult.ok();
     }
+
+
 
     @Override
     public List<ParticipantReservation> myReservations(String email) {

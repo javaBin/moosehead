@@ -103,14 +103,13 @@ public class DataServlet extends HttpServlet {
     }
 
     private Optional<ParticipantActionResult> doCancelation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
-        String workshopid = readField(jsonInput, "workshopid");
-        String email = readField(jsonInput,"email");
+        String token = readField(jsonInput, "token");
 
-        if (workshopid == null || email == null) {
+        if (token == null ) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return Optional.empty();
         }
-        ParticipantActionResult cancel = participantApi.cancellation(workshopid, email);
+        ParticipantActionResult cancel = participantApi.cancellation(token);
 
         return Optional.of(cancel);
     }

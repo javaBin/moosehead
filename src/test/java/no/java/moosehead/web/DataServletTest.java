@@ -156,17 +156,17 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/cancel");
 
         JSONObject reservationJson = new JSONObject();
-        reservationJson.put("workshopid", "123");
+        reservationJson.put("token", "123");
         reservationJson.put("email", "darth@a.com");
 
-        when(participantApi.cancellation(anyString(), anyString())).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.cancellation(anyString())).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).cancellation("123","darth@a.com");
+        verify(participantApi).cancellation("123");
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
