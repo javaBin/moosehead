@@ -1,4 +1,7 @@
 <div ng-controller="CancelCtrl">
     <h1>Cancellation</h1>
-    <p>{{message}}</p>
+    <p ng-show="showButton">
+        <button ng-click="doCancel()" class="button">Cancel your reservation</button>
+    </p>
+    <p ng-show="showMessage">{{message}}</p>
 </div>

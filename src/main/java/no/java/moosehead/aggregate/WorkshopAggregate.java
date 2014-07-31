@@ -52,7 +52,8 @@ public class WorkshopAggregate implements EventSubscription {
     }
 
     public ReservationCancelledByUser createEvent(CancelReservationCommand cancel) {
-        if (userWorkshopEvents(cancel.getWorkshopId(),cancel.getEmail()).count() % 2 == 0) {
+        long count = userWorkshopEvents(cancel.getWorkshopId(), cancel.getEmail()).count();
+        if (count % 2 == 0) {
             throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancel.getEmail(),cancel.getWorkshopId()));
         }
         ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancel.getEmail(), cancel.getWorkshopId());
