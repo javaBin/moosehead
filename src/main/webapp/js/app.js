@@ -14,7 +14,7 @@
                     .when("/register/:workshopid", {
                         templateUrl: 'templates/register.html',
                         controller: 'RegisterCtrl'
-                    }).when("/cancel/:workshopid", {
+                    }).when("/cancel/:token", {
                         templateUrl: 'templates/cancel.html',
                         controller: 'CancelCtrl'
                     })
