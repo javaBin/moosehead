@@ -1,8 +1,8 @@
 <div ng-controller="RegisterCtrl">
     <h1>Registration for workshop "{{workshop.title}}"</h1>
 
-    <p class="info"><strong>Enter your information below</strong> to register for the workshop "{{workshop.title}}". We'll send you a confirmation e-mail, and you'll have to press the link in this e-mail to confirm (you probably know the drill…)</p>
-    <p class="info">After you have confirmed your e-mail address, you will be assigned a spot immediately. If the workshop is full, you'll get a spot at the waiting list. If any spots becomes availiable, you'll get an e-mail telling you about this.</p>
+    <p class="info" ng-show="showForm"><strong>Enter your information below</strong> to register for the workshop "{{workshop.title}}". We'll send you a confirmation e-mail, and you'll have to press the link in this e-mail to confirm (you probably know the drill…)</p>
+    <p class="info" ng-show="showForm">After you have confirmed your e-mail address, you will be assigned a spot immediately. If the workshop is full, you'll get a spot at the waiting list. If any spots becomes availiable, you'll get an e-mail telling you about this.</p>
 
     <p class="errormessage" ng-show="showMessage">{{message}}</p>
 
