@@ -28,11 +28,14 @@ public class DataServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/json");
         if ("/workshopList".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
             printWorkshops(resp);
-        } else {
+        } else if ("/myReservations".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
             printMyReservations(req,resp);
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
 
     }
