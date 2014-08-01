@@ -43,7 +43,7 @@ public class WorkshopAggregate implements EventSubscription {
             ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                     addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
             if (getReservation(reservationAddedByUser).isPresent()) {
-                throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + reservationAddedByUser + "]");
+                throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + reservationAddedByUser.getEmail() + "]");
             }
             return reservationAddedByUser;
         } else {
