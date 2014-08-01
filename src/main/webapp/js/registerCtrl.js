@@ -10,6 +10,19 @@ angular.module('mooseheadModule')
                $scope.workshop = _.find(workshopList,function(w) {
                   return w.id === $scope.workshopid;
                });
+                if (!$scope.workshop) {
+                    $scope.message = "This workshop is unknown";
+                    $scope.showForm = false;
+                    $scope.showMessage = true;
+                } else if ($scope.workshop.status === "NOT_OPENED") {
+                    $scope.message = "Registration has not opened yet. Come back later.";
+                    $scope.showForm = false;
+                    $scope.showMessage = true;
+                } else if ($scope.workshop.status === "CLOSED") {
+                    $scope.message = "Registrations for this workshop is now closed";
+                    $scope.showForm = false;
+                    $scope.showMessage = true;
+                }
             });
 
             $scope.reloadCaptcha = function() {

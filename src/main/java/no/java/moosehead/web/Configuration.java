@@ -37,6 +37,6 @@ public class Configuration {
             return (OffsetDateTime) openTime;
         }
         LocalDateTime now = LocalDateTime.now();
-        return now.atOffset(ZoneOffset.ofHours(2)).plusDays(2);
+        return now.atOffset(ZoneOffset.ofHours(2)).minusDays(2);
     }
 }
