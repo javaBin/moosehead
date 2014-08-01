@@ -106,8 +106,10 @@ public class WorkshopController implements ParticipantApi {
                 .map(pa -> {
                     Optional<WorkshopData> workshopDataOptional = workshopRepository.workshopById(pa.getWorkshopId());
                     String name = workshopDataOptional.map(wd -> wd.getTitle()).orElse("xxx");
-
-                    return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, pa.isEmailConfirmed());
+                    ParticipantReservationStatus status = !pa.isEmailConfirmed() ?
+                            ParticipantReservationStatus.NOT_CONFIRMED :
+                            pa.waitingListNumber() <= 0 ? ParticipantReservationStatus.HAS_SPACE : ParticipantReservationStatus.WAITING_LIST;
+                    return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, status);
                 })
                 .collect(Collectors.toList());
     }

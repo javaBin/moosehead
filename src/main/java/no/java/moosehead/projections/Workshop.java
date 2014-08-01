@@ -61,4 +61,16 @@ public class Workshop {
         notConfirmed.remove(pos);
         confirmed.add(participant);
     }
+
+    public int waitingListNumber(Participant participant) {
+        int pos = confirmed.indexOf(participant);
+        if (pos < 0) {
+            return -1;
+        }
+        int listNumber = pos + 1 - numberOfSeats;
+        if (listNumber < 0) {
+            return 0;
+        }
+        return listNumber;
+    }
 }

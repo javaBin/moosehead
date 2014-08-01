@@ -51,6 +51,11 @@ public class Participant {
         return emailConfirmed;
     }
 
+    public int waitingListNumber() {
+        return workshop.waitingListNumber(this);
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -4,13 +4,13 @@ public class ParticipantReservation {
     private String email;
     private String workshopid;
     private String workshopname;
-    private boolean confirmed;
+    private ParticipantReservationStatus status;
 
-    public ParticipantReservation(String email, String workshopid,String workshopname,boolean confirmed) {
+    public ParticipantReservation(String email, String workshopid,String workshopname,ParticipantReservationStatus status) {
         this.email = email;
         this.workshopid = workshopid;
         this.workshopname = workshopname;
-        this.confirmed = confirmed;
+        this.status = status;
     }
 
     public String getEmail() {
@@ -21,11 +21,12 @@ public class ParticipantReservation {
         return workshopid;
     }
 
-    public boolean isConfirmed() {
-        return confirmed;
-    }
 
     public String getWorkshopname() {
         return workshopname;
+    }
+
+    public ParticipantReservationStatus getStatus() {
+        return status;
     }
 }
