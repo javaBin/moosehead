@@ -4,10 +4,19 @@ import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
+import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
+import no.java.moosehead.web.Configuration;
 import org.junit.*;
+import org.mockito.Mockito;
+
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -24,6 +33,12 @@ public class WorkshopAggregateTest {
         eventstore = new Eventstore(new FileHandler());
         workshopAggregate = new WorkshopAggregate();
         eventstore.addEventSubscriber(workshopAggregate);
+
+        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime opens = now.atOffset(ZoneOffset.ofHours(2)).minusDays(2);
+        Map<String,Object> confdata = new HashMap<>();
+        confdata.put("openTime",opens);
+        Configuration.initData(confdata);
     }
 
     @Test(expected = WorkshopCanNotBeAddedException.class)
@@ -78,6 +93,22 @@ public class WorkshopAggregateTest {
         workshopAggregate.createEvent(cmd2);
     }
 
+    @Test(expected = ReservationCanNotBeAddedException.class)
+    public void youShoudNotBeAllowedToRegisterBeforeRegistartionOpen() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime opens = now.atOffset(ZoneOffset.ofHours(2)).plusDays(2);
+        Map<String,Object> confdata = new HashMap<>();
+        confdata.put("openTime",opens);
+        Configuration.initData(confdata);
+
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1);
+        workshopAggregate.createEvent(cmd);
+
+    }
+
+
+
     @Test
     public void shouldBeAbleToCancelReservation() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
@@ -118,6 +149,12 @@ public class WorkshopAggregateTest {
     public void shouldNotConfirmWhenReservationDoesNotExist() throws Exception {
         ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(2L);
         workshopAggregate.createEvent(confirmEmailCommand);
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Configuration.initData(null);
 
     }
 }

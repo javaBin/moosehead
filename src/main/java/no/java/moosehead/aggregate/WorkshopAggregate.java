@@ -9,6 +9,7 @@ import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.web.Configuration;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -40,6 +41,9 @@ public class WorkshopAggregate implements EventSubscription {
     public ReservationAddedByUser createEvent(AddReservationCommand addReservationCommand) {
         Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addReservationCommand.getWorkshopId());
         if (workshop.isPresent()) {
+            if (OffsetDateTime.now().isBefore(Configuration.openTime())) {
+                throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
+            }
             ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                     addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
             if (getReservation(reservationAddedByUser).isPresent()) {

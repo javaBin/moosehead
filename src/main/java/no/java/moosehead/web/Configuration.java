@@ -3,10 +3,20 @@ package no.java.moosehead.web;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 
 public class Configuration {
+    private static Map<String, Object> confdata;
+
     public static void init(String filename) {
 
+    }
+
+    private Configuration() {
+    }
+
+    public static void initData(Map<String,Object> givenData) {
+        confdata = givenData;
     }
 
     public static Integer serverPort() {
@@ -22,7 +32,11 @@ public class Configuration {
     }
 
     public static OffsetDateTime openTime() {
+        if (confdata != null) {
+            Object openTime = confdata.get("openTime");
+            return (OffsetDateTime) openTime;
+        }
         LocalDateTime now = LocalDateTime.now();
-        return now.atOffset(ZoneOffset.ofHours(2)).minusDays(2);
+        return now.atOffset(ZoneOffset.ofHours(2)).plusDays(2);
     }
 }
