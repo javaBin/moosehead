@@ -1,0 +1,7 @@
+<div ng-controller="ShowMyReservationCtrl">
+    <h1>Reservations registered for {{email}}</h1>
+    <p ng-show="showMessage">{{message}}</p>
+    <ul>
+        <li ng-repeat="reservation in reservations">{{computeText(reservation)}}</li>
+    </ul>
+</div>

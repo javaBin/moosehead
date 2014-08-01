@@ -17,6 +17,9 @@
                     }).when("/cancel/:token", {
                         templateUrl: 'templates/cancel.html',
                         controller: 'CancelCtrl'
+                    }).when("/showMyReservations/:email", {
+                        templateUrl: 'templates/showMyReservations.html',
+                        controller: 'ShowMyReservationCtrl'
                     })
                     ;
         }]);
