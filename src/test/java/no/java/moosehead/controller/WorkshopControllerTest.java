@@ -7,6 +7,8 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
+import no.java.moosehead.commands.ConfirmEmailCommand;
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.core.Eventstore;
@@ -165,6 +167,23 @@ public class WorkshopControllerTest {
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");
+    }
+
+    @Test
+    public void shouldConfirmEmail() throws Exception {
+        ArgumentCaptor<ConfirmEmailCommand> confirmEmailCommandArgumentCaptor = ArgumentCaptor.forClass(ConfirmEmailCommand.class);
+        EmailConfirmedByUser emailConfirmedByUser = new EmailConfirmedByUser("dart@a.com",System.currentTimeMillis(),45L);
+        when(workshopAggregate.createEvent(confirmEmailCommandArgumentCaptor.capture())).thenReturn(emailConfirmedByUser);
+
+        ParticipantActionResult result = workshopController.confirmEmail("123");
+
+        assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.OK);
+        verify(workshopAggregate).createEvent(any(ConfirmEmailCommand.class));
+
+        ConfirmEmailCommand value = confirmEmailCommandArgumentCaptor.getValue();
+        assertThat(value.getReservationRevisionId()).isEqualTo(123L);
+
+        verify(eventstore).addEvent(emailConfirmedByUser);
 
     }
 }

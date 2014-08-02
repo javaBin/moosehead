@@ -4,6 +4,8 @@ import no.java.moosehead.MoosheadException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
+import no.java.moosehead.commands.ConfirmEmailCommand;
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.projections.Participant;
@@ -92,7 +94,10 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult confirmEmail(String token) {
-
+        long id = Long.parseLong(token);
+        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(id);
+        EmailConfirmedByUser emailConfirmedByUser = SystemSetup.instance().workshopAggregate().createEvent(confirmEmailCommand);
+        SystemSetup.instance().eventstore().addEvent(emailConfirmedByUser);
         return ParticipantActionResult.ok();
     }
 
