@@ -28,6 +28,12 @@ public class Configuration {
     }
 
     public static int placesPerWorkshop() {
+        if (confdata != null) {
+            Object placesPerWorkshop = confdata.get("placesPerWorkshop");
+            if (placesPerWorkshop != null) {
+                return (int) placesPerWorkshop;
+            }
+        }
         return 30;
     }
 

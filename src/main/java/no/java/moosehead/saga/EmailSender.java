@@ -1,30 +1,37 @@
 package no.java.moosehead.saga;
 
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.repository.WorkshopRepository;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public interface EmailSender {
-    public void send(EmailType type,String to,Map<String,String> values);
+public abstract class EmailSender {
+    public abstract void send(EmailType type,String to,Map<String,String> values);
 
-    public default void sendEmailConfirmation(String to,String token) {
+    public final void sendEmailConfirmation(String to,String token) {
         Map<String, String> values = new HashMap<>();
         values.put("token",token);
         send(EmailType.CONFIRM_EMAIL,to,values);
     }
 
-    public default void sendReservationConfirmation(String to,String workshopId) {
-        String wstitle = SystemSetup.instance().workshopRepository().workshopById(workshopId).map(ws -> ws.getTitle()).orElse("Unknown");
-        Map<String, String> values = new HashMap<>();
-        values.put("workshop",wstitle);
-        send(EmailType.RESERVATION_CONFIRMED,to,values);
+    public final void sendReservationConfirmation(String to,String workshopId) {
+        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED);
     }
 
-    public default void sendCancellationConfirmation(String to,String workshopId) {
-        String wstitle = SystemSetup.instance().workshopRepository().workshopById(workshopId).map(ws -> ws.getTitle()).orElse("Unknown");
+    private void sendWorkshopInfo(String to, String workshopId, EmailType emailType) {
+        WorkshopRepository workshopRepository = SystemSetup.instance().workshopRepository();
+        String wstitle = workshopRepository != null ? workshopRepository.workshopById(workshopId).map(ws -> ws.getTitle()).orElse("Unknown") : "Unknown";
         Map<String, String> values = new HashMap<>();
         values.put("workshop",wstitle);
-        send(EmailType.RESERVATION_CANCELLED,to,values);
+        send(emailType,to,values);
+    }
+
+    public final void sendCancellationConfirmation(String to,String workshopId) {
+        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CANCELLED);
+    }
+
+    public final void sendWaitingListInfo(String to,String workshopId) {
+        sendWorkshopInfo(to,workshopId,EmailType.WAITING_LIST);
     }
 }

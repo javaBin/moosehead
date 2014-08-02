@@ -22,6 +22,7 @@ public class EventStorePersistenceTest {
     @Test
     public void testDeSerialiseringAvEventer() throws IOException {
         Eventstore eventstore = new Eventstore(new FileHandler("src/test/resources/EventStorePersistenceTest.txt"));
+        eventstore.playbackEventsToSubscribers();
         assertThat(eventstore.numberOfEvents()).isEqualTo(1);
 
     }

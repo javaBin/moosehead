@@ -5,10 +5,15 @@ import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
+import no.java.moosehead.web.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
@@ -24,13 +29,17 @@ public class EmailSagaTest {
         when(setup.emailSender()).thenReturn(emailSender);
         SystemSetup.setSetup(setup);
 
+        Map<String,Object> conf = new HashMap<>();
+        conf.put("placesPerWorkshop",2);
+        Configuration.initData(conf);
+
         emailSaga = new EmailSaga();
     }
 
     @After
     public void tearDown() throws Exception {
         SystemSetup.setSetup(null);
-
+        Configuration.initData(null);
     }
 
     @Test
@@ -86,8 +95,7 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 3L));
 
-        verify(emailSender).sendReservationConfirmation("darth@a.com", "one");
-        verify(emailSender).sendReservationConfirmation("darth@a.com", "two");
+        verify(emailSender, times(2)).sendReservationConfirmation("darth@a.com", "one");
 
         verifyNoMoreInteractions(emailSender);
     }
@@ -98,11 +106,27 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "darth@a.com", "Darth", "two"));
         emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),6L,"darth@a.com","two"));
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
+
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 3L));
 
         verify(emailSender).sendReservationConfirmation("darth@a.com", "one");
 
         verifyNoMoreInteractions(emailSender);
+    }
 
+    @Test
+    public void shouldSendWaitingListInfoWhenWorkshopIsFull() throws Exception {
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one"));
+        emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com",System.currentTimeMillis(), 2L));
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "luke@a.com", "Luke", "one"));
+        emailSaga.eventAdded(new EmailConfirmedByUser("luke@a.com",System.currentTimeMillis(), 2L));
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 5L, "jarjar@a.com", "JarJar", "one"));
+        emailSaga.eventAdded(new SystemBootstrapDone(1L));
+
+        emailSaga.eventAdded(new EmailConfirmedByUser("jarjar@a.com",System.currentTimeMillis(), 2L));
+
+        verify(emailSender).sendWaitingListInfo("jarjar@a.com", "one");
+
+        verifyNoMoreInteractions(emailSender);
     }
 }
