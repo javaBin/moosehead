@@ -7,7 +7,9 @@ import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -15,6 +17,7 @@ public class EmailSaga implements EventSubscription {
 
     private boolean sagaIsInitialized = false;
     private List<ReservationAddedByUser> unconfirmedReservations = new ArrayList<>();
+    private Set<String> confirmedEmails = new HashSet<>();
 
     @Override
     public void eventAdded(AbstractEvent event) {
@@ -26,7 +29,12 @@ public class EmailSaga implements EventSubscription {
             ReservationAddedByUser res = (ReservationAddedByUser) event;
             unconfirmedReservations.add(res);
             if (sagaIsInitialized) {
-                SystemSetup.instance().emailSender().sendEmailConfirmation(res.getEmail(), "" + res.getRevisionId());
+                EmailSender emailSender = SystemSetup.instance().emailSender();
+                if (confirmedEmails.contains(res.getEmail())) {
+                    emailSender.sendReservationConfirmation(res.getEmail(),res.getWorkshopId());
+                } else {
+                    emailSender.sendEmailConfirmation(res.getEmail(), "" + res.getRevisionId());
+                }
             }
         }
         if (event instanceof EmailConfirmedByUser) {
@@ -42,6 +50,7 @@ public class EmailSaga implements EventSubscription {
                 }
                 unconfirmedReservations.remove(reservationAddedByUser);
             }
+            confirmedEmails.add(emailConfirmedByUser.getEmail());
         }
         if (event instanceof ReservationCancelledByUser) {
             ReservationCancelledByUser cancelledByUser = (ReservationCancelledByUser) event;
