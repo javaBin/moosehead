@@ -129,4 +129,23 @@ public class EmailSagaTest {
 
         verifyNoMoreInteractions(emailSender);
     }
+
+    @Test
+    public void shouldSendConfirmationWhenPlaceBecomesAvailible() throws Exception {
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one"));
+        emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com",System.currentTimeMillis(), 2L));
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "luke@a.com", "Luke", "one"));
+        emailSaga.eventAdded(new EmailConfirmedByUser("luke@a.com",System.currentTimeMillis(), 2L));
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 5L, "jarjar@a.com", "JarJar", "one"));
+        emailSaga.eventAdded(new EmailConfirmedByUser("jarjar@a.com",System.currentTimeMillis(), 2L));
+        emailSaga.eventAdded(new SystemBootstrapDone(1L));
+
+        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),7L,"darth@a.com","one"));
+
+        verify(emailSender).sendCancellationConfirmation("darth@a.com","one");
+        verify(emailSender).sendReservationConfirmation("jarjar@ac.om","one");
+
+        verifyNoMoreInteractions(emailSender);
+
+    }
 }

@@ -27,12 +27,12 @@ public class EmailSaga implements EventSubscription {
         partList.add(email);
     }
 
-    private void removeParticipant(String wsid, String email) {
+    private boolean removeParticipant(String wsid, String email) {
         List<String> partList = participants.get(wsid);
         if (partList == null) {
-            return;
+            return false;
         }
-        partList.remove(email);
+        return partList.remove(email);
     }
 
     private boolean haveFreeSpots(String wsid) {
@@ -95,9 +95,15 @@ public class EmailSaga implements EventSubscription {
             if (reservation.isPresent()) {
                 unconfirmedReservations.remove(reservation.get());
             }
-            removeParticipant(cancelledByUser.getWorkshopId(),cancelledByUser.getEmail());
             if (sagaIsInitialized) {
-                SystemSetup.instance().emailSender().sendCancellationConfirmation(cancelledByUser.getEmail(),cancelledByUser.getWorkshopId());
+                EmailSender emailSender = SystemSetup.instance().emailSender();
+                emailSender.sendCancellationConfirmation(cancelledByUser.getEmail(), cancelledByUser.getWorkshopId());
+                boolean full = !haveFreeSpots(cancelledByUser.getWorkshopId());
+                boolean removed = removeParticipant(cancelledByUser.getWorkshopId(), cancelledByUser.getEmail());
+                if (full && removed) {
+                    String email = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
+                    emailSender.sendReservationConfirmation(email,cancelledByUser.getWorkshopId());
+                }
             }
 
         }
