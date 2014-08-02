@@ -7,6 +7,7 @@ import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.projections.WorkshopListProjection;
+import no.java.moosehead.saga.EmailSender;
 
 import java.util.List;
 
@@ -76,4 +77,9 @@ public class SystemSetup {
     public WorkshopAggregate workshopAggregate() {
         return workshopAggregate;
     }
+
+    public EmailSender emailSender() {
+        return null;
+    };
+
 }
