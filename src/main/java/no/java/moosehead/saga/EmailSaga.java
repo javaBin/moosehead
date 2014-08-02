@@ -1,10 +1,7 @@
 package no.java.moosehead.saga;
 
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.eventstore.EmailConfimationSentByEmailSaga;
-import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.UserWorkshopEvent;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
@@ -44,6 +41,12 @@ public class EmailSaga implements EventSubscription {
                     emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId());
                 }
                 unconfirmedReservations.remove(reservationAddedByUser);
+            }
+        }
+        if (event instanceof ReservationCancelledByUser) {
+            ReservationCancelledByUser cancelledByUser = (ReservationCancelledByUser) event;
+            if (sagaIsInitialized) {
+                SystemSetup.instance().emailSender().sendCancellationConfirmation(cancelledByUser.getEmail(),cancelledByUser.getWorkshopId());
             }
         }
     }

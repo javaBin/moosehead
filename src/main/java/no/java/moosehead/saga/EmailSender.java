@@ -13,6 +13,9 @@ public interface EmailSender {
     }
 
     public default void sendReservationConfirmation(String to,String workshopId) {
+    }
+
+    public default void sendCancellationConfirmation(String to,String workshopId) {
 
     }
 }

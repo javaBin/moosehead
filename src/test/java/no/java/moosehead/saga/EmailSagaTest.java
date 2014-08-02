@@ -3,6 +3,7 @@ package no.java.moosehead.saga;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +56,15 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com",System.currentTimeMillis(),3L));
 
         verify(emailSender).sendReservationConfirmation("darth@a.com","one");
+    }
+
+    @Test
+    public void shouldSendCancellationConfirmation() throws Exception {
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one"));
+        emailSaga.eventAdded(new SystemBootstrapDone(1L));
+        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(), 3L, "darth@a.com", "one"));
+
+        verify(emailSender).sendCancellationConfirmation("darth@a.com","one");
 
     }
 }
