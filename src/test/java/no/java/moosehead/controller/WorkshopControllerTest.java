@@ -184,6 +184,24 @@ public class WorkshopControllerTest {
         assertThat(value.getReservationRevisionId()).isEqualTo(123L);
 
         verify(eventstore).addEvent(emailConfirmedByUser);
+    }
+
+    @Test
+    public void shouldHandleInvalidConfirmEmailToken() throws Exception {
+        ParticipantActionResult result = workshopController.confirmEmail("ddsfg");
+
+        assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
+        assertThat(result.getErrormessage()).isEqualTo("Unknown confirm token");
+        verify(workshopAggregate, never()).createEvent(any(ConfirmEmailCommand.class));
+    }
+
+    @Test
+    public void shouldHandleUnknownEmailToken() throws Exception {
+        doThrow(new MoosheadException("My error")).when(workshopAggregate).createEvent(any(ConfirmEmailCommand.class));
+
+        ParticipantActionResult result = workshopController.confirmEmail("123");
+        assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
+        assertThat(result.getErrormessage()).isEqualTo("My error");
 
     }
 }

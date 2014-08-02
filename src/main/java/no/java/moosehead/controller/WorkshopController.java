@@ -68,7 +68,7 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult cancellation(String reservationId) {
-        long id = 0;
+        long id;
         try {
             id = Long.parseLong(reservationId);
         } catch (NumberFormatException e) {
@@ -94,9 +94,19 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult confirmEmail(String token) {
-        long id = Long.parseLong(token);
+        long id;
+        try {
+            id = Long.parseLong(token);
+        } catch (NumberFormatException e) {
+            return ParticipantActionResult.error("Unknown confirm token");
+        }
         ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(id);
-        EmailConfirmedByUser emailConfirmedByUser = SystemSetup.instance().workshopAggregate().createEvent(confirmEmailCommand);
+        EmailConfirmedByUser emailConfirmedByUser;
+        try {
+            emailConfirmedByUser = SystemSetup.instance().workshopAggregate().createEvent(confirmEmailCommand);
+        } catch (MoosheadException e) {
+            return ParticipantActionResult.error(e.getMessage());
+        }
         SystemSetup.instance().eventstore().addEvent(emailConfirmedByUser);
         return ParticipantActionResult.ok();
     }
