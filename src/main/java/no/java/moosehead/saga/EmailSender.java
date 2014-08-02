@@ -11,4 +11,8 @@ public interface EmailSender {
         values.put("token",token);
         send(EmailType.CONFIRM_EMAIL,to,values);
     }
+
+    public default void sendReservationConfirmation(String to,String workshopId) {
+
+    }
 }
