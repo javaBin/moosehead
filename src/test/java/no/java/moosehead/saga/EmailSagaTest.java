@@ -71,10 +71,38 @@ public class EmailSagaTest {
     @Test
     public void shouldAskForEmailConfirmationOnlyOnce() throws Exception {
         emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one"));
-        emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com",System.currentTimeMillis(),3L));
+        emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 3L));
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
         emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "darth@a.com", "Darth", "two"));
 
-        verify(emailSender).sendReservationConfirmation("darth@a.com","two");
+        verify(emailSender).sendReservationConfirmation("darth@a.com", "two");
+        verifyNoMoreInteractions(emailSender);
+    }
+
+    @Test
+    public void shouldSendOneEmailForEachReservation() throws Exception {
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one"));
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "darth@a.com", "Darth", "two"));
+        emailSaga.eventAdded(new SystemBootstrapDone(1L));
+        emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 3L));
+
+        verify(emailSender).sendReservationConfirmation("darth@a.com", "one");
+        verify(emailSender).sendReservationConfirmation("darth@a.com", "two");
+
+        verifyNoMoreInteractions(emailSender);
+    }
+
+    @Test
+    public void shouldNotSendConfirmationsOnCancelledRegistrations() throws Exception {
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one"));
+        emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "darth@a.com", "Darth", "two"));
+        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),6L,"darth@a.com","two"));
+        emailSaga.eventAdded(new SystemBootstrapDone(1L));
+        emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 3L));
+
+        verify(emailSender).sendReservationConfirmation("darth@a.com", "one");
+
+        verifyNoMoreInteractions(emailSender);
+
     }
 }

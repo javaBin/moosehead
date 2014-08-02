@@ -6,10 +6,7 @@ import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -54,9 +51,16 @@ public class EmailSaga implements EventSubscription {
         }
         if (event instanceof ReservationCancelledByUser) {
             ReservationCancelledByUser cancelledByUser = (ReservationCancelledByUser) event;
+            Optional<ReservationAddedByUser> reservation = unconfirmedReservations.stream()
+                    .filter(ur -> ur.getEmail().equals(cancelledByUser.getEmail()) && ur.getWorkshopId().equals(cancelledByUser.getWorkshopId()))
+                    .findAny();
+            if (reservation.isPresent()) {
+                unconfirmedReservations.remove(reservation.get());
+            }
             if (sagaIsInitialized) {
                 SystemSetup.instance().emailSender().sendCancellationConfirmation(cancelledByUser.getEmail(),cancelledByUser.getWorkshopId());
             }
+
         }
     }
 
