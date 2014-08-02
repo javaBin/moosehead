@@ -44,7 +44,7 @@ public class Eventstore {
 
 
     public void addEvent(AbstractEvent event) {
-        //System.out.println("Added event " + event.getClass() + "->" + event.getRevisionId());
+        System.out.println("Added event " + event.getClass() + "->" + event.getRevisionId());
         if ((!(event instanceof TransientEvent)) && fileHandler != null) {
             fileHandler.writeToFile(classSerializer.asString(event));
         }

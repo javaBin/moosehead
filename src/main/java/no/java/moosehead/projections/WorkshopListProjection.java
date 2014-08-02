@@ -44,10 +44,13 @@ public class WorkshopListProjection implements EventSubscription {
             workshop.removeParticipant(reservationCancelledByUser.getEmail());
         } else if (event instanceof EmailConfirmedByUser) {
             EmailConfirmedByUser emailConfirmedByUser = (EmailConfirmedByUser) event;
-            workshops.stream()
+            List<Participant> toConfirm = workshops.stream()
                     .flatMap(ws -> ws.getParticipants().stream())
                     .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
-                    .forEach(participant -> participant.confirmEmail());
+                    .collect(Collectors.toList());
+            for (Participant part : toConfirm) {
+                part.confirmEmail();
+            }
             confirmedEmails.add(emailConfirmedByUser.getEmail());
         }
     }

@@ -1,6 +1,7 @@
 package no.java.moosehead.controller;
 
 import no.java.moosehead.MoosheadException;
+import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
@@ -54,12 +55,15 @@ public class WorkshopController implements ParticipantApi {
         AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid);
         ReservationAddedByUser event;
 
-        try {
-            event = SystemSetup.instance().workshopAggregate().createEvent(arc);
-        } catch (MoosheadException e) {
-            return ParticipantActionResult.error(e.getMessage());
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+            try {
+                event = workshopAggregate.createEvent(arc);
+            } catch (MoosheadException e) {
+                return ParticipantActionResult.error(e.getMessage());
+            }
+            SystemSetup.instance().eventstore().addEvent(event);
         }
-        SystemSetup.instance().eventstore().addEvent(event);
         if (SystemSetup.instance().workshopListProjection().isEmailConfirmed(event.getEmail())) {
             return ParticipantActionResult.ok();
         }
@@ -83,12 +87,15 @@ public class WorkshopController implements ParticipantApi {
         Participant participant = optByReservationId.get();
         CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId());
         ReservationCancelledByUser event;
-        try {
-            event = SystemSetup.instance().workshopAggregate().createEvent(cancelReservationCommand);
-        } catch (MoosheadException e) {
-            return ParticipantActionResult.error(e.getMessage());
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+            try {
+                event = workshopAggregate.createEvent(cancelReservationCommand);
+            } catch (MoosheadException e) {
+                return ParticipantActionResult.error(e.getMessage());
+            }
+            SystemSetup.instance().eventstore().addEvent(event);
         }
-        SystemSetup.instance().eventstore().addEvent(event);
         return ParticipantActionResult.ok();
     }
 
@@ -102,12 +109,15 @@ public class WorkshopController implements ParticipantApi {
         }
         ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(id);
         EmailConfirmedByUser emailConfirmedByUser;
-        try {
-            emailConfirmedByUser = SystemSetup.instance().workshopAggregate().createEvent(confirmEmailCommand);
-        } catch (MoosheadException e) {
-            return ParticipantActionResult.error(e.getMessage());
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+            try {
+                emailConfirmedByUser = workshopAggregate.createEvent(confirmEmailCommand);
+            } catch (MoosheadException e) {
+                return ParticipantActionResult.error(e.getMessage());
+            }
+            SystemSetup.instance().eventstore().addEvent(emailConfirmedByUser);
         }
-        SystemSetup.instance().eventstore().addEvent(emailConfirmedByUser);
         return ParticipantActionResult.ok();
     }
 

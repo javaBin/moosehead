@@ -54,6 +54,9 @@ public class Workshop {
     }
 
     public void moveToConfirmed(Participant participant) {
+        if (confirmed.indexOf(participant) != -1) {
+            return;
+        }
         int pos = notConfirmed.indexOf(participant);
         if (pos == -1) {
             throw new IllegalArgumentException("Participant not found when confirming " + participant.getEmail());

@@ -20,7 +20,11 @@
                     }).when("/showMyReservations/:email", {
                         templateUrl: 'templates/showMyReservations.html',
                         controller: 'ShowMyReservationCtrl'
+                    }).when("/confirmEmail/:token", {
+                        templateUrl: 'templates/confirmEmail.html',
+                        controller: 'ConfirmEmailCtrl'
                     })
+
                     ;
         }]);
         

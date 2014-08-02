@@ -100,14 +100,27 @@ public class WorkshopAggregate implements EventSubscription {
     }
 
     public EmailConfirmedByUser createEvent(ConfirmEmailCommand confirmEmailCommand) {
-        Optional<AbstractEvent> event = eventArrayList
+        Optional<ReservationAddedByUser> event = eventArrayList
                 .stream()
-                .filter(ae -> ae.getRevisionId() == confirmEmailCommand.getReservationRevisionId())
+                .filter(ae -> ae.getRevisionId() == confirmEmailCommand.getReservationRevisionId() && (ae instanceof ReservationAddedByUser))
+                .map(ae -> (ReservationAddedByUser) ae)
                 .findFirst();
-        if (!(event.isPresent() && (event.get() instanceof ReservationAddedByUser))) {
+        if (!(event.isPresent())) {
             throw new NoReservationFoundException("Could not find reservation with id " + confirmEmailCommand.getReservationRevisionId());
         }
         ReservationAddedByUser reservation = (ReservationAddedByUser) event.get();
+        Optional<AbstractEvent> any = eventArrayList.stream()
+                .filter(ae -> {
+                    if (!(ae instanceof EmailConfirmedByUser)) {
+                        return false;
+                    }
+                    EmailConfirmedByUser confirmedByUser = (EmailConfirmedByUser) ae;
+                    return confirmedByUser.getEmail().equals(reservation.getEmail());
+                })
+                .findAny();
+        if (any.isPresent()) {
+            throw new NoReservationFoundException("This email is already confirmed");
+        }
         return new EmailConfirmedByUser(reservation.getEmail(),nextRevision(),System.currentTimeMillis());
     }
 }

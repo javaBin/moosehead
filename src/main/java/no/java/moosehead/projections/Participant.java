@@ -44,7 +44,7 @@ public class Participant {
 
     public void confirmEmail() {
         emailConfirmed = true;
-        workshop.moveToConfirmed(this);
+        this.workshop.moveToConfirmed(this);
     }
 
     public boolean isEmailConfirmed() {
