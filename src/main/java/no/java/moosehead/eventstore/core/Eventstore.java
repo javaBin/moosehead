@@ -24,14 +24,13 @@ public class Eventstore {
     public Eventstore(FileHandler fileHandler) {
         this.fileHandler = fileHandler;
         initEventStoreWithFileHandler();
-        playbackEventsToSubscribers();
     }
 
     public Eventstore() {
-        playbackEventsToSubscribers();
+
     }
 
-    private void playbackEventsToSubscribers() {
+    public void playbackEventsToSubscribers() {
         for (AbstractEvent event: eventstorage) {
             for (EventSubscription eventSubscribers : this.eventSubscribers) {
                 eventSubscribers.eventAdded(event);

@@ -7,6 +7,8 @@ import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.projections.WorkshopListProjection;
+import no.java.moosehead.saga.DummyEmailSender;
+import no.java.moosehead.saga.EmailSaga;
 import no.java.moosehead.saga.EmailSender;
 
 import java.util.List;
@@ -27,6 +29,8 @@ public class SystemSetup {
         workshopListProjection = new WorkshopListProjection();
         eventstore.addEventSubscriber(workshopAggregate);
         eventstore.addEventSubscriber(workshopListProjection);
+        eventstore.addEventSubscriber(new EmailSaga());
+        eventstore.playbackEventsToSubscribers();
         workshopController = new WorkshopController();
     }
 
@@ -79,7 +83,7 @@ public class SystemSetup {
     }
 
     public EmailSender emailSender() {
-        return null;
+        return new DummyEmailSender();
     };
 
 }
