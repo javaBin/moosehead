@@ -15,23 +15,26 @@ public abstract class EmailSender {
         send(EmailType.CONFIRM_EMAIL,to,values);
     }
 
-    public final void sendReservationConfirmation(String to,String workshopId) {
-        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED);
+    public final void sendReservationConfirmation(String to,String workshopId,long reservationId) {
+        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED,"" + reservationId);
     }
 
-    private void sendWorkshopInfo(String to, String workshopId, EmailType emailType) {
+    private void sendWorkshopInfo(String to, String workshopId, EmailType emailType, String token) {
         WorkshopRepository workshopRepository = SystemSetup.instance().workshopRepository();
         String wstitle = workshopRepository != null ? workshopRepository.workshopById(workshopId).map(ws -> ws.getTitle()).orElse("Unknown") : "Unknown";
         Map<String, String> values = new HashMap<>();
         values.put("workshop",wstitle);
+        if (token != null) {
+            values.put("token",token);
+        }
         send(emailType,to,values);
     }
 
     public final void sendCancellationConfirmation(String to,String workshopId) {
-        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CANCELLED);
+        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CANCELLED, null);
     }
 
     public final void sendWaitingListInfo(String to,String workshopId) {
-        sendWorkshopInfo(to,workshopId,EmailType.WAITING_LIST);
+        sendWorkshopInfo(to,workshopId,EmailType.WAITING_LIST, null);
     }
 }

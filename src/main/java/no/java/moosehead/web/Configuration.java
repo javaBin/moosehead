@@ -94,4 +94,20 @@ public class Configuration {
         OffsetDateTime openstime = LocalDateTime.parse(dateStr, format).atOffset(offset);
         return openstime;
     }
+
+    public static String smtpServer() {
+        return readConf("smtpServer",null);
+    }
+
+    public static int smtpPort() {
+        return Integer.parseInt(readConf("smtpPort","0"));
+    }
+
+    public static String bccTo() {
+        return readConf("bccTo",null);
+    }
+
+    public static String mooseheadLocation() {
+        return readConf("mooseheadLocation","http://localhost:8088");
+    }
 }

@@ -1,0 +1,13 @@
+Hi,
+
+Thank you for signing up to the JavaZone workshop "#workshop#".
+
+The workshop is fully booked, but you have been placed on a waiting list. If a place becomes availible we will let you know.
+
+To see the status of your registration(s), visit the page:
+#mooseheadLocation#/#/showMyReservations/#to#
+
+If you have any questions, please contact us at program@java.no
+
+Best regards,
+JavaZone

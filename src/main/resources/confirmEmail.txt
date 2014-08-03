@@ -1,0 +1,13 @@
+Hi,
+
+Thank you for signing up to the JavaZone workshop "#workshop#".
+
+You need to click this link to confirm your email:
+#mooseheadLocation#/#/confirmEmail/#token#
+
+You will then be given a confirmation of your registration.
+
+If you have any questions, please contact us at program@java.no
+
+Best regards,
+JavaZone
