@@ -28,7 +28,7 @@ public class Configuration {
         }
 
         Map<String,String> result = readConfigData(confFileContent);
-      
+
 
         return result;
     }
