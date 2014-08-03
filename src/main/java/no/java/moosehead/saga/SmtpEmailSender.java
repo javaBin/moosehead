@@ -23,13 +23,28 @@ public class SmtpEmailSender extends EmailSender {
     }
 
     private void sendEmail(EmailType type, String message, String to) throws EmailException {
+        String subject = type.getSubject();
+        if (!Configuration.isProdEnviroment()) {
+            message = "[This message is just a test. Please disregart and delete]\n" + message;
+            subject = "[TEST] " + subject;
+        }
+
+
         SimpleEmail mail = new SimpleEmail();
         mail.setHostName(Configuration.smtpServer());
         mail.setSmtpPort(Configuration.smtpPort());
         mail.setFrom("program@java.no");
         mail.addTo(to);
-        mail.setSubject(type.getSubject());
+        mail.setSubject(subject);
         mail.setMsg(message);
+
+        String bcc = Configuration.bccTo();
+        if (bcc != null) {
+            for (String tobc : bcc.split(";")) {
+                mail.addBcc(tobc);
+            }
+        }
+
         mail.send();
     }
 

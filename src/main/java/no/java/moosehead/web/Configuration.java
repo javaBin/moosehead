@@ -126,7 +126,7 @@ public class Configuration {
     }
 
     public static String bccTo() {
-        return readConf("bccTo",null);
+        return readConf("mailbcc",null);
     }
 
     public static String mooseheadLocation() {
@@ -136,4 +136,9 @@ public class Configuration {
     public static String eventstoreFilename() {
         return readConf("eventstoreFilename",null);
     }
+
+    public static boolean isProdEnviroment() {
+        return "false".equals(readConf("testenv","true"));
+    }
+
 }
