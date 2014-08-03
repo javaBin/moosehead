@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.swing.text.html.Option;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,8 +100,7 @@ public class DataServlet extends HttpServlet {
         }
 
         if (workshopid == null || email == null || fullname == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
-            return Optional.empty();
+            return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
         ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname);
 
