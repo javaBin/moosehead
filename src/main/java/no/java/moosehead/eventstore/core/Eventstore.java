@@ -1,6 +1,7 @@
 package no.java.moosehead.eventstore.core;
 
 import no.java.moosehead.aggregate.WorkshopAggregate;
+import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.eventstore.utils.FileHandler;
@@ -88,4 +89,7 @@ public class Eventstore {
         }
     }
 
+    public long numberOfWorkshops() {
+        return eventstorage.stream().filter(ae -> ae instanceof WorkshopAddedByAdmin).count();
+    }
 }

@@ -4,6 +4,7 @@ import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
+import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -16,12 +17,7 @@ import java.util.stream.Stream;
 
 public class WorkshopAggregate implements EventSubscription {
 
-    private long nextRevisionId=0;
     private ArrayList<AbstractEvent> eventArrayList = new ArrayList<>();
-
-    private long nextRevision() {
-        return nextRevisionId++;
-    }
 
     @Override
     public void eventAdded(AbstractEvent event) {
@@ -31,11 +27,15 @@ public class WorkshopAggregate implements EventSubscription {
     public WorkshopAddedByAdmin createEvent(AddWorkshopCommand addWorkshopCommand){
         Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
         if (!workshop.isPresent()) {
-            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), Configuration.placesPerWorkshop());
+            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(),  nextRevision(), addWorkshopCommand.getWorkshopId(), Configuration.placesPerWorkshop());
             return event;
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
         }
+    }
+
+    private long nextRevision() {
+        return SystemSetup.instance().revisionGenerator().nextRevisionId();
     }
 
     public ReservationAddedByUser createEvent(AddReservationCommand addReservationCommand) {

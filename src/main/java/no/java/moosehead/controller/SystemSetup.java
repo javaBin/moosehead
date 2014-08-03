@@ -5,6 +5,7 @@ import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
+import no.java.moosehead.eventstore.utils.RevisionGenerator;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.projections.WorkshopListProjection;
@@ -26,15 +27,19 @@ public class SystemSetup {
     private WorkshopController workshopController;
     private WorkshopListProjection workshopListProjection;
     private EmailSender emailSender;
+    private RevisionGenerator revisionGenerator;
+    private boolean initLoaded = false;
 
     private SystemSetup() {
 
     }
 
     private synchronized void setup() {
-        if (eventstore != null) {
+        if (!needToLoadSetup()) {
             return;
         }
+        initLoaded = true;
+        revisionGenerator = new RevisionGenerator();
         if (Configuration.eventstoreFilename() != null) {
             eventstore = new Eventstore(new FileHandler(Configuration.eventstoreFilename()));
         } else {
@@ -46,9 +51,21 @@ public class SystemSetup {
         eventstore.addEventSubscriber(workshopAggregate);
         eventstore.addEventSubscriber(workshopListProjection);
         eventstore.addEventSubscriber(new EmailSaga());
-        eventstore.playbackEventsToSubscribers();
         workshopController = new WorkshopController();
         emailSender = Configuration.smtpServer() != null ? new SmtpEmailSender() : new DummyEmailSender();
+
+        if (eventstore.numberOfWorkshops() == 0L) {
+            createAllWorkshops();
+        }
+
+        eventstore.playbackEventsToSubscribers();
+
+
+
+    }
+
+    public boolean needToLoadSetup() {
+        return !initLoaded;
     }
 
 
@@ -74,6 +91,7 @@ public class SystemSetup {
 
     public static void setSetup(SystemSetup setup) {
         SystemSetup.setup = setup;
+
     }
 
     public Eventstore eventstore() {
@@ -99,5 +117,9 @@ public class SystemSetup {
     public EmailSender emailSender() {
         return emailSender;
     };
+
+    public RevisionGenerator revisionGenerator() {
+        return revisionGenerator;
+    }
 
 }

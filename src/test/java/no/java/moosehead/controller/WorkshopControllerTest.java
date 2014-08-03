@@ -12,6 +12,7 @@ import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.utils.RevisionGenerator;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.projections.WorkshopListProjection;
@@ -50,7 +51,8 @@ public class WorkshopControllerTest {
         when(systemSetup.workshopAggregate()).thenReturn(workshopAggregate);
         eventstore = mock(Eventstore.class);
         when(systemSetup.eventstore()).thenReturn(eventstore);
-
+        RevisionGenerator revisionGenerator = new RevisionGenerator();
+        when(systemSetup.revisionGenerator()).thenReturn(revisionGenerator);
     }
 
     @After

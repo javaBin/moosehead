@@ -36,6 +36,8 @@ public class WorkshopAggregateTest {
         workshopAggregate = new WorkshopAggregate();
         eventstore.addEventSubscriber(workshopAggregate);
 
+
+
         LocalDateTime now = LocalDateTime.now();
         OffsetDateTime opens = now.atOffset(ZoneOffset.ofHours(2)).minusDays(2);
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
