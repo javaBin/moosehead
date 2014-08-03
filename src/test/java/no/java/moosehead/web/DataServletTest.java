@@ -222,7 +222,9 @@ public class DataServletTest {
         servlet.service(req, resp);
 
         verify(participantApi,never()).reservation(anyString(),anyString(),anyString());
-        verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+        JSONObject jsonObject = new JSONObject(jsonContent.toString());
+        assertThat(jsonObject.get("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
+        assertThat(jsonObject.get("message")).isEqualTo("Name and email must be present without spesial characters");
     }
 
 }
