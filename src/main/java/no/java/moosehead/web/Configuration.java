@@ -1,22 +1,53 @@
 package no.java.moosehead.web;
 
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Configuration {
     private static Map<String, String> confdata;
 
     private static synchronized Map<String, String> initConf() {
+        if (confdata != null) {
+            return confdata;
+        }
         String confFileName = System.getProperty("mooseheadConfFile");
         if (confFileName == null || confFileName.isEmpty()) {
             return null;
         }
+        String confFileContent;
+        try (InputStream is = new FileInputStream(new File(confFileName))) {
+             confFileContent = toString(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        return null;
+        Map<String,String> result = new HashMap<>();
+        for (String line : confFileContent.split("\n")) {
+            if (line.startsWith("#")) {
+                continue;
+            }
+            int pos = line.indexOf(("="));
+            result.put(line.substring(0,pos),line.substring(pos+1));
+        }
+
+        return result;
+    }
+
+    private static String toString(InputStream inputStream) throws IOException {
+        try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
+            StringBuilder result = new StringBuilder();
+            int c;
+            while ((c = reader.read()) != -1) {
+                result.append((char)c);
+            }
+            return result.toString();
+        }
     }
 
 
@@ -47,7 +78,7 @@ public class Configuration {
     }
 
     public static String emsEventLocation() {
-        return "http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions";
+        return readConf("emsEventLocation","http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
     }
 
     public static int placesPerWorkshop() {
