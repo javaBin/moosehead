@@ -142,7 +142,7 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),7L,"darth@a.com","one"));
 
         verify(emailSender).sendCancellationConfirmation("darth@a.com","one");
-        verify(emailSender).sendReservationConfirmation("jarjar@a.com","one",0L);
+        verify(emailSender).sendReservationConfirmation("jarjar@a.com","one",5L);
 
         verifyNoMoreInteractions(emailSender);
 

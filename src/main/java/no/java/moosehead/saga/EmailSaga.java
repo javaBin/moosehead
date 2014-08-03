@@ -16,23 +16,29 @@ public class EmailSaga implements EventSubscription {
     private boolean sagaIsInitialized = false;
     private List<ReservationAddedByUser> unconfirmedReservations = new ArrayList<>();
     private Set<String> confirmedEmails = new HashSet<>();
-    private Map<String,List<String>> participants = new HashMap<>();
+    private Map<String,List<ReservationAddedByUser>> participants = new HashMap<>();
 
-    private void addParticipant(String wsid, String email) {
-        List<String> partList = participants.get(wsid);
+    private void addParticipant(ReservationAddedByUser res) {
+        List<ReservationAddedByUser> partList = participants.get(res.getWorkshopId());
         if (partList == null) {
             partList = new ArrayList<>();
-            participants.put(wsid,partList);
+            participants.put(res.getWorkshopId(),partList);
         }
-        partList.add(email);
+        partList.add(res);
     }
 
     private boolean removeParticipant(String wsid, String email) {
-        List<String> partList = participants.get(wsid);
+        List<ReservationAddedByUser> partList = participants.get(wsid);
         if (partList == null) {
             return false;
         }
-        return partList.remove(email);
+        Optional<ReservationAddedByUser> res = partList.stream()
+                .filter(rau -> rau.getEmail().equals(email))
+                .findAny();
+        if (!res.isPresent()) {
+            return false;
+        }
+        return partList.remove(res.get());
     }
 
     private boolean haveFreeSpots(String wsid) {
@@ -64,7 +70,7 @@ public class EmailSaga implements EventSubscription {
                 }
             }
             if (emailIsConfirmed) {
-                addParticipant(res.getWorkshopId(), res.getEmail());
+                addParticipant(res);
             }
         }
         if (event instanceof EmailConfirmedByUser) {
@@ -82,7 +88,7 @@ public class EmailSaga implements EventSubscription {
                         emailSender.sendWaitingListInfo(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId());
                     }
                 }
-                addParticipant(reservationAddedByUser.getWorkshopId(), reservationAddedByUser.getEmail());
+                addParticipant(reservationAddedByUser);
                 unconfirmedReservations.remove(reservationAddedByUser);
             }
             confirmedEmails.add(emailConfirmedByUser.getEmail());
@@ -101,9 +107,9 @@ public class EmailSaga implements EventSubscription {
                 boolean full = !haveFreeSpots(cancelledByUser.getWorkshopId());
                 boolean removed = removeParticipant(cancelledByUser.getWorkshopId(), cancelledByUser.getEmail());
                 if (full && removed) {
-                    String email = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
+                    ReservationAddedByUser res = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
 
-                    emailSender.sendReservationConfirmation(email,cancelledByUser.getWorkshopId(),0);
+                    emailSender.sendReservationConfirmation(res.getEmail(),cancelledByUser.getWorkshopId(),res.getRevisionId());
                 }
             }
 
