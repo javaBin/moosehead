@@ -27,17 +27,39 @@ public class Configuration {
             throw new RuntimeException(e);
         }
 
-        Map<String,String> result = new HashMap<>();
-        for (String line : confFileContent.split("\n")) {
-            if (line.startsWith("#")) {
-                continue;
-            }
-            int pos = line.indexOf(("="));
-            result.put(line.substring(0,pos),line.substring(pos+1));
-        }
+        Map<String,String> result = readConfigData(confFileContent);
+      
 
         return result;
     }
+
+    private static Map<String, String> readConfigData(String confFileContent) {
+        Map<String,String> result = new HashMap<>();
+        String enviroment = null;
+        boolean skip = false;
+        for (String line : confFileContent.split("\n")) {
+            if (line.startsWith("#") || line.trim().isEmpty()) {
+                continue;
+            }
+            if (line.startsWith("[") && line.endsWith("]")) {
+                skip = !(line.equals("[default]") || line.equals(enviroment));
+                continue;
+            }
+            if (skip) {
+                continue;
+            }
+
+            int pos = line.indexOf(("="));
+            String key = line.substring(0, pos);
+            String value = line.substring(pos + 1);
+            if ("configenviroment".equals(key)) {
+                enviroment = value;
+            }
+            result.put(key, value);
+        }
+        return result;
+    }
+
 
     private static String toString(InputStream inputStream) throws IOException {
         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
