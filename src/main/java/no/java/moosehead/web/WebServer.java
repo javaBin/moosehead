@@ -21,11 +21,11 @@ public class WebServer {
         String warFile = null;
         if (args.length > 0) {
             configFilename = args[0];
+            System.setProperty("mooseheadConfFile",configFilename);
         }
         if (args.length > 1) {
             warFile = args[1];
         }
-        Configuration.init(configFilename);
         new WebServer(getPort(8088),warFile).start();
     }
 

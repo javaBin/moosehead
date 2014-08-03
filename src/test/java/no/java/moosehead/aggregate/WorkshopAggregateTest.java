@@ -9,12 +9,14 @@ import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.web.Configuration;
+import org.apache.log4j.helpers.DateTimeDateFormat;
 import org.junit.*;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +38,12 @@ public class WorkshopAggregateTest {
 
         LocalDateTime now = LocalDateTime.now();
         OffsetDateTime opens = now.atOffset(ZoneOffset.ofHours(2)).minusDays(2);
-        Map<String,Object> confdata = new HashMap<>();
-        confdata.put("openTime",opens);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+        String datestr = opens.format(format);
+
+        Map<String,String> confdata = new HashMap<>();
+        confdata.put("openTime",datestr);
         Configuration.initData(confdata);
     }
 
@@ -97,8 +103,11 @@ public class WorkshopAggregateTest {
     public void youShoudNotBeAllowedToRegisterBeforeRegistartionOpen() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         OffsetDateTime opens = now.atOffset(ZoneOffset.ofHours(2)).plusDays(2);
-        Map<String,Object> confdata = new HashMap<>();
-        confdata.put("openTime",opens);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+        String datestr = opens.format(format);
+        Map<String,String> confdata = new HashMap<>();
+        confdata.put("openTime",datestr);
         Configuration.initData(confdata);
 
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));

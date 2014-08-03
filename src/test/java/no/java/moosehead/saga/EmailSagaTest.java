@@ -29,8 +29,8 @@ public class EmailSagaTest {
         when(setup.emailSender()).thenReturn(emailSender);
         SystemSetup.setSetup(setup);
 
-        Map<String,Object> conf = new HashMap<>();
-        conf.put("placesPerWorkshop",2);
+        Map<String,String> conf = new HashMap<>();
+        conf.put("placesPerWorkshop","2");
         Configuration.initData(conf);
 
         emailSaga = new EmailSaga();
@@ -143,7 +143,7 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),7L,"darth@a.com","one"));
 
         verify(emailSender).sendCancellationConfirmation("darth@a.com","one");
-        verify(emailSender).sendReservationConfirmation("jarjar@ac.om","one");
+        verify(emailSender).sendReservationConfirmation("jarjar@a.com","one");
 
         verifyNoMoreInteractions(emailSender);
 
