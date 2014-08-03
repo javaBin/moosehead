@@ -55,12 +55,12 @@ public class EmailSaga implements EventSubscription {
             if (sagaIsInitialized) {
                 if (emailIsConfirmed) {
                     if (haveFreeSpots(res.getWorkshopId())) {
-                        emailSender.sendReservationConfirmation(res.getEmail(), res.getWorkshopId());
+                        emailSender.sendReservationConfirmation(res.getEmail(), res.getWorkshopId(),res.getRevisionId());
                     } else {
                         emailSender.sendWaitingListInfo(res.getEmail(),res.getWorkshopId());
                     }
                 } else {
-                    emailSender.sendEmailConfirmation(res.getEmail(), "" + res.getRevisionId());
+                    emailSender.sendEmailConfirmation(res.getEmail(), "" + res.getRevisionId(),res.getWorkshopId());
                 }
             }
             if (emailIsConfirmed) {
@@ -77,7 +77,7 @@ public class EmailSaga implements EventSubscription {
             for (ReservationAddedByUser reservationAddedByUser : toConfirm) {
                 if (sagaIsInitialized) {
                     if (haveFreeSpots(reservationAddedByUser.getWorkshopId())) {
-                        emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId());
+                        emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(),reservationAddedByUser.getRevisionId());
                     } else {
                         emailSender.sendWaitingListInfo(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId());
                     }
@@ -102,7 +102,8 @@ public class EmailSaga implements EventSubscription {
                 boolean removed = removeParticipant(cancelledByUser.getWorkshopId(), cancelledByUser.getEmail());
                 if (full && removed) {
                     String email = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
-                    emailSender.sendReservationConfirmation(email,cancelledByUser.getWorkshopId());
+
+                    emailSender.sendReservationConfirmation(email,cancelledByUser.getWorkshopId(),0);
                 }
             }
 

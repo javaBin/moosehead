@@ -9,10 +9,8 @@ import java.util.Map;
 public abstract class EmailSender {
     public abstract void send(EmailType type,String to,Map<String,String> values);
 
-    public final void sendEmailConfirmation(String to,String token) {
-        Map<String, String> values = new HashMap<>();
-        values.put("token",token);
-        send(EmailType.CONFIRM_EMAIL,to,values);
+    public final void sendEmailConfirmation(String to,String token,String workshopId) {
+        sendWorkshopInfo(to,workshopId,EmailType.CONFIRM_EMAIL,token);
     }
 
     public final void sendReservationConfirmation(String to,String workshopId,long reservationId) {
