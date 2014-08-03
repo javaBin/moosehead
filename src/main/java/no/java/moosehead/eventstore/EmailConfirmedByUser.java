@@ -10,6 +10,9 @@ public class EmailConfirmedByUser extends AbstractEvent {
         this.email = email;
     }
 
+    public EmailConfirmedByUser() {
+    }
+
     public String getEmail() {
         return email;
     }

@@ -9,6 +9,9 @@ public class EmailConfimationSentByEmailSaga extends AbstractEvent {
         this.referingToEventWithRevision = referingToEventWithRevision;
     }
 
+    public EmailConfimationSentByEmailSaga() {
+    }
+
     public long getReferingToEventWithRevision() {
         return referingToEventWithRevision;
     }

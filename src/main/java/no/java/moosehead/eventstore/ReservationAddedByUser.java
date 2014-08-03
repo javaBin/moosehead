@@ -14,6 +14,9 @@ public class ReservationAddedByUser extends AbstractEvent implements UserWorksho
         this.workshopId = workshopId;
     }
 
+    public ReservationAddedByUser() {
+    }
+
     public String getEmail() {
         return email;
     }

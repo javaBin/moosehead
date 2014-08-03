@@ -4,6 +4,7 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.projections.WorkshopListProjection;
@@ -16,17 +17,29 @@ import no.java.moosehead.web.Configuration;
 import java.util.List;
 
 public class SystemSetup {
-    private static SystemSetup setup;
+    private static SystemSetup setup = new SystemSetup();
+
 
     private Eventstore eventstore;
     private WorkshopRepository workshopRepository;
     private WorkshopAggregate workshopAggregate;
     private WorkshopController workshopController;
-    private final WorkshopListProjection workshopListProjection;
+    private WorkshopListProjection workshopListProjection;
     private EmailSender emailSender;
 
     private SystemSetup() {
-        eventstore = new Eventstore();
+
+    }
+
+    private synchronized void setup() {
+        if (eventstore != null) {
+            return;
+        }
+        if (Configuration.eventstoreFilename() != null) {
+            eventstore = new Eventstore(new FileHandler(Configuration.eventstoreFilename()));
+        } else {
+            eventstore = new Eventstore();
+        }
         workshopRepository = new WorkshopRepository();
         workshopAggregate = new WorkshopAggregate();
         workshopListProjection = new WorkshopListProjection();
@@ -51,10 +64,7 @@ public class SystemSetup {
 
 
     private static void ensureInit() {
-        if (setup == null) {
-            setup = new SystemSetup();
-            setup.createAllWorkshops();
-        }
+        setup.setup();
     }
 
     public static SystemSetup instance() {

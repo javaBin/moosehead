@@ -50,7 +50,7 @@ public class FileHandler {
     public void openFileForOutput() {
         if (!isInMemory) {
             try {
-                printWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename), ENCODING));
+                printWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename,true), ENCODING));
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }

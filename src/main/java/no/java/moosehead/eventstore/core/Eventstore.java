@@ -37,7 +37,7 @@ public class Eventstore {
             }
         }
         if (eventstorage.size() > 0)
-            currentRevisionId = eventstorage.get(eventstorage.size()).getRevisionId();
+            currentRevisionId = eventstorage.get(eventstorage.size()-1).getRevisionId();
         addEvent(new SystemBootstrapDone(currentRevisionId));
     }
 
@@ -45,7 +45,7 @@ public class Eventstore {
     public void addEvent(AbstractEvent event) {
         //System.out.println("Added event " + event.getClass() + "->" + event.getRevisionId());
         if ((!(event instanceof TransientEvent)) && fileHandler != null) {
-            fileHandler.writeToFile(classSerializer.asString(event));
+            fileHandler.writeToFile(classSerializer.asString(event) + "\n");
         }
 
         eventstorage.add(event);
@@ -76,7 +76,8 @@ public class Eventstore {
             fileHandler.openFileForInput();
             BufferedReader buffStream = new BufferedReader(fileHandler.getInputStreamReader());
             while((line = buffStream.readLine()) != null) {
-                eventstorage.add(classSerializer.asObject(line));
+                AbstractEvent ev = classSerializer.asObject(line);
+                eventstorage.add(ev);
             }
             buffStream.close();
             fileHandler.closeInputFile();

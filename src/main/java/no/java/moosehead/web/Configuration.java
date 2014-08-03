@@ -110,4 +110,8 @@ public class Configuration {
     public static String mooseheadLocation() {
         return readConf("mooseheadLocation","http://localhost:8088");
     }
+
+    public static String eventstoreFilename() {
+        return readConf("eventstoreFilename",null);
+    }
 }

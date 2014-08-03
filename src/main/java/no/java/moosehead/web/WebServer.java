@@ -22,6 +22,8 @@ public class WebServer {
         if (args.length > 0) {
             configFilename = args[0];
             System.setProperty("mooseheadConfFile",configFilename);
+        } else {
+            System.out.println("Running without config");
         }
         if (args.length > 1) {
             warFile = args[1];
@@ -42,7 +44,6 @@ public class WebServer {
             handlerList.addHandler(new WebAppContext("src/main/webapp", "/"));
             server.setHandler(handlerList);
         }
-        SystemSetup.instance().eventstore();
         server.start();
         System.out.println(server.getURI());
     }
