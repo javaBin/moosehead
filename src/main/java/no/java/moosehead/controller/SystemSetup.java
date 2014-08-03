@@ -91,7 +91,14 @@ public class SystemSetup {
 
     public static void setSetup(SystemSetup setup) {
         SystemSetup.setup = setup;
+        if (setup != null) {
+            setup.setInitLoaded();
+        }
 
+    }
+
+    private void setInitLoaded() {
+        initLoaded = setup != null;
     }
 
     public Eventstore eventstore() {

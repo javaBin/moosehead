@@ -8,6 +8,7 @@ import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
+import no.java.moosehead.eventstore.utils.RevisionGenerator;
 import no.java.moosehead.web.Configuration;
 import org.apache.log4j.helpers.DateTimeDateFormat;
 import org.junit.*;
@@ -32,6 +33,10 @@ public class WorkshopAggregateTest {
 
     @Before
     public void beforeTest() {
+        SystemSetup systemSetup = Mockito.mock(SystemSetup.class);
+        RevisionGenerator revisionGenerator = new RevisionGenerator();
+        Mockito.when(systemSetup.revisionGenerator()).thenReturn(revisionGenerator);
+        SystemSetup.setSetup(systemSetup);
         eventstore = new Eventstore(new FileHandler());
         workshopAggregate = new WorkshopAggregate();
         eventstore.addEventSubscriber(workshopAggregate);

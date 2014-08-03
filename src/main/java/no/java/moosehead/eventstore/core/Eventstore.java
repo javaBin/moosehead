@@ -1,10 +1,12 @@
 package no.java.moosehead.eventstore.core;
 
 import no.java.moosehead.aggregate.WorkshopAggregate;
+import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.eventstore.utils.FileHandler;
+import no.java.moosehead.eventstore.utils.RevisionGenerator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,7 +14,6 @@ import java.util.ArrayList;
 public class Eventstore {
 
     private FileHandler fileHandler;
-    private long currentRevisionId=0;
     private ClassSerializer classSerializer = new ClassSerializer();
     private ArrayList<AbstractEvent> eventstorage = new ArrayList<>();
     private ArrayList<EventSubscription> eventSubscribers = new ArrayList<>();
@@ -37,9 +38,11 @@ public class Eventstore {
                 eventSubscribers.eventAdded(event);
             }
         }
-        if (eventstorage.size() > 0)
-            currentRevisionId = eventstorage.get(eventstorage.size()-1).getRevisionId();
-        addEvent(new SystemBootstrapDone(currentRevisionId));
+        RevisionGenerator revisionGenerator = SystemSetup.instance().revisionGenerator();
+        if (eventstorage.size() > 0) {
+            revisionGenerator.resetRevision(eventstorage.size());
+        }
+        addEvent(new SystemBootstrapDone(revisionGenerator.nextRevisionId()));
     }
 
 
