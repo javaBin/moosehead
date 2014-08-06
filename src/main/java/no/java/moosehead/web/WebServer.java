@@ -1,10 +1,15 @@
 package no.java.moosehead.web;
 
-import no.java.moosehead.controller.SystemSetup;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ShutdownHandler;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
+
+import java.util.Collections;
 
 public class WebServer {
 
@@ -33,19 +38,45 @@ public class WebServer {
 
     private void start() throws Exception {
         Server server = new Server(port);
+
+        WebAppContext webAppContext;
         if (warFile != null) {
-            WebAppContext webAppContext = new WebAppContext();
+            webAppContext = new WebAppContext();
             webAppContext.setContextPath("/");
             webAppContext.setWar(warFile);
             server.setHandler(webAppContext);
         } else {
-            HandlerList handlerList = new HandlerList();
-            handlerList.addHandler(new ShutdownHandler("yablayabla", false, true));
-            handlerList.addHandler(new WebAppContext("src/main/webapp", "/"));
-            server.setHandler(handlerList);
+            webAppContext = new WebAppContext("src/main/webapp", "/");
+            webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         }
+
+        setupSecurity(server, webAppContext);
+
         server.start();
         System.out.println(server.getURI());
+    }
+
+    private void setupSecurity(Server server, WebAppContext theContextToSecure) {
+        LoginService loginService = new HashLoginService("MyRealm","src/test/resources/realm.properties");
+        server.addBean(loginService);
+
+        Constraint constraint = new Constraint();
+        constraint.setName("auth");
+        constraint.setAuthenticate( true );
+        constraint.setRoles(new String[]{"user", "admin"});
+
+        ConstraintMapping mapping = new ConstraintMapping();
+        mapping.setPathSpec( "/admim/*" );
+        mapping.setConstraint( constraint );
+
+        ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+        security.setConstraintMappings(Collections.singletonList(mapping));
+        security.setAuthenticator(new BasicAuthenticator());
+        security.setLoginService(loginService);
+
+        security.setHandler(theContextToSecure);
+
+        server.setHandler(security);
     }
 
     private static int getPort(int defaultPort) {

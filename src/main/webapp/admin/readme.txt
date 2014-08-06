@@ -1,0 +1,1 @@
+Put resources that have to be protected in this folder

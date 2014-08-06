@@ -6,6 +6,15 @@
          metadata-complete="false">
 
     <servlet>
+        <servlet-name>adminServlet</servlet-name>
+        <servlet-class>no.java.moosehead.web.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>adminServlet</servlet-name>
+        <url-pattern>admin/data/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>dataServlet</servlet-name>
         <servlet-class>no.java.moosehead.web.DataServlet</servlet-class>
     </servlet>
@@ -22,4 +31,5 @@
         <servlet-name>capthcaServlet</servlet-name>
         <url-pattern>captcha/*</url-pattern>
     </servlet-mapping>
+
 </web-app>
