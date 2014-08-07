@@ -3,6 +3,7 @@ package no.java.moosehead.api;
 import java.util.List;
 
 public interface ParticipantApi {
+    public WorkshopInfo getWorkshop(String workshopid);
     public List<WorkshopInfo> workshops();
     public ParticipantActionResult reservation(String workshopid, String email, String fullname);
     public ParticipantActionResult confirmEmail(String token);

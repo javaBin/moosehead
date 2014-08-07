@@ -1,5 +1,7 @@
 package no.java.moosehead.web;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
@@ -60,7 +62,7 @@ public class WebServer {
 
     private void setupLogging() {
         //LogManager.getRootLogger().setLevel(Level.INFO);
-        //LogManager.getLogger("org.eclipse.jetty.security").setLevel(Level.TRACE);
+        LogManager.getLogger("org.eclipse.jetty").setLevel(Level.INFO);
     }
 
     private void setupSecurity(Server server, WebAppContext theContextToSecure) {

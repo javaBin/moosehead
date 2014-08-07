@@ -3,5 +3,8 @@
     <div ng-repeat="workshop in workshops">
         <h2>{{workshop.title}}</h2>
         <p>Status: {{workshop.status}}</p>
+        <ul ng-repeat="participant in workshop.participants">
+            <li>{{participant.name}} - {{participant.email}} - confirmed: {{participant.isEmailConfirmed}}</li>
+        </ul>
     </div>
 </div>

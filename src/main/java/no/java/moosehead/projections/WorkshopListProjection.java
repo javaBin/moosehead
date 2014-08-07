@@ -20,39 +20,51 @@ public class WorkshopListProjection implements EventSubscription {
     @Override
     public void eventAdded(AbstractEvent event) {
         if (event instanceof WorkshopAddedByAdmin) {
-            WorkshopAddedByAdmin workshopAddedByAdmin = (WorkshopAddedByAdmin) event;
-            WorkshopData workshopData = SystemSetup.instance().workshopRepository().workshopById(workshopAddedByAdmin.getWorkshopId()).get();
-            workshops.add(new Workshop(workshopData,workshopAddedByAdmin.getNumberOfSeats()));
+            handleWorkshopAddedByAdmin((WorkshopAddedByAdmin) event);
         } else if (event instanceof ReservationAddedByUser) {
-            ReservationAddedByUser reservationAddedByUser = (ReservationAddedByUser) event;
-            Workshop workshop = findWorkshop(reservationAddedByUser.getWorkshopId());
-
-            Optional<String> confirmedPart = confirmedEmails.stream()
-                    .filter(email -> email.equals(reservationAddedByUser.getEmail()))
-                    .findAny();
-
-            Participant participant;
-            if (confirmedPart.isPresent()) {
-                participant = Participant.confirmedParticipant(reservationAddedByUser, workshop);
-            } else {
-                participant = Participant.unconfirmedParticipant(reservationAddedByUser, workshop);
-            }
-            workshop.addParticipant(participant);
+            handleReservationAddedByUser((ReservationAddedByUser) event);
         } else if (event instanceof ReservationCancelledByUser) {
-            ReservationCancelledByUser reservationCancelledByUser = (ReservationCancelledByUser) event;
-            Workshop workshop = findWorkshop(reservationCancelledByUser.getWorkshopId());
-            workshop.removeParticipant(reservationCancelledByUser.getEmail());
+            handleReservationCancelledByUser((ReservationCancelledByUser) event);
         } else if (event instanceof EmailConfirmedByUser) {
-            EmailConfirmedByUser emailConfirmedByUser = (EmailConfirmedByUser) event;
-            List<Participant> toConfirm = workshops.stream()
-                    .flatMap(ws -> ws.getParticipants().stream())
-                    .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
-                    .collect(Collectors.toList());
-            for (Participant part : toConfirm) {
-                part.confirmEmail();
-            }
-            confirmedEmails.add(emailConfirmedByUser.getEmail());
+            handleEmailConfirmedByUser((EmailConfirmedByUser) event);
         }
+    }
+
+    private void handleWorkshopAddedByAdmin(WorkshopAddedByAdmin workshopAddedByAdmin) {
+        WorkshopData workshopData = SystemSetup.instance().workshopRepository().workshopById(workshopAddedByAdmin.getWorkshopId()).get();
+        workshops.add(new Workshop(workshopData,workshopAddedByAdmin.getNumberOfSeats()));
+    }
+
+    private void handleEmailConfirmedByUser(EmailConfirmedByUser emailConfirmedByUser) {
+        List<Participant> toConfirm = workshops.stream()
+                .flatMap(ws -> ws.getParticipants().stream())
+                .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
+                .collect(Collectors.toList());
+        for (Participant part : toConfirm) {
+            part.confirmEmail();
+        }
+        confirmedEmails.add(emailConfirmedByUser.getEmail());
+    }
+
+    private void handleReservationCancelledByUser(ReservationCancelledByUser reservationCancelledByUser) {
+        Workshop workshop = findWorkshop(reservationCancelledByUser.getWorkshopId());
+        workshop.removeParticipant(reservationCancelledByUser.getEmail());
+    }
+
+    private void handleReservationAddedByUser(ReservationAddedByUser reservationAddedByUser) {
+        Workshop workshop = findWorkshop(reservationAddedByUser.getWorkshopId());
+
+        Optional<String> confirmedPart = confirmedEmails.stream()
+                .filter(email -> email.equals(reservationAddedByUser.getEmail()))
+                .findAny();
+
+        Participant participant;
+        if (confirmedPart.isPresent()) {
+            participant = Participant.confirmedParticipant(reservationAddedByUser, workshop);
+        } else {
+            participant = Participant.unconfirmedParticipant(reservationAddedByUser, workshop);
+        }
+        workshop.addParticipant(participant);
     }
 
     private Workshop findWorkshop(String workshopId) {

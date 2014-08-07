@@ -2,6 +2,7 @@ package no.java.moosehead.controller;
 
 import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
+import no.java.moosehead.aggregate.WorkshopNotFoundException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
@@ -16,12 +17,27 @@ import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.web.Configuration;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WorkshopController implements ParticipantApi {
+    @Override
+    public WorkshopInfo getWorkshop(String workshopid) {
+        List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
+        Optional<Workshop> workshopOptional = workshops.stream()
+                .filter(ws -> ws.getWorkshopData().getId().equals(workshopid))
+                .findFirst();
+
+        if (workshopOptional.isPresent()) {
+            Workshop ws = workshopOptional.get();
+            WorkshopData wd = ws.getWorkshopData();
+            WorkshopStatus status = computeWorkshopStatus(ws);
+            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status);
+        } else
+            throw new WorkshopNotFoundException();
+    }
+
     @Override
     public List<WorkshopInfo> workshops() {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
@@ -30,7 +46,7 @@ public class WorkshopController implements ParticipantApi {
                     WorkshopData wd = ws.getWorkshopData();
                     WorkshopStatus status = computeWorkshopStatus(ws);
 
-                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), status);
+                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status);
                 })
                 .collect(Collectors.toList())
         ;

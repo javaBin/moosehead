@@ -11,10 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -42,8 +39,8 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("GET");
         when(req.getPathInfo()).thenReturn("/workshopList");
 
-        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", WorkshopStatus.FREE_SPOTS);
-        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", WorkshopStatus.FREE_SPOTS);
+        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", null, WorkshopStatus.FREE_SPOTS);
+        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", null, WorkshopStatus.FREE_SPOTS);
 
         when(participantApi.workshops()).thenReturn(Arrays.asList(one, two));
 

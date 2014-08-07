@@ -30,8 +30,14 @@ public class AdminServlet  extends HttpServlet {
         if ("/workshopList".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
             printWorkshops(resp);
+        } else if ("/workshop".equals(req.getPathInfo())) {
+            printWorkshopDetails(req, resp);
         } else {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print("" +
+                    "<html>Protected Admin API:<ul>" +
+                    "   <li>/workshopList</li>" +
+                    "   <li>/workshop?workshopid=[workshopid]</li>" +
+                    "</html>");
         }
 
     }
@@ -55,6 +61,38 @@ public class AdminServlet  extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         try {
             new JSONArray(jsons).write(writer);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void printWorkshopDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String workshopId = req.getParameter("workshopid");
+        WorkshopInfo workshop = participantApi.getWorkshop(workshopId);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", workshop.getId());
+            jsonObject.put("title", workshop.getTitle());
+            jsonObject.put("description", workshop.getDescription());
+            jsonObject.put("status", workshop.getStatus().name());
+            jsonObject.put("participants", new JSONArray(workshop.getParticipants().stream().
+                        map(pa -> {
+                            JSONObject json = new JSONObject();
+                            try {
+                                json.put("name", pa.getName());
+                                json.put("email", pa.getEmail());
+                                json.put("isEmailConfirmed",pa.isEmailConfirmed());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            return json;
+                        }).collect(Collectors.toList())));
+
+
+            PrintWriter writer = resp.getWriter();
+
+            jsonObject.write(writer);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

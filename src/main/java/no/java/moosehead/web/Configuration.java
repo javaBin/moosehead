@@ -125,7 +125,7 @@ public class Configuration {
     }
 
     public static int smtpPort() {
-        return Integer.parseInt(readConf("smtpPort","0"));
+        return Integer.parseInt(readConf("smtpPort","25"));
     }
 
     public static String bccTo() {
