@@ -16,9 +16,6 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Created by Tor Egil Refsahl on 06.08.2014.
- */
 public class AdminServlet  extends HttpServlet {
 
     private ParticipantApi participantApi;

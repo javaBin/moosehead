@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,6 +100,10 @@ public class Configuration {
 
     public static String emsEventLocation() {
         return readConf("emsEventLocation","http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
+    }
+
+    public static String loginConfigLocation() {
+        return readConf("loginConfigLocation","src/main/resources/realm.properties");
     }
 
     public static int placesPerWorkshop() {

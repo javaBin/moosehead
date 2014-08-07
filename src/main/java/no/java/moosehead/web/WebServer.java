@@ -48,6 +48,8 @@ public class WebServer {
         } else {
             webAppContext = new WebAppContext("src/main/webapp", "/");
             webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
+
+            setupLogging();
         }
 
         setupSecurity(server, webAppContext);
@@ -56,21 +58,26 @@ public class WebServer {
         System.out.println(server.getURI());
     }
 
+    private void setupLogging() {
+        //LogManager.getRootLogger().setLevel(Level.INFO);
+        //LogManager.getLogger("org.eclipse.jetty.security").setLevel(Level.TRACE);
+    }
+
     private void setupSecurity(Server server, WebAppContext theContextToSecure) {
-        LoginService loginService = new HashLoginService("MyRealm","src/test/resources/realm.properties");
+        LoginService loginService = new HashLoginService("MooseRealm",Configuration.loginConfigLocation());
         server.addBean(loginService);
 
         Constraint constraint = new Constraint();
-        constraint.setName("auth");
-        constraint.setAuthenticate( true );
-        constraint.setRoles(new String[]{"user", "admin"});
+        constraint.setAuthenticate(true);
+        constraint.setRoles(new String[]{"adminrole"});
 
         ConstraintMapping mapping = new ConstraintMapping();
-        mapping.setPathSpec( "/admim/*" );
-        mapping.setConstraint( constraint );
+        mapping.setPathSpec("/admin/*");
+        mapping.setConstraint(constraint);
 
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();
         security.setConstraintMappings(Collections.singletonList(mapping));
+        security.setRealmName("MooseRealm");
         security.setAuthenticator(new BasicAuthenticator());
         security.setLoginService(loginService);
 
