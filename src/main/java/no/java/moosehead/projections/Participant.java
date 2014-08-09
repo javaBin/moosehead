@@ -1,6 +1,12 @@
 package no.java.moosehead.projections;
 
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 public class Participant {
     private final String name;
@@ -8,6 +14,7 @@ public class Participant {
     private boolean emailConfirmed;
     private Workshop workshop;
     private long reservationEventRevisionId;
+    private OffsetDateTime confirmedAt;
 
 
     private Participant(String email, String fullname, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId) {
@@ -42,7 +49,11 @@ public class Participant {
         return email;
     }
 
-    public void confirmEmail() {
+    public void confirmEmail(EmailConfirmedByUser emailConfirmedByUser) {
+        long confirmedAtMillis = emailConfirmedByUser.getSystemTimeInMillis();
+        OffsetDateTime reference = OffsetDateTime.now();
+        long difference = reference.toEpochSecond() - (confirmedAtMillis/1000);
+        confirmedAt = reference.minusSeconds(difference);
         emailConfirmed = true;
         this.workshop.moveToConfirmed(this);
     }
@@ -79,5 +90,9 @@ public class Participant {
 
     public long getReservationEventRevisionId() {
         return reservationEventRevisionId;
+    }
+
+    public Optional<OffsetDateTime> getConfirmedAt() {
+        return Optional.ofNullable(confirmedAt);
     }
 }

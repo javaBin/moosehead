@@ -42,7 +42,7 @@ public class WorkshopListProjection implements EventSubscription {
                 .collect(Collectors.toList());
 
         for (Participant part : toConfirm) {
-            part.confirmEmail();
+            part.confirmEmail(emailConfirmedByUser);
         }
         confirmedEmails.add(emailConfirmedByUser.getEmail());
     }

@@ -59,10 +59,12 @@ public class AdminServlet  extends HttpServlet {
                         List<JSONObject> partList = workshop.getParticipants().stream().sequential()
                                 .map(pa -> {
                                     JSONObject partObj = new JSONObject();
+
                                     try {
                                         partObj.put("email", pa.getEmail());
                                         partObj.put("name", pa.getName());
                                         partObj.put("isEmailConfirmed", pa.isEmailConfirmed());
+                                        partObj.put("confirmedAt", pa.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
                                     } catch (JSONException e) {
                                         throw new RuntimeException(e);
                                     }

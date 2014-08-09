@@ -121,6 +121,6 @@ public class WorkshopAggregate implements EventSubscription {
         if (any.isPresent()) {
             throw new NoReservationFoundException("This email is already confirmed");
         }
-        return new EmailConfirmedByUser(reservation.getEmail(),nextRevision(),System.currentTimeMillis());
+        return new EmailConfirmedByUser(reservation.getEmail(),System.currentTimeMillis(),nextRevision());
     }
 }
