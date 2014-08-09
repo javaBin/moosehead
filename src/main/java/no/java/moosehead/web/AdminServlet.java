@@ -32,6 +32,8 @@ public class AdminServlet  extends HttpServlet {
             printWorkshops(resp);
         } else if ("/workshop".equals(req.getPathInfo())) {
             printWorkshopDetails(req, resp);
+        } else if ("/alldata".equals(req.getPathInfo())) {
+            printAllInfo(resp);
         } else {
             resp.getWriter().print("" +
                     "<html>Protected Admin API:<ul>" +
@@ -40,6 +42,44 @@ public class AdminServlet  extends HttpServlet {
                     "</html>");
         }
 
+    }
+
+    private void printAllInfo(HttpServletResponse resp) throws IOException {
+        List<WorkshopInfo> workshops = participantApi.workshops();
+        List<JSONObject> allInfo = workshops.stream()
+                .sequential()
+                .map(workshop -> {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("id", workshop.getId());
+                        jsonObject.put("title", workshop.getTitle());
+                        jsonObject.put("description", workshop.getDescription());
+                        jsonObject.put("status", workshop.getStatus().name());
+
+                        List<JSONObject> partList = workshop.getParticipants().stream().sequential()
+                                .map(pa -> {
+                                    JSONObject partObj = new JSONObject();
+                                    try {
+                                        partObj.put("email", pa.getEmail());
+                                        partObj.put("name", pa.getName());
+                                        partObj.put("confirmed", pa.isEmailConfirmed());
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    return partObj;
+                                })
+                                .collect(Collectors.toList());
+                        jsonObject.put("participants",new JSONArray(partList));
+
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return jsonObject;
+                })
+                .collect(Collectors.toList());
+        JSONArray jsonArray = new JSONArray(allInfo);
+        resp.setContentType("text/json");
+        resp.getWriter().append(jsonArray.toString());
     }
 
     private void printWorkshops(HttpServletResponse resp) throws IOException {

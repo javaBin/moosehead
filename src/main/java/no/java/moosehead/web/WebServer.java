@@ -46,15 +46,17 @@ public class WebServer {
             webAppContext = new WebAppContext();
             webAppContext.setContextPath("/");
             webAppContext.setWar(warFile);
-            server.setHandler(webAppContext);
         } else {
             webAppContext = new WebAppContext("src/main/webapp", "/");
             webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
-
             setupLogging();
         }
 
-        setupSecurity(server, webAppContext);
+        if (Configuration.secureAdmin()) {
+            setupSecurity(server, webAppContext);
+        } else {
+            server.setHandler(webAppContext);
+        }
 
         server.start();
         System.out.println(server.getURI());

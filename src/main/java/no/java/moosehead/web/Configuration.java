@@ -144,4 +144,7 @@ public class Configuration {
         return "false".equals(readConf("testenv","true"));
     }
 
+    public static boolean secureAdmin() {
+        return "true".equals(readConf("secureAdmin","true"));
+    }
 }
