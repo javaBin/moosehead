@@ -1,6 +1,6 @@
 angular.module('mooseheadModule')
-    .controller('AdminCtrl', ['$scope', '$http','workshopFactory',
-        function($scope, $http,workshopFactory) {
+    .controller('AdminCtrl', ['$scope', '$http',
+        function($scope, $http) {
             $scope.workshops = [];
             $http({method: "GET", url: "data/alldata"})
                 .success(function(value) {

@@ -62,7 +62,7 @@ public class AdminServlet  extends HttpServlet {
                                     try {
                                         partObj.put("email", pa.getEmail());
                                         partObj.put("name", pa.getName());
-                                        partObj.put("confirmed", pa.isEmailConfirmed());
+                                        partObj.put("isEmailConfirmed", pa.isEmailConfirmed());
                                     } catch (JSONException e) {
                                         throw new RuntimeException(e);
                                     }
