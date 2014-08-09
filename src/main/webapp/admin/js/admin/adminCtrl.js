@@ -11,6 +11,11 @@ angular.module('mooseheadModule')
                     return "Confirmed";
                 }
                 return "Not confirmed";
-            }
+            };
+
+            $scope.queNum = function(workshop,participant) {
+                var pos = workshop.participants.indexOf(participant);
+                return pos+1;
+            };
         }]);
 
