@@ -147,4 +147,8 @@ public class Configuration {
     public static boolean secureAdmin() {
         return "true".equals(readConf("secureAdmin","true"));
     }
+
+    public static String adminPassword() {
+        return readConf("adminPassword","password");
+    }
 }

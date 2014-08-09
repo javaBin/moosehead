@@ -52,11 +52,10 @@ public class WebServer {
             setupLogging();
         }
 
-        if (Configuration.secureAdmin()) {
+        /*if (Configuration.secureAdmin()) {
             setupSecurity(server, webAppContext);
-        } else {
-            server.setHandler(webAppContext);
-        }
+        }*/
+        server.setHandler(webAppContext);
 
         server.start();
         System.out.println(server.getURI());

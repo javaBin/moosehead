@@ -40,6 +40,7 @@ public class WorkshopListProjection implements EventSubscription {
                 .flatMap(ws -> ws.getParticipants().stream())
                 .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
                 .collect(Collectors.toList());
+
         for (Participant part : toConfirm) {
             part.confirmEmail();
         }
