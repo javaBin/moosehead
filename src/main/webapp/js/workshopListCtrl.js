@@ -8,7 +8,7 @@ angular.module('mooseheadModule')
             );
 
             $scope.workshopOpen = function(workshop) {
-                return (workshop.status === "FREE_SPOTS" || workshop.status === "FEW_SPOTS");
+                return (workshop.status === "FREE_SPOTS" || workshop.status === "FEW_SPOTS" || workshop.status === "FULL");
             }
         }]);
 
