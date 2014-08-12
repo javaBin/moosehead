@@ -40,7 +40,7 @@ public class WebServer {
         WebAppContext webAppContext;
         webAppContext = new WebAppContext("src/main/webapp", "/");
         webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
-        webAppContext.setContextPath("/moosehead");
+        webAppContext.setContextPath("/");
         setupLogging();
 
         if (new File("pom.xml").exists()) {
@@ -71,7 +71,7 @@ public class WebServer {
         constraint.setRoles(new String[]{"adminrole"});
 
         ConstraintMapping mapping = new ConstraintMapping();
-        mapping.setPathSpec("/moosehead/admin/*");
+        mapping.setPathSpec("/admin/*");
         mapping.setConstraint(constraint);
 
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();

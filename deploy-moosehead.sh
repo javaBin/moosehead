@@ -51,9 +51,6 @@ DEFAULT_VERSION=`date +%Y%m%d%H%M%S`-SNAPSHOT
 ask "Hvor ligger jar-filen? [$DEFAULT_JAR]"
 JAR=$(_readWithDefault $DEFAULT_JAR)
 
-ask "Hvor ligger war-filen? [$DEFAULT_WAR]"
-WAR=$(_readWithDefault $DEFAULT_WAR)
-
 ask "Hvilken versjon? [$DEFAULT_VERSION]"
 VERSION=$(_readWithDefault $DEFAULT_VERSION)
 
@@ -83,8 +80,6 @@ info "Deployer til $EVN på $HOST:$BASE med versjon $VERSION med jar $JAR og war
 ssh javabin@$HOST "mkdir -p $BASE/$VERSION"
 info "Laster opp jar"
 scp $JAR javabin@$HOST:$BASE/$VERSION/moosehead.jar
-info "Laster opp war"
-scp $WAR javabin@$HOST:$BASE/$VERSION/moosehead.war
 ssh javabin@$HOST "ln -s -f $VERSION -T $BASE/current"
 ssh javabin@$HOST "$BASE/moosehead.sh stop"
 ssh javabin@$HOST "$BASE/moosehead.sh start"
