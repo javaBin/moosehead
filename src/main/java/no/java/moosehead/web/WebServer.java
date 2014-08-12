@@ -1,16 +1,16 @@
 package no.java.moosehead.web;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import java.io.File;
 import java.util.Collections;
 
 public class WebServer {
@@ -25,37 +25,32 @@ public class WebServer {
 
     public static void main(String[] args) throws Exception {
         String configFilename = null;
-        String warFile = null;
         if (args.length > 0) {
             configFilename = args[0];
             System.setProperty("mooseheadConfFile",configFilename);
         } else {
             System.out.println("Running without config");
         }
-        if (args.length > 1) {
-            warFile = args[1];
-        }
-        new WebServer(getPort(8088),warFile).start();
+        new WebServer(getPort(8088),null).start();
     }
 
     private void start() throws Exception {
         Server server = new Server(port);
 
         WebAppContext webAppContext;
-        if (warFile != null) {
-            webAppContext = new WebAppContext();
-            webAppContext.setContextPath("/");
-            webAppContext.setWar(warFile);
-        } else {
-            webAppContext = new WebAppContext("src/main/webapp", "/");
-            webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
-            setupLogging();
-        }
+        webAppContext = new WebAppContext("src/main/webapp", "/");
+        webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
+        webAppContext.setContextPath("/moosehead");
+        setupLogging();
 
-        /*if (Configuration.secureAdmin()) {
-            setupSecurity(server, webAppContext);
-        }*/
-        server.setHandler(webAppContext);
+        if (new File("pom.xml").exists()) {
+            // Development
+            webAppContext.setResourceBase("src/main/resources/webapp");
+        } else {
+            // Prod
+            webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
+        }
+        setupSecurity(server, webAppContext);
 
         server.start();
         System.out.println(server.getURI());
@@ -63,11 +58,12 @@ public class WebServer {
 
     private void setupLogging() {
         //LogManager.getRootLogger().setLevel(Level.INFO);
-        LogManager.getLogger("org.eclipse.jetty").setLevel(Level.INFO);
+        //LogManager.getLogger("org.eclipse.jetty").setLevel(Level.INFO);
+        //LogManager.getLogger("org.eclipse.jetty.security").setLevel(Level.TRACE);
     }
 
     private void setupSecurity(Server server, WebAppContext theContextToSecure) {
-        LoginService loginService = new HashLoginService("MooseRealm",Configuration.loginConfigLocation());
+        LoginService loginService = new HashLoginService("MooseRealm",  Configuration.loginConfigLocation());
         server.addBean(loginService);
 
         Constraint constraint = new Constraint();
@@ -75,7 +71,7 @@ public class WebServer {
         constraint.setRoles(new String[]{"adminrole"});
 
         ConstraintMapping mapping = new ConstraintMapping();
-        mapping.setPathSpec("/admin/*");
+        mapping.setPathSpec("/moosehead/admin/*");
         mapping.setConstraint(constraint);
 
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();

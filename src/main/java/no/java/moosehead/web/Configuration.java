@@ -103,7 +103,7 @@ public class Configuration {
     }
 
     public static String loginConfigLocation() {
-        return readConf("loginConfigLocation","src/main/resources/realm.properties");
+        return readConf("loginConfigLocation","realm.properties");
     }
 
     public static int placesPerWorkshop() {
