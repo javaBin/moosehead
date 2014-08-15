@@ -4,8 +4,6 @@ import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public class Participant {
@@ -17,7 +15,7 @@ public class Participant {
     private OffsetDateTime confirmedAt;
 
 
-    private Participant(String email, String fullname, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId) {
+    private Participant(String email, String fullname, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId, long eventMillis) {
         if (email == null) {
             throw new NullPointerException("Email can not be null");
         }
@@ -26,18 +24,21 @@ public class Participant {
         this.name = fullname;
         this.email = email;
         this.emailConfirmed = emailConfirmed;
+        if (emailConfirmed) {
+            this.confirmedAt = systemMillisToOffsetTime(eventMillis);
+        }
     }
 
     public static Participant confirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
-        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,true, reservationAddedByUser.getRevisionId());
+        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,true, reservationAddedByUser.getRevisionId(), reservationAddedByUser.getSystemTimeInMillis());
     }
 
     public static Participant unconfirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
-        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,false, reservationAddedByUser.getRevisionId());
+        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,false, reservationAddedByUser.getRevisionId(), reservationAddedByUser.getSystemTimeInMillis());
     }
 
     public static Participant dummyParticipant(String email) {
-        return new Participant(email,null,null,false, 0);
+        return new Participant(email,null,null,false, 0, 0);
     }
 
 
@@ -51,11 +52,15 @@ public class Participant {
 
     public void confirmEmail(EmailConfirmedByUser emailConfirmedByUser) {
         long confirmedAtMillis = emailConfirmedByUser.getSystemTimeInMillis();
-        OffsetDateTime reference = OffsetDateTime.now();
-        long difference = reference.toEpochSecond() - (confirmedAtMillis/1000);
-        confirmedAt = reference.minusSeconds(difference);
+        confirmedAt = systemMillisToOffsetTime(confirmedAtMillis);
         emailConfirmed = true;
         this.workshop.moveToConfirmed(this);
+    }
+
+    private OffsetDateTime systemMillisToOffsetTime(long systemMillis) {
+        OffsetDateTime reference = OffsetDateTime.now();
+        long difference = reference.toEpochSecond() - (systemMillis/1000);
+        return reference.minusSeconds(difference);
     }
 
     public boolean isEmailConfirmed() {
