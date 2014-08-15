@@ -5,6 +5,7 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
@@ -54,11 +55,15 @@ public class WebServer {
             webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
         }
 
+         Handler serverHandler;
+
         if (Configuration.secureAdmin()) {
-            setupSecurity(server, webAppContext);
+            serverHandler = setupSecurity(server, webAppContext);
         } else {
-            server.setHandler(webAppContext);
+            serverHandler = webAppContext;
         }
+
+        server.setHandler(serverHandler);
 
         server.start();
         System.out.println(server.getURI() + " at " + LocalDateTime.now());
