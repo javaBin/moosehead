@@ -4,7 +4,7 @@
         <h2>{{workshop.title}}</h2>
         <p>Status: {{workshop.status}}</p>
         <ul ng-repeat="participant in workshop.participants">
-            <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - confirmed: {{isConfirmed(participant)}} ({{participant.confirmedAt}})</li>
+            <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}})</li>
         </ul>
     </div>
 </div>
