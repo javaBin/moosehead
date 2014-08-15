@@ -43,17 +43,26 @@ public class WebServer {
         webAppContext.setContextPath("/");
         setupLogging();
 
-        if (new File("pom.xml").exists()) {
-            // Development
+        if (isDevEnviroment()) {
+            // Development ie running in ide
             webAppContext.setResourceBase("src/main/resources/webapp");
         } else {
-            // Prod
+            // Prod ie running from jar
             webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
         }
-        setupSecurity(server, webAppContext);
+
+        if (Configuration.secureAdmin()) {
+            setupSecurity(server, webAppContext);
+        } else {
+            server.setHandler(webAppContext);
+        }
 
         server.start();
         System.out.println(server.getURI());
+    }
+
+    private boolean isDevEnviroment() {
+        return new File("pom.xml").exists();
     }
 
     private void setupLogging() {
@@ -62,7 +71,7 @@ public class WebServer {
         //LogManager.getLogger("org.eclipse.jetty.security").setLevel(Level.TRACE);
     }
 
-    private void setupSecurity(Server server, WebAppContext theContextToSecure) {
+    private ConstraintSecurityHandler setupSecurity(Server server, WebAppContext theContextToSecure) {
         LoginService loginService = new HashLoginService("MooseRealm",  Configuration.loginConfigLocation());
         server.addBean(loginService);
 
@@ -82,7 +91,7 @@ public class WebServer {
 
         security.setHandler(theContextToSecure);
 
-        server.setHandler(security);
+        return security;
     }
 
     private static int getPort(int defaultPort) {
