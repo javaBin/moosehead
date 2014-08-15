@@ -11,7 +11,10 @@ import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 
 public class WebServer {
 
@@ -58,7 +61,7 @@ public class WebServer {
         }
 
         server.start();
-        System.out.println(server.getURI());
+        System.out.println(server.getURI() + " at " + LocalDateTime.now());
     }
 
     private boolean isDevEnviroment() {
