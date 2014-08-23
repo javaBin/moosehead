@@ -151,4 +151,8 @@ public class Configuration {
     public static String adminPassword() {
         return readConf("adminPassword","password");
     }
+
+    public static int veryFullNumber() {
+        return Integer.parseInt(readConf("veryFullNumber","20"));
+    }
 }
