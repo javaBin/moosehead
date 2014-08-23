@@ -58,6 +58,9 @@ public class WorkshopController implements ParticipantApi {
         }
         int confirmedParticipants = (int) ws.getParticipants().stream().filter(pa -> pa.isEmailConfirmed()).count();
         int seatsLeft = ws.getNumberOfSeats() - confirmedParticipants;
+        if (seatsLeft <= -20) {
+            return WorkshopStatus.VERY_FULL;
+        }
         if (seatsLeft <= 0) {
             return WorkshopStatus.FULL;
         }

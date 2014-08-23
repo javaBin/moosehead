@@ -5,6 +5,7 @@ angular.module('mooseheadModule')
             $scope.showMessage = false;
             $scope.captchasrc = "captcha/img?cb=" + Date.now();
             $scope.workshopid = $routeParams.workshopid;
+            $scope.showVeryFull = false;
 
             workshopFactory.then(function(workshopList) {
                $scope.workshop = _.find(workshopList,function(w) {
@@ -22,6 +23,8 @@ angular.module('mooseheadModule')
                     $scope.message = "Registrations for this workshop is now closed";
                     $scope.showForm = false;
                     $scope.showMessage = true;
+                } else if ($scope.workshop.status === "VERY_FULL") {
+                    $scope.showVeryFull = true;
                 }
             });
 

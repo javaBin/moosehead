@@ -20,11 +20,9 @@ import java.util.Date;
 public class WebServer {
 
     private final Integer port;
-    private String warFile;
 
-    public WebServer(Integer port, String warFile) {
+    private WebServer(Integer port) {
         this.port = port;
-        this.warFile = warFile;
     }
 
     public static void main(String[] args) throws Exception {
@@ -35,7 +33,7 @@ public class WebServer {
         } else {
             System.out.println("Running without config");
         }
-        new WebServer(getPort(8088),null).start();
+        new WebServer(getPort(8088)).start();
     }
 
     private void start() throws Exception {
