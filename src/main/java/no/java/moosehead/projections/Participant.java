@@ -71,6 +71,10 @@ public class Participant {
         return workshop.waitingListNumber(this);
     }
 
+    public boolean isWaiting() {
+        return waitingListNumber() > 0;
+    }
+
 
     @Override
     public boolean equals(Object o) {

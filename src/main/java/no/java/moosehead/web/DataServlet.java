@@ -35,10 +35,49 @@ public class DataServlet extends HttpServlet {
         } else if ("/myReservations".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
             printMyReservations(req,resp);
+        } else if ("/teacherList".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
+            printTeacherList(req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
 
+    }
+
+    private void printTeacherList(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String workshop = req.getParameter("workshop");
+        if (workshop == null || workshop.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");
+            return;
+        }
+        final long revisionId;
+        try {
+            revisionId = Long.parseLong(workshop);
+        } catch (NumberFormatException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");
+            return;
+        }
+        Optional<WorkshopInfo> workshopInfoOptional = participantApi.workshops().stream()
+                .filter(ws -> ws.getCreatedRevisionId() == revisionId)
+                .findAny();
+        if (!workshopInfoOptional.isPresent()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");
+            return;
+        }
+        WorkshopInfo workshopInfo = workshopInfoOptional.get();
+        List<JSONObject> participants = workshopInfo.getParticipants().stream()
+                .filter(pa -> pa.isEmailConfirmed())
+                .map(ParticipantApi::participantAsJson)
+                .collect(Collectors.toList());
+
+        try {
+            JSONObject result = new JSONObject();
+            result.put("title",workshopInfo.getTitle());
+            result.put("participants",new JSONArray(participants));
+            result.write(resp.getWriter());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void printMyReservations(HttpServletRequest req, HttpServletResponse resp) throws IOException {

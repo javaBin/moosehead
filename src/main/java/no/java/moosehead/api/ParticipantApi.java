@@ -1,5 +1,6 @@
 package no.java.moosehead.api;
 
+import no.java.moosehead.projections.Participant;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,19 +26,7 @@ public interface ParticipantApi {
             jsonObject.put("createdRevisionId",workshop.getCreatedRevisionId());
 
             List<JSONObject> partList = workshop.getParticipants().stream().sequential()
-                    .map(pa -> {
-                        JSONObject partObj = new JSONObject();
-
-                        try {
-                            partObj.put("email", pa.getEmail());
-                            partObj.put("name", pa.getName());
-                            partObj.put("isEmailConfirmed", pa.isEmailConfirmed());
-                            partObj.put("confirmedAt", pa.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                        return partObj;
-                    })
+                    .map(ParticipantApi::participantAsJson)
                     .collect(Collectors.toList());
             jsonObject.put("participants",new JSONArray(partList));
 
@@ -46,5 +35,20 @@ public interface ParticipantApi {
         }
         return jsonObject;
 
+    }
+
+    public static JSONObject participantAsJson(Participant participant) {
+        JSONObject partObj = new JSONObject();
+
+        try {
+            partObj.put("email", participant.getEmail());
+            partObj.put("name", participant.getName());
+            partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
+            partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
+            partObj.put("isWaiting",participant.isWaiting());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return partObj;
     }
 }
