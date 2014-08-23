@@ -1,0 +1,12 @@
+<div>
+    <h1 ng-show="showData">Participant list for "{{title}}"</h1>
+    <p ng-show="showMessage">{{message}}</p>
+    <h2>Participants</h2>
+    <ul>
+        <li ng-repeat="participant in participants" ng-show="!participant.isWaiting">{{participant.name}} - {{participant.email}}</li>
+    </ul>
+    <h2>Waiting list</h2>
+    <ul>
+        <li ng-repeat="participant in participants" ng-show="participant.isWaiting">{{participant.name}} - {{participant.email}}</li>
+    </ul>
+</div>

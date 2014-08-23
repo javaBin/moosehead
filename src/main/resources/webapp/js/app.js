@@ -24,7 +24,10 @@
                         templateUrl: 'templates/confirmEmail.html',
                         controller: 'ConfirmEmailCtrl'
                     })
-
+                    .when("/list/:token", {
+                        templateUrl: 'templates/listWorkshop.html',
+                        controller: 'ListWorkshopCtrl'
+                    })
                     ;
         }]);
         
