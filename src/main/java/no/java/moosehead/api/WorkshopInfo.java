@@ -10,13 +10,15 @@ public class WorkshopInfo {
     private String description;
     private List<Participant> participants;
     private WorkshopStatus status;
+    private long createdRevisionId;
 
-    public WorkshopInfo(String id, String title, String description, List<Participant> participants, WorkshopStatus status) {
+    public WorkshopInfo(String id, String title, String description, List<Participant> participants, WorkshopStatus status,long createdRevisionId) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.participants = participants;
         this.status = status;
+        this.createdRevisionId = createdRevisionId;
     }
 
     public String getId() {
@@ -37,5 +39,9 @@ public class WorkshopInfo {
 
     public List<Participant> getParticipants() {
         return participants;
+    }
+
+    public long getCreatedRevisionId() {
+        return createdRevisionId;
     }
 }

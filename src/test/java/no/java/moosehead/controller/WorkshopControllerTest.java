@@ -1,6 +1,5 @@
 package no.java.moosehead.controller;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
@@ -17,12 +16,10 @@ import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.repository.WorkshopData;
-import org.fest.assertions.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +59,7 @@ public class WorkshopControllerTest {
 
     @Test
     public void shouldReturnWorkshopList() throws Exception {
-        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one", "title", "description"), 30)));
+        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one", "title", "description"), 30, 3L)));
 
 
         List<WorkshopInfo> workshops = workshopController.workshops();

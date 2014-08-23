@@ -3,6 +3,7 @@
     <div ng-repeat="workshop in workshops">
         <h2>{{workshop.title}}</h2>
         <p>Status: {{workshop.status}}</p>
+        <p>Revisionid: {{workshop.createdRevisionId}}</p>
         <ul ng-repeat="participant in workshop.participants">
             <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}})</li>
         </ul>

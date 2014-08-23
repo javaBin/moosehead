@@ -44,40 +44,13 @@ public class AdminServlet  extends HttpServlet {
 
     }
 
+
+
     private void printAllInfo(HttpServletResponse resp) throws IOException {
         List<WorkshopInfo> workshops = participantApi.workshops();
         List<JSONObject> allInfo = workshops.stream()
                 .sequential()
-                .map(workshop -> {
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("id", workshop.getId());
-                        jsonObject.put("title", workshop.getTitle());
-                        jsonObject.put("description", workshop.getDescription());
-                        jsonObject.put("status", workshop.getStatus().name());
-
-                        List<JSONObject> partList = workshop.getParticipants().stream().sequential()
-                                .map(pa -> {
-                                    JSONObject partObj = new JSONObject();
-
-                                    try {
-                                        partObj.put("email", pa.getEmail());
-                                        partObj.put("name", pa.getName());
-                                        partObj.put("isEmailConfirmed", pa.isEmailConfirmed());
-                                        partObj.put("confirmedAt", pa.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
-                                    } catch (JSONException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    return partObj;
-                                })
-                                .collect(Collectors.toList());
-                        jsonObject.put("participants",new JSONArray(partList));
-
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return jsonObject;
-                })
+                .map(ParticipantApi::asAdminJson)
                 .collect(Collectors.toList());
         JSONArray jsonArray = new JSONArray(allInfo);
         resp.setContentType("text/json");

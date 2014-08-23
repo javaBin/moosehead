@@ -33,7 +33,7 @@ public class WorkshopController implements ParticipantApi {
             Workshop ws = workshopOptional.get();
             WorkshopData wd = ws.getWorkshopData();
             WorkshopStatus status = computeWorkshopStatus(ws);
-            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status);
+            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getCreatedRevisionId());
         } else
             throw new WorkshopNotFoundException();
     }
@@ -46,7 +46,7 @@ public class WorkshopController implements ParticipantApi {
                     WorkshopData wd = ws.getWorkshopData();
                     WorkshopStatus status = computeWorkshopStatus(ws);
 
-                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status);
+                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status,ws.getCreatedRevisionId());
                 })
                 .collect(Collectors.toList())
         ;

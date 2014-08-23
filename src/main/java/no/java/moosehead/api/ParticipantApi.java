@@ -1,6 +1,11 @@
 package no.java.moosehead.api;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface ParticipantApi {
     public WorkshopInfo getWorkshop(String workshopid);
@@ -9,4 +14,37 @@ public interface ParticipantApi {
     public ParticipantActionResult confirmEmail(String token);
     public ParticipantActionResult cancellation(String reservationId);
     public List<ParticipantReservation> myReservations(String email);
+
+    public static JSONObject asAdminJson(WorkshopInfo workshop) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", workshop.getId());
+            jsonObject.put("title", workshop.getTitle());
+            jsonObject.put("description", workshop.getDescription());
+            jsonObject.put("status", workshop.getStatus().name());
+            jsonObject.put("createdRevisionId",workshop.getCreatedRevisionId());
+
+            List<JSONObject> partList = workshop.getParticipants().stream().sequential()
+                    .map(pa -> {
+                        JSONObject partObj = new JSONObject();
+
+                        try {
+                            partObj.put("email", pa.getEmail());
+                            partObj.put("name", pa.getName());
+                            partObj.put("isEmailConfirmed", pa.isEmailConfirmed());
+                            partObj.put("confirmedAt", pa.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        return partObj;
+                    })
+                    .collect(Collectors.toList());
+            jsonObject.put("participants",new JSONArray(partList));
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return jsonObject;
+
+    }
 }

@@ -8,12 +8,14 @@ import java.util.List;
 public class Workshop {
     private WorkshopData workshopData;
     private int numberOfSeats;
+    private long createdRevisionId;
     private List<Participant> confirmed = new ArrayList<>();
     private List<Participant> notConfirmed = new ArrayList<>();
 
-    public Workshop(WorkshopData workshopData, int numberOfSeats) {
+    public Workshop(WorkshopData workshopData, int numberOfSeats, long createdRevisionId) {
         this.workshopData = workshopData;
         this.numberOfSeats = numberOfSeats;
+        this.createdRevisionId = createdRevisionId;
     }
 
 
@@ -75,5 +77,9 @@ public class Workshop {
             return 0;
         }
         return listNumber;
+    }
+
+    public long getCreatedRevisionId() {
+        return createdRevisionId;
     }
 }
