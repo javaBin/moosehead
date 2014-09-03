@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,8 @@ public class AdminServlet  extends HttpServlet {
             printWorkshopDetails(req, resp);
         } else if ("/alldata".equals(req.getPathInfo())) {
             printAllInfo(resp);
+        } else if ("/duplreservations".equals(req.getPathInfo())) {
+            printDuplicate(resp);
         } else {
             resp.getWriter().print("" +
                     "<html>Protected Admin API:<ul>" +
@@ -44,6 +47,42 @@ public class AdminServlet  extends HttpServlet {
 
     }
 
+    private void printDuplicate(HttpServletResponse resp) throws IOException {
+        resp.setContentType("text/json");
+        List<JSONObject> report = new ArrayList<>();
+        List<WorkshopInfo> workshops = participantApi.workshops();
+        for (int i=0;i<workshops.size()-1;i++) {
+            WorkshopInfo a = workshops.get(i);
+            for (int j=i+1;j<workshops.size();j++) {
+                WorkshopInfo b = workshops.get(j);
+                List<String> duplicates = a.getParticipants().stream()
+                        .filter(pa -> (pa.isEmailConfirmed() && !pa.isWaiting()))
+                        .filter(ap -> {
+                            return b.getParticipants().stream()
+                                    .filter(pa -> (pa.isEmailConfirmed() && !pa.isWaiting()))
+                                    .filter(bp -> ap.getEmail().equals(bp.getEmail()))
+                                    .findAny().isPresent();
+                        })
+                        .map(pa -> pa.getEmail())
+                        .collect(Collectors.toList());
+                JSONObject duplReport = new JSONObject();
+                try {
+                    duplReport.put("wsa",a.getId());
+                    duplReport.put("wsb",b.getId());
+                    duplReport.put("duplicates",new JSONArray(duplicates));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                report.add(duplReport);
+
+            }
+        }
+        try {
+            new JSONArray(report).write(resp.getWriter());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     private void printAllInfo(HttpServletResponse resp) throws IOException {
