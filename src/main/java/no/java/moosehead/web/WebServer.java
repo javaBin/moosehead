@@ -40,13 +40,14 @@ public class WebServer {
         Server server = new Server(port);
 
         WebAppContext webAppContext;
-        webAppContext = new WebAppContext("src/main/webapp", "/");
+        webAppContext = new WebAppContext();
         webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         webAppContext.setContextPath("/");
         setupLogging();
 
         if (isDevEnviroment()) {
             // Development ie running in ide
+            System.out.println("Warning: You are running in your IDE!!!");
             webAppContext.setResourceBase("src/main/resources/webapp");
         } else {
             // Prod ie running from jar

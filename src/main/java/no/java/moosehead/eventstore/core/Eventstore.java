@@ -10,6 +10,7 @@ import no.java.moosehead.eventstore.utils.RevisionGenerator;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Eventstore {
 
@@ -94,5 +95,9 @@ public class Eventstore {
 
     public long numberOfWorkshops() {
         return eventstorage.stream().filter(ae -> ae instanceof WorkshopAddedByAdmin).count();
+    }
+
+    public List<AbstractEvent> getEventstorageCopy() {
+        return new ArrayList<>(eventstorage);
     }
 }

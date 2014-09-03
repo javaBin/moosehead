@@ -58,7 +58,10 @@ public class SystemSetup {
             createAllWorkshops();
         }
 
+        new ManualConfirmationSender(emailSender).doManual(eventstore);
+
         eventstore.playbackEventsToSubscribers();
+
 
 
 
