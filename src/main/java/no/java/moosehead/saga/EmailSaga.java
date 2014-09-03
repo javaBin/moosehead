@@ -101,11 +101,11 @@ public class EmailSaga implements EventSubscription {
             if (reservation.isPresent()) {
                 unconfirmedReservations.remove(reservation.get());
             }
+            boolean full = !haveFreeSpots(cancelledByUser.getWorkshopId());
+            boolean removed = removeParticipant(cancelledByUser.getWorkshopId(), cancelledByUser.getEmail());
             if (sagaIsInitialized) {
                 EmailSender emailSender = SystemSetup.instance().emailSender();
                 emailSender.sendCancellationConfirmation(cancelledByUser.getEmail(), cancelledByUser.getWorkshopId());
-                boolean full = !haveFreeSpots(cancelledByUser.getWorkshopId());
-                boolean removed = removeParticipant(cancelledByUser.getWorkshopId(), cancelledByUser.getEmail());
                 if (full && removed) {
                     ReservationAddedByUser res = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
 
