@@ -4,7 +4,8 @@ public enum EmailType {
     CONFIRM_EMAIL("confirmEmail.txt","Javazone Workshop: Email confirmation needed"),
     RESERVATION_CONFIRMED("confirmReservation.txt","Javazone Workshop: Reservation confirmed"),
     RESERVATION_CANCELLED("confirmationCancelled.txt","Javazone Workshop: Cancellation confirmed"),
-    WAITING_LIST("waitingList.txt","Javazone Workshop: You are on the waiting list");
+    WAITING_LIST("waitingList.txt","Javazone Workshop: You are on the waiting list"),
+    WELCOME("welcome.txt","Javazone Workshop: Welcome");
 
     private final String template;
     private final String subject;

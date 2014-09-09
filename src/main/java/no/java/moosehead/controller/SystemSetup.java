@@ -6,15 +6,15 @@ import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.RevisionGenerator;
+import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.projections.WorkshopListProjection;
-import no.java.moosehead.saga.DummyEmailSender;
-import no.java.moosehead.saga.EmailSaga;
-import no.java.moosehead.saga.EmailSender;
-import no.java.moosehead.saga.SmtpEmailSender;
+import no.java.moosehead.saga.*;
 import no.java.moosehead.web.Configuration;
 
+import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 public class SystemSetup {
@@ -97,6 +97,35 @@ public class SystemSetup {
         if (setup != null) {
             setup.setInitLoaded();
         }
+
+    }
+
+
+    public static void main(String[] args) {
+        System.setProperty("mooseheadConfFile",args[0]);
+        List<String> ids = Arrays.asList(
+          "angularjs_crash_course",
+          "hands_on_elasticsearch__kibana",
+          "introduksjon_til_docker",
+          "workshop_designing_event_sourced",
+          "a_handson_introduction_to_neo4j",
+          "akka_handson"
+        );
+        List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
+        workshops.stream()
+                .sequential()
+                .filter(ws -> ids.contains(ws.getWorkshopData().getId()))
+                .forEach(ws -> {
+                    System.out.println(ws.getWorkshopData().getId());
+                    ws.getParticipants().stream()
+                            .filter(pa -> pa.isEmailConfirmed() && !pa.isWaiting())
+                            .forEach(pa -> {
+                                SystemSetup.instance().emailSender().send(EmailType.WELCOME,pa.getEmail(),new Hashtable<>());
+                                System.out.println(pa.getWorkshopId() + ";" + pa.getEmail());
+                            });
+                });
+
+
 
     }
 

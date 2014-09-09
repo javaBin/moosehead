@@ -17,7 +17,7 @@ public abstract class EmailSender {
         sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED,"" + reservationId);
     }
 
-    private void sendWorkshopInfo(String to, String workshopId, EmailType emailType, String token) {
+        private void sendWorkshopInfo(String to, String workshopId, EmailType emailType, String token) {
         WorkshopRepository workshopRepository = SystemSetup.instance().workshopRepository();
         String wstitle = workshopRepository != null ? workshopRepository.workshopById(workshopId).map(ws -> ws.getTitle()).orElse("Unknown") : "Unknown";
         Map<String, String> values = new HashMap<>();

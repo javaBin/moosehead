@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +22,11 @@ import java.util.stream.Collectors;
 
 public class DataServlet extends HttpServlet {
     private ParticipantApi participantApi;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+    }
 
     @Override
     public void init() throws ServletException {
