@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Configuration {
@@ -108,6 +110,19 @@ public class Configuration {
 
     public static int placesPerWorkshop() {
         return Integer.parseInt(readConf("placesPerWorkshop", "30"));
+    }
+
+    public static List<String> closedWorkshops() {
+        String closedWorkshops = readConf("closedWorkshops",null);
+        if (closedWorkshops == null || closedWorkshops.isEmpty()) {
+            return new ArrayList<String>();
+        }
+        String[] split = closedWorkshops.split(",");
+        List<String> res = new ArrayList<>();
+        for (String s : split) {
+            res.add(s);
+        }
+        return res;
     }
 
     public static OffsetDateTime openTime() {

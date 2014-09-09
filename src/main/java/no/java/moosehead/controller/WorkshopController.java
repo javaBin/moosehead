@@ -53,6 +53,9 @@ public class WorkshopController implements ParticipantApi {
     }
 
     private WorkshopStatus computeWorkshopStatus(Workshop ws) {
+        if (Configuration.closedWorkshops().contains(ws.getWorkshopData().getId())) {
+            return WorkshopStatus.CLOSED;
+        }
         if (Configuration.openTime().isAfter(OffsetDateTime.now())) {
             return WorkshopStatus.NOT_OPENED;
         }

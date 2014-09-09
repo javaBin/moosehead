@@ -108,8 +108,9 @@ public class EmailSaga implements EventSubscription {
                 emailSender.sendCancellationConfirmation(cancelledByUser.getEmail(), cancelledByUser.getWorkshopId());
                 if (full && removed) {
                     ReservationAddedByUser res = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
-
-                    emailSender.sendReservationConfirmation(res.getEmail(),cancelledByUser.getWorkshopId(),res.getRevisionId());
+                    if (!Configuration.closedWorkshops().contains(cancelledByUser.getWorkshopId())) {
+                         emailSender.sendReservationConfirmation(res.getEmail(),cancelledByUser.getWorkshopId(),res.getRevisionId());
+                    }
                 }
             }
 
