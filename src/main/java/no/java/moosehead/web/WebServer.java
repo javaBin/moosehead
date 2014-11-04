@@ -54,13 +54,13 @@ public class WebServer {
             webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
         }
 
-         Handler serverHandler;
+         Handler serverHandler = webAppContext;
 
-        if (Configuration.secureAdmin()) {
-            serverHandler = setupSecurity(server, webAppContext);
-        } else {
-            serverHandler = webAppContext;
-        }
+        //if (Configuration.secureAdmin()) {
+        //    serverHandler = setupSecurity(server, webAppContext);
+        //} else {
+        //    serverHandler = webAppContext;
+        //}
 
         server.setHandler(serverHandler);
 
@@ -89,7 +89,6 @@ public class WebServer {
         ConstraintMapping mapping = new ConstraintMapping();
         mapping.setPathSpec("/admin/*");
         mapping.setConstraint(constraint);
-
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();
         security.setConstraintMappings(Collections.singletonList(mapping));
         security.setRealmName("MooseRealm");
