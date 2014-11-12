@@ -10,11 +10,12 @@ import java.net.URLConnection;
 
 public class AdminFilter implements Filter {
 
+
     private static final String APP_AUTH = "applicationcredential=<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n" +
             " <applicationcredential>\n" +
             "    <params>\n" +
-            "        <applicationID>99</applicationID>\n" +
-            "        <applicationSecret>33879936R6Jr47D4Hj5R6p9qT</applicationSecret>\n" +
+            "        <applicationID>#appid#</applicationID>\n" +
+            "        <applicationSecret>#appsecret#</applicationSecret>\n" +
             "    </params> \n" +
             "</applicationcredential>\n";
 
@@ -33,7 +34,7 @@ public class AdminFilter implements Filter {
         }
         String userticket = request.getParameter("userticket");
         if (userticket == null || userticket.length() < 3) {
-            ((HttpServletResponse) response).sendRedirect("http://localhost:9997/sso/login?redirectURI=http://localhost:8088/admin/");
+            ((HttpServletResponse) response).sendRedirect(Configuration.logonRedirectUrl());
             return;
         }
         String usertoken = readUserToken(userticket);
@@ -47,7 +48,7 @@ public class AdminFilter implements Filter {
     private String readUserToken(String userticket) throws IOException {
         String apptokenXml = readAppToken();
         String apptokenid = readAppTokenFromXml(apptokenXml);
-        String path = "http://localhost:9998/tokenservice/user/" + apptokenid + "/get_usertoken_by_userticket";
+        String path = Configuration.tokenServiceUrl() + "/user/" + apptokenid + "/get_usertoken_by_userticket";
         StringBuilder payload = new StringBuilder();
         payload.append("userticket=");
         payload.append(userticket);
@@ -70,12 +71,18 @@ public class AdminFilter implements Filter {
     }
 
     private String readAppToken() throws IOException {
-        URLConnection conn = new URL("http://localhost:9998/tokenservice/logon").openConnection();
+        URLConnection conn = new URL(Configuration.tokenServiceUrl()+ "/logon").openConnection();
         conn.setDoOutput(true);
         try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(),"utf-8"))) {
-            printWriter.append(APP_AUTH);
+            printWriter.append(computeAppAuth());
         }
         return toString(conn.getInputStream());
+    }
+
+    private String computeAppAuth() {
+        String appid = "99";
+        String appsecret = "33879936R6Jr47D4Hj5R6p9qT";
+        return APP_AUTH.replaceAll("#appid#",appid).replaceAll("#appsecret",appsecret);
     }
 
 

@@ -170,4 +170,13 @@ public class Configuration {
     public static int veryFullNumber() {
         return Integer.parseInt(readConf("veryFullNumber","20"));
     }
+
+    public static String logonRedirectUrl() {
+        return readConf("logonRedirectUrl","http://localhost:9997/sso/login?redirectURI=http://localhost:8088/admin/");
+    }
+
+    public static String tokenServiceUrl() {
+        return readConf("tokenServiceUrl","http://localhost:9998/tokenservice");
+    }
+
 }
