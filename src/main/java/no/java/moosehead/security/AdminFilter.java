@@ -80,8 +80,8 @@ public class AdminFilter implements Filter {
     }
 
     private String computeAppAuth() {
-        String appid = "99";
-        String appsecret = "33879936R6Jr47D4Hj5R6p9qT";
+        String appid = Configuration.applicationId();
+        String appsecret = Configuration.applicationSecret();
         return APP_AUTH.replaceAll("#appid#",appid).replaceAll("#appsecret",appsecret);
     }
 

@@ -179,4 +179,10 @@ public class Configuration {
         return readConf("tokenServiceUrl","http://localhost:9998/tokenservice");
     }
 
+    public static String applicationId() {
+        return readConf("applicationId","99");
+    }
+
+    public static String applicationSecret() { return readConf("applicationSecret","33879936R6Jr47D4Hj5R6p9qT");}
+
 }
