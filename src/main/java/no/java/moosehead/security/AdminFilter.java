@@ -32,12 +32,15 @@ public class AdminFilter implements Filter {
             chain.doFilter(request,response);
             return;
         }
+        String apptokenXml = readAppToken();
+        String apptokenid = readAppTokenFromXml(apptokenXml);
+
         String userticket = request.getParameter("userticket");
         if (userticket == null || userticket.length() < 3) {
             ((HttpServletResponse) response).sendRedirect(Configuration.logonRedirectUrl());
             return;
         }
-        String usertoken = readUserToken(userticket);
+        String usertoken = readUserToken(userticket,apptokenXml,apptokenid);
         response.getWriter().append(usertoken);
 
 
@@ -45,9 +48,8 @@ public class AdminFilter implements Filter {
         System.out.println("fhf");
     }
 
-    private String readUserToken(String userticket) throws IOException {
-        String apptokenXml = readAppToken();
-        String apptokenid = readAppTokenFromXml(apptokenXml);
+    private String readUserToken(String userticket, String apptokenXml, String apptokenid) throws IOException {
+
         String path = Configuration.tokenServiceUrl() + "/user/" + apptokenid + "/get_usertoken_by_userticket";
         StringBuilder payload = new StringBuilder();
         payload.append("userticket=");
@@ -71,10 +73,12 @@ public class AdminFilter implements Filter {
     }
 
     private String readAppToken() throws IOException {
-        URLConnection conn = new URL(Configuration.tokenServiceUrl()+ "/logon").openConnection();
+        String url = Configuration.tokenServiceUrl() + "/logon";
+        String csq = computeAppAuth();
+        URLConnection conn = new URL(url).openConnection();
         conn.setDoOutput(true);
         try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(),"utf-8"))) {
-            printWriter.append(computeAppAuth());
+            printWriter.append(csq);
         }
         return toString(conn.getInputStream());
     }
@@ -82,7 +86,7 @@ public class AdminFilter implements Filter {
     private String computeAppAuth() {
         String appid = Configuration.applicationId();
         String appsecret = Configuration.applicationSecret();
-        return APP_AUTH.replaceAll("#appid#",appid).replaceAll("#appsecret",appsecret);
+        return APP_AUTH.replaceAll("#appid#",appid).replaceAll("#appsecret#",appsecret);
     }
 
 
