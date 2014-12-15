@@ -1,0 +1,29 @@
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<usertoken xmlns:ns2="http://www.w3.org/1999/xhtml" id="76c16646-6826-4f07-9009-8f02033023c8">
+    <uid>0e3227cc-0c3b-4c93-a739-57fd1a20a78e</uid>
+    <timestamp>1418662085326</timestamp>
+    <lifespan>1209600000</lifespan>
+    <issuer>http://something.com</issuer>
+    <securitylevel>1</securitylevel>
+    <DEFCON></DEFCON>
+    <username>dummyuname</username>
+    <firstname>Anders Test</firstname>
+    <lastname>Dummy</lastname>
+    <email>whocares@gmail.com</email>
+    <personRef></personRef>
+    <application ID="987">
+        <applicationName>SomethingElse</applicationName>
+        <organizationName>javaBin</organizationName>
+        <role name="Admin" value="Admin baby!"/>
+    </application>
+    <application ID="988">
+        <applicationName>Moosehead</applicationName>
+        <organizationName>javaBin</organizationName>
+        <role name="Admin" value="true"/>
+    </application>
+
+    <ns2:link type="application/xml" href="https://idontcare.com" rel="self"/>
+    <hash type="MD5">8b2524516b516dxxx</hash>
+</usertoken>
+

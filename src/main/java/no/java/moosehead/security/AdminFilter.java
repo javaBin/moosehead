@@ -1,8 +1,11 @@
 package no.java.moosehead.security;
 
+import no.java.moosehead.util.UserInfo;
+import no.java.moosehead.util.UserXmlUtil;
 import no.java.moosehead.web.Configuration;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
@@ -32,6 +35,11 @@ public class AdminFilter implements Filter {
             chain.doFilter(request,response);
             return;
         }
+        HttpServletRequest req = (HttpServletRequest) request;
+        if (req.getSession().getAttribute("mooseheadUser") != null) {
+            chain.doFilter(request,response);
+            return;
+        }
         String apptokenXml = readAppToken();
         String apptokenid = readAppTokenFromXml(apptokenXml);
 
@@ -41,11 +49,16 @@ public class AdminFilter implements Filter {
             return;
         }
         String usertoken = readUserToken(userticket,apptokenXml,apptokenid);
-        response.getWriter().append(usertoken);
 
-
-
-        System.out.println("fhf");
+        UserInfo userInfo = UserXmlUtil.read(usertoken, Configuration.applicationId());
+        if (userInfo == null) {
+            HttpServletResponse resp = (HttpServletResponse) response;
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        req.getSession().setAttribute("mooseheadUser", userInfo);
+        System.out.println("Logged in " + userInfo);
+        chain.doFilter(request,response);
     }
 
     private String readUserToken(String userticket, String apptokenXml, String apptokenid) throws IOException {
