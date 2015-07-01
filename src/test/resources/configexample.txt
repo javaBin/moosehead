@@ -1,0 +1,17 @@
+configenviroment=[develop]
+[default]
+serverPort=8088
+emsEventLocation=http://javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions
+placesPerWorkshop=30
+openTime=201408011000
+smtpServer=localhost
+smtpPort=8090
+mooseheadLocation=http://localhost:8088
+eventstoreFilename=events.txt
+mailbcc=karlsenanders@gmail.com
+testenv=true
+secureAdmin=true
+adminPassword=bingo
+loginConfigLocation=realmdev.properties
+veryFullNumber=1000
+closedWorkshops=angularjs_crash_course,a_handson_introduction_to_neo4j,introduksjon_til_docker,workshop_designing_event_sourced,a_handson_introduction_to_neo4j
