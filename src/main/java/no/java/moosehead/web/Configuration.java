@@ -39,6 +39,7 @@ public class Configuration {
         String enviroment = null;
         boolean skip = false;
         for (String line : confFileContent.split("\n")) {
+            line=line.trim();
             if (line.startsWith("#") || line.trim().isEmpty()) {
                 continue;
             }

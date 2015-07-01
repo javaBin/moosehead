@@ -135,11 +135,11 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
+  <!--  <repositories>
         <repository>
             <id>repository.jboss.org-public</id>
             <name>JBoss repository</name>
             <url>https://repository.jboss.org/nexus/content/repositories/public-jboss/</url>
         </repository>
-    </repositories>
+    </repositories> -->
 </project>
