@@ -7,6 +7,7 @@ import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -62,10 +63,18 @@ public class WebServer {
             serverHandler = webAppContext;
         }
 
+        setupServlets(webAppContext);
+
         server.setHandler(serverHandler);
 
         server.start();
         System.out.println(server.getURI() + " at " + LocalDateTime.now());
+    }
+
+    private void setupServlets(WebAppContext webAppContext) {
+        webAppContext.addServlet(new ServletHolder(new AdminServlet()),"/admin/data/*");
+        webAppContext.addServlet(new ServletHolder(new DataServlet()),"/data/*");
+        webAppContext.addServlet(new ServletHolder(new CaptchaServlet()),"/captcha/*");
     }
 
     private boolean isDevEnviroment() {
