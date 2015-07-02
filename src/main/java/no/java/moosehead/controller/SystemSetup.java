@@ -5,11 +5,11 @@ import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
-import no.java.moosehead.eventstore.utils.RevisionGenerator;
+import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.projections.Workshop;
+import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
-import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.saga.*;
 import no.java.moosehead.web.Configuration;
 
@@ -27,7 +27,7 @@ public class SystemSetup {
     private WorkshopController workshopController;
     private WorkshopListProjection workshopListProjection;
     private EmailSender emailSender;
-    private RevisionGenerator revisionGenerator;
+    private TokenGenerator tokenGenerator;
     private boolean initLoaded = false;
 
     private SystemSetup() {
@@ -39,7 +39,7 @@ public class SystemSetup {
             return;
         }
         initLoaded = true;
-        revisionGenerator = new RevisionGenerator();
+        tokenGenerator = new TokenGenerator();
         if (Configuration.eventstoreFilename() != null) {
             eventstore = new Eventstore(new FileHandler(Configuration.eventstoreFilename()));
         } else {
@@ -157,8 +157,8 @@ public class SystemSetup {
         return emailSender;
     };
 
-    public RevisionGenerator revisionGenerator() {
-        return revisionGenerator;
+    public TokenGenerator revisionGenerator() {
+        return tokenGenerator;
     }
 
 }

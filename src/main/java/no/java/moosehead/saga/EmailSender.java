@@ -13,8 +13,8 @@ public abstract class EmailSender {
         sendWorkshopInfo(to,workshopId,EmailType.CONFIRM_EMAIL,token);
     }
 
-    public final void sendReservationConfirmation(String to,String workshopId,long reservationId) {
-        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED,"" + reservationId);
+    public final void sendReservationConfirmation(String to,String workshopId,String reservationToken) {
+        sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED, reservationToken);
     }
 
         private void sendWorkshopInfo(String to, String workshopId, EmailType emailType, String token) {

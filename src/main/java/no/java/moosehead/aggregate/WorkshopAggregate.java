@@ -102,11 +102,12 @@ public class WorkshopAggregate implements EventSubscription {
     public EmailConfirmedByUser createEvent(ConfirmEmailCommand confirmEmailCommand) {
         Optional<ReservationAddedByUser> event = eventArrayList
                 .stream()
-                .filter(ae -> ae.getRevisionId() == confirmEmailCommand.getReservationRevisionId() && (ae instanceof ReservationAddedByUser))
+                .filter(ae -> ae instanceof ReservationAddedByUser)
                 .map(ae -> (ReservationAddedByUser) ae)
+                .filter(ae -> ae.getReservationToken() == confirmEmailCommand.getReservationToken())
                 .findFirst();
         if (!(event.isPresent())) {
-            throw new NoReservationFoundException("Could not find reservation with id " + confirmEmailCommand.getReservationRevisionId());
+            throw new NoReservationFoundException("Could not find reservation with token [" + confirmEmailCommand.getReservationToken()+ "]");
         }
         ReservationAddedByUser reservation = (ReservationAddedByUser) event.get();
         Optional<AbstractEvent> any = eventArrayList.stream()

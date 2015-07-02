@@ -1,14 +1,14 @@
 package no.java.moosehead.eventstore.core;
 
-import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.eventstore.utils.FileHandler;
-import no.java.moosehead.eventstore.utils.RevisionGenerator;
+import no.java.moosehead.eventstore.utils.TokenGenerator;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +39,11 @@ public class Eventstore {
                 eventSubscribers.eventAdded(event);
             }
         }
-        RevisionGenerator revisionGenerator = SystemSetup.instance().revisionGenerator();
+        TokenGenerator tokenGenerator = SystemSetup.instance().revisionGenerator();
         if (eventstorage.size() > 0) {
-            revisionGenerator.resetRevision(eventstorage.size());
+            tokenGenerator.resetRevision(eventstorage.size());
         }
-        addEvent(new SystemBootstrapDone(revisionGenerator.nextRevisionId()));
+        addEvent(new SystemBootstrapDone(tokenGenerator.nextRevisionId()));
     }
 
 

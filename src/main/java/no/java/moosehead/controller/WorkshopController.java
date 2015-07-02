@@ -124,13 +124,8 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult confirmEmail(String token) {
-        long id;
-        try {
-            id = Long.parseLong(token);
-        } catch (NumberFormatException e) {
-            return ParticipantActionResult.error("Unknown confirm token");
-        }
-        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(id);
+
+        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(token);
         EmailConfirmedByUser emailConfirmedByUser;
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {

@@ -40,8 +40,8 @@ public class ManualConfirmationSender {
                 System.out.println(String.format("Event %s not found",reservationId));
                 continue;
             }
-            System.out.println(String.format("Sending confirmation to %s id %s",reservationAddedByUser.getEmail(),reservationId));
-            emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(), reservationAddedByUser.getRevisionId());
+            System.out.println(String.format("Sending confirmation to %s id %s", reservationAddedByUser.getEmail(), reservationId));
+            emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(), reservationAddedByUser.getReservationToken());
         }
         System.out.println("Manual context done");
         file.delete();

@@ -10,7 +10,10 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -175,7 +178,7 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/confirmEmail");
 
         JSONObject reservationJson = new JSONObject();
-        reservationJson.put("token", "123");
+        reservationJson.put("token", "EtTokenSomErVanskelig≈GjetteSegFremTil");
 
         when(participantApi.confirmEmail(anyString())).thenReturn(ParticipantActionResult.ok());
 
@@ -184,7 +187,7 @@ public class DataServletTest {
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).confirmEmail("123");
+        verify(participantApi).confirmEmail("EtTokenSomErVanskelig≈GjetteSegFremTil");
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());

@@ -1,18 +1,18 @@
 package no.java.moosehead.commands;
 
 public class ConfirmEmailCommand {
-    long reservationRevisionId;
+    String reservationToken;
 
-    public ConfirmEmailCommand(long reservationRevisionId) {
-        this.reservationRevisionId = reservationRevisionId;
+    public ConfirmEmailCommand(String reservationToken) {
+        this.reservationToken = reservationToken;
     }
 
-    public long getReservationRevisionId() {
-        return reservationRevisionId;
+    public String getReservationToken() {
+        return reservationToken;
     }
 
     @Override
     public String toString() {
-        return "Confirm email command for " + reservationRevisionId;
+        return "Confirm email command for [" + reservationToken + "]";
     }
 }

@@ -1,7 +1,9 @@
 package no.java.moosehead.saga;
 
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.eventstore.*;
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
+import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
@@ -61,12 +63,12 @@ public class EmailSaga implements EventSubscription {
             if (sagaIsInitialized) {
                 if (emailIsConfirmed) {
                     if (haveFreeSpots(res.getWorkshopId())) {
-                        emailSender.sendReservationConfirmation(res.getEmail(), res.getWorkshopId(),res.getRevisionId());
+                        emailSender.sendReservationConfirmation(res.getEmail(), res.getWorkshopId(),res.getReservationToken());
                     } else {
                         emailSender.sendWaitingListInfo(res.getEmail(),res.getWorkshopId());
                     }
                 } else {
-                    emailSender.sendEmailConfirmation(res.getEmail(), "" + res.getRevisionId(),res.getWorkshopId());
+                    emailSender.sendEmailConfirmation(res.getEmail(), res.getReservationToken() ,res.getWorkshopId());
                 }
             }
             if (emailIsConfirmed) {
@@ -83,7 +85,7 @@ public class EmailSaga implements EventSubscription {
             for (ReservationAddedByUser reservationAddedByUser : toConfirm) {
                 if (sagaIsInitialized) {
                     if (haveFreeSpots(reservationAddedByUser.getWorkshopId())) {
-                        emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(),reservationAddedByUser.getRevisionId());
+                        emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(),reservationAddedByUser.getReservationToken());
                     } else {
                         emailSender.sendWaitingListInfo(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId());
                     }
@@ -109,7 +111,7 @@ public class EmailSaga implements EventSubscription {
                 if (full && removed) {
                     ReservationAddedByUser res = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
                     if (!Configuration.closedWorkshops().contains(cancelledByUser.getWorkshopId())) {
-                         emailSender.sendReservationConfirmation(res.getEmail(),cancelledByUser.getWorkshopId(),res.getRevisionId());
+                         emailSender.sendReservationConfirmation(res.getEmail(),cancelledByUser.getWorkshopId(),res.getReservationToken());
                     }
                 }
             }

@@ -5,13 +5,17 @@ import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.eventstore.*;
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
+import no.java.moosehead.eventstore.ReservationAddedByUser;
+import no.java.moosehead.eventstore.ReservationCancelledByUser;
+import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
-import no.java.moosehead.eventstore.utils.RevisionGenerator;
+import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.web.Configuration;
-import org.apache.log4j.helpers.DateTimeDateFormat;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
@@ -34,8 +38,8 @@ public class WorkshopAggregateTest {
     @Before
     public void beforeTest() {
         SystemSetup systemSetup = Mockito.mock(SystemSetup.class);
-        RevisionGenerator revisionGenerator = new RevisionGenerator();
-        Mockito.when(systemSetup.revisionGenerator()).thenReturn(revisionGenerator);
+        TokenGenerator tokenGenerator = new TokenGenerator();
+        Mockito.when(systemSetup.revisionGenerator()).thenReturn(tokenGenerator);
         SystemSetup.setSetup(systemSetup);
         eventstore = new Eventstore(new FileHandler());
         workshopAggregate = new WorkshopAggregate();
@@ -152,18 +156,16 @@ public class WorkshopAggregateTest {
     @Test
     public void shouldConfirmEmail() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        eventstore.addEvent(new ReservationAddedByUser(System.currentTimeMillis(),2L,"bal@gmail.com","Darth Vader",w1));
-
-        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(2L);
-
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "bal@gmail.com", "Darth Vader", w1);
+        eventstore.addEvent(reservationAddedByUser);
+        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(reservationAddedByUser.getReservationToken());
         EmailConfirmedByUser emailConfirmedByUser = workshopAggregate.createEvent(confirmEmailCommand);
-
         assertThat(emailConfirmedByUser.getEmail()).isEqualToIgnoringCase("bal@gmail.com");
     }
 
     @Test(expected = NoReservationFoundException.class)
     public void shouldNotConfirmWhenReservationDoesNotExist() throws Exception {
-        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(2L);
+        ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand("DribbleDrobbleTokenting");
         workshopAggregate.createEvent(confirmEmailCommand);
 
     }

@@ -11,7 +11,7 @@ import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.core.Eventstore;
-import no.java.moosehead.eventstore.utils.RevisionGenerator;
+import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.projections.WorkshopListProjection;
@@ -48,8 +48,8 @@ public class WorkshopControllerTest {
         when(systemSetup.workshopAggregate()).thenReturn(workshopAggregate);
         eventstore = mock(Eventstore.class);
         when(systemSetup.eventstore()).thenReturn(eventstore);
-        RevisionGenerator revisionGenerator = new RevisionGenerator();
-        when(systemSetup.revisionGenerator()).thenReturn(revisionGenerator);
+        TokenGenerator tokenGenerator = new TokenGenerator();
+        when(systemSetup.revisionGenerator()).thenReturn(tokenGenerator);
     }
 
     @After
@@ -174,24 +174,15 @@ public class WorkshopControllerTest {
         EmailConfirmedByUser emailConfirmedByUser = new EmailConfirmedByUser("dart@a.com",System.currentTimeMillis(),45L);
         when(workshopAggregate.createEvent(confirmEmailCommandArgumentCaptor.capture())).thenReturn(emailConfirmedByUser);
 
-        ParticipantActionResult result = workshopController.confirmEmail("123");
+        ParticipantActionResult result = workshopController.confirmEmail("Dribbledrobbletoken");
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.OK);
         verify(workshopAggregate).createEvent(any(ConfirmEmailCommand.class));
 
         ConfirmEmailCommand value = confirmEmailCommandArgumentCaptor.getValue();
-        assertThat(value.getReservationRevisionId()).isEqualTo(123L);
+        assertThat(value.getReservationToken()).isEqualTo("Dribbledrobbletoken");
 
         verify(eventstore).addEvent(emailConfirmedByUser);
-    }
-
-    @Test
-    public void shouldHandleInvalidConfirmEmailToken() throws Exception {
-        ParticipantActionResult result = workshopController.confirmEmail("ddsfg");
-
-        assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
-        assertThat(result.getErrormessage()).isEqualTo("Unknown confirm token");
-        verify(workshopAggregate, never()).createEvent(any(ConfirmEmailCommand.class));
     }
 
     @Test
