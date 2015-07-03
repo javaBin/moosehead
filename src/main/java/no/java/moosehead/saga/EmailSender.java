@@ -3,6 +3,7 @@ package no.java.moosehead.saga;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.repository.WorkshopRepository;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public abstract class EmailSender {
         if (token != null) {
             values.put("token",token);
         }
-        send(emailType,to,values);
+        send(emailType, to, values);
     }
 
     public final void sendCancellationConfirmation(String to,String workshopId) {
@@ -34,5 +35,30 @@ public abstract class EmailSender {
 
     public final void sendWaitingListInfo(String to,String workshopId) {
         sendWorkshopInfo(to,workshopId,EmailType.WAITING_LIST, null);
+    }
+
+    protected String readFromTemplate(EmailType type, Map<String, String> values) {
+        String template;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(type.getTemplate())) {
+            template = toString(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (Map.Entry<String,String> replace : values.entrySet()) {
+            String search = "#" + replace.getKey() + "#";
+            template = template.replaceAll(search,replace.getValue());
+        }
+        return template;
+    }
+
+    private static String toString(InputStream inputStream) throws IOException {
+        try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
+            StringBuilder result = new StringBuilder();
+            int c;
+            while ((c = reader.read()) != -1) {
+                result.append((char)c);
+            }
+            return result.toString();
+        }
     }
 }
