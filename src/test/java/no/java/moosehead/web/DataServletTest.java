@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,14 +92,25 @@ public class DataServletTest {
     private void mockInputStream(String inputjson) throws IOException {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(inputjson.getBytes("UTF-8"));
         when(req.getInputStream()).thenReturn(new ServletInputStream() {
+
+
             @Override
-            public int read() throws IOException {
-                return inputStream.read();
+            public boolean isFinished() {
+                return inputStream.available() == 0;
             }
 
             @Override
-            public void close() throws IOException {
-                inputStream.close();
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+            }
+
+            @Override
+            public int read() throws IOException {
+                return inputStream.read();
             }
         });
     }
@@ -178,7 +190,7 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/confirmEmail");
 
         JSONObject reservationJson = new JSONObject();
-        reservationJson.put("token", "EtTokenSomErVanskelig≈GjetteSegFremTil");
+        reservationJson.put("token", "123456-123456");
 
         when(participantApi.confirmEmail(anyString())).thenReturn(ParticipantActionResult.ok());
 
@@ -187,7 +199,7 @@ public class DataServletTest {
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).confirmEmail("EtTokenSomErVanskelig≈GjetteSegFremTil");
+        verify(participantApi).confirmEmail("123456-123456");
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());

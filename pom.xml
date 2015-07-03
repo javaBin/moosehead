@@ -31,16 +31,23 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+        <!-- jetty -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.0.6.v20130930</version>
+            <version>9.3.0.v20150612</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-plus</artifactId>
-            <version>9.0.6.v20130930</version>
+            <version>9.3.0.v20150612</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-annotations</artifactId>
+            <version>9.3.0.v20150612</version>
+        </dependency>
+
         <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert</artifactId>

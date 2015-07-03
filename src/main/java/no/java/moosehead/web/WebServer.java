@@ -7,16 +7,16 @@ import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.webapp.Configuration.ClassList;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
-import java.time.LocalDate;
+import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 
 public class WebServer {
 
@@ -40,16 +40,25 @@ public class WebServer {
     private void start() throws Exception {
         Server server = new Server(port);
 
+        ClassList classlist = ClassList.setServerDefault(server);
+        classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration","org.eclipse.jetty.annotations.AnnotationConfiguration");
+
         WebAppContext webAppContext;
         webAppContext = new WebAppContext();
         webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         webAppContext.setContextPath("/");
+
+        // AnnotationConfiguration scanner BARE WebInfClasses/libs og container jars, så vi må simulere dette ved å legge til URL til denne klassens.
+        final URL location = getClass().getProtectionDomain().getCodeSource().getLocation();
+        webAppContext.getMetaData().setWebInfClassesDirs(Arrays.asList(Resource.newResource(location)));
+
         setupLogging();
 
         if (isDevEnviroment()) {
             // Development ie running in ide
             System.out.println("Warning: You are running in your IDE!!!");
             webAppContext.setResourceBase("src/main/resources/webapp");
+
         } else {
             // Prod ie running from jar
             webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
@@ -63,18 +72,11 @@ public class WebServer {
             serverHandler = webAppContext;
         }
 
-        setupServlets(webAppContext);
-
         server.setHandler(serverHandler);
 
         server.start();
-        System.out.println(server.getURI() + " at " + LocalDateTime.now());
-    }
 
-    private void setupServlets(WebAppContext webAppContext) {
-        webAppContext.addServlet(new ServletHolder(new AdminServlet()),"/admin/data/*");
-        webAppContext.addServlet(new ServletHolder(new DataServlet()),"/data/*");
-        webAppContext.addServlet(new ServletHolder(new CaptchaServlet()),"/captcha/*");
+        System.out.println(server.getURI() + " at " + LocalDateTime.now());
     }
 
     private boolean isDevEnviroment() {

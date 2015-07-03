@@ -1,6 +1,9 @@
 package no.java.moosehead.web;
 
-import no.java.moosehead.api.*;
+import no.java.moosehead.api.ParticipantActionResult;
+import no.java.moosehead.api.ParticipantApi;
+import no.java.moosehead.api.ParticipantReservation;
+import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.controller.SystemSetup;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,17 +12,17 @@ import org.json.JSONObject;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.swing.text.html.Option;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@WebServlet(urlPatterns = {"/data/*"})
 public class DataServlet extends HttpServlet {
     private ParticipantApi participantApi;
 
