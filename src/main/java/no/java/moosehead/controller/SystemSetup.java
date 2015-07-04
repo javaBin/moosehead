@@ -2,7 +2,7 @@ package no.java.moosehead.controller;
 
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.commands.AddWorkshopCommand;
-import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
+import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
@@ -76,8 +76,8 @@ public class SystemSetup {
     private void createAllWorkshops() {
         List<WorkshopData> workshopDatas = workshopRepository.allWorkshops();
         workshopDatas.forEach(wd -> {
-            AddWorkshopCommand addWorkshopCommand = new AddWorkshopCommand(wd.getId());
-            WorkshopAddedByAdmin event = workshopAggregate.createEvent(addWorkshopCommand);
+            AddWorkshopCommand addWorkshopCommand = new AddWorkshopCommand(wd.getId(), AddWorkshopCommand.Author.SYSTEM, Configuration.placesPerWorkshop());
+            WorkshopAddedEvent event = workshopAggregate.createEvent(addWorkshopCommand);
             eventstore.addEvent(event);
         });
     }

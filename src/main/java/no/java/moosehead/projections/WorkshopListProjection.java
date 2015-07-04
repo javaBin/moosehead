@@ -1,10 +1,7 @@
 package no.java.moosehead.projections;
 
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.ReservationCancelledByUser;
-import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.repository.WorkshopData;
@@ -19,8 +16,8 @@ public class WorkshopListProjection implements EventSubscription {
 
     @Override
     public void eventAdded(AbstractEvent event) {
-        if (event instanceof WorkshopAddedByAdmin) {
-            handleWorkshopAddedByAdmin((WorkshopAddedByAdmin) event);
+        if (event instanceof WorkshopAddedEvent) {
+            handleWorkshopAdded((WorkshopAddedEvent) event);
         } else if (event instanceof ReservationAddedByUser) {
             handleReservationAddedByUser((ReservationAddedByUser) event);
         } else if (event instanceof ReservationCancelledByUser) {
@@ -30,9 +27,9 @@ public class WorkshopListProjection implements EventSubscription {
         }
     }
 
-    private void handleWorkshopAddedByAdmin(WorkshopAddedByAdmin workshopAddedByAdmin) {
-        WorkshopData workshopData = SystemSetup.instance().workshopRepository().workshopById(workshopAddedByAdmin.getWorkshopId()).get();
-        workshops.add(new Workshop(workshopData,workshopAddedByAdmin.getNumberOfSeats(),workshopAddedByAdmin.getRevisionId()));
+    private void handleWorkshopAdded(WorkshopAddedEvent workshopAdded) {
+        WorkshopData workshopData = SystemSetup.instance().workshopRepository().workshopById(workshopAdded.getWorkshopId()).get();
+        workshops.add(new Workshop(workshopData, workshopAdded.getNumberOfSeats(), workshopAdded.getRevisionId()));
     }
 
     private void handleEmailConfirmedByUser(EmailConfirmedByUser emailConfirmedByUser) {
