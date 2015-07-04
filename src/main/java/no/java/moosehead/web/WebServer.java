@@ -48,7 +48,7 @@ public class WebServer {
         webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         webAppContext.setContextPath("/");
 
-        // AnnotationConfiguration scanner BARE WebInfClasses/libs og container jars, så vi må simulere dette ved å legge til URL til denne klassens.
+        // AnnotationConfiguration scanner BARE WebInfClasses/libs og container jars, sÃ¥ vi mÃ¥ simulere dette ved Ã¥ legge til URL til denne klassens.
         final URL location = getClass().getProtectionDomain().getCodeSource().getLocation();
         webAppContext.getMetaData().setWebInfClassesDirs(Arrays.asList(Resource.newResource(location)));
 

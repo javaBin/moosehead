@@ -7,7 +7,6 @@ import no.java.moosehead.eventstore.ReservationCancelledByUser;
 import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
-import org.fest.assertions.Assertions;
 import org.junit.Test;
 
 import java.util.List;

@@ -24,10 +24,15 @@ public class WorkshopAggregate implements EventSubscription {
         eventArrayList.add(event);
     }
 
-    public WorkshopAddedByAdmin createEvent(AddWorkshopCommand addWorkshopCommand){
-        Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
+    public WorkshopAddedEvent createEvent(AddWorkshopCommand addWorkshopCommand){
+        Optional<WorkshopAddedEvent> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
         if (!workshop.isPresent()) {
-            WorkshopAddedByAdmin event = new WorkshopAddedByAdmin(System.currentTimeMillis(),  nextRevision(), addWorkshopCommand.getWorkshopId(), Configuration.placesPerWorkshop());
+            WorkshopAddedEvent event;
+            if (addWorkshopCommand.getAuthor().equals(AddWorkshopCommand.Author.SYSTEM)) {
+                event = new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+            } else {
+                event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+            }
             return event;
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
@@ -39,7 +44,7 @@ public class WorkshopAggregate implements EventSubscription {
     }
 
     public ReservationAddedByUser createEvent(AddReservationCommand addReservationCommand) {
-        Optional<WorkshopAddedByAdmin> workshop = getWorkshop(addReservationCommand.getWorkshopId());
+        Optional<WorkshopAddedEvent> workshop = getWorkshop(addReservationCommand.getWorkshopId());
         if (workshop.isPresent()) {
             if (OffsetDateTime.now().isBefore(Configuration.openTime())) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
@@ -72,11 +77,11 @@ public class WorkshopAggregate implements EventSubscription {
                 .filter(uwe -> uwe.getEmail().equals(email) && uwe.getWorkshopId().equals(workshopid));
     }
 
-    private Stream<WorkshopAddedByAdmin> getAllWorkshops() {
+    private Stream<WorkshopAddedEvent> getAllWorkshops() {
        return eventArrayList
                .parallelStream()
-               .filter(event -> event instanceof WorkshopAddedByAdmin)
-               .map(event ->(WorkshopAddedByAdmin) event);
+               .filter(event -> event instanceof WorkshopAddedEvent)
+               .map(event ->(WorkshopAddedEvent) event);
     }
 
     private Stream<ReservationAddedByUser> getReservationsForWorkshop(String workshopId) {
@@ -87,7 +92,7 @@ public class WorkshopAggregate implements EventSubscription {
                 .filter(reservation -> reservation.getWorkshopId().equals(workshopId));
     }
 
-    private Optional<WorkshopAddedByAdmin> getWorkshop(String workshopId) {
+    private Optional<WorkshopAddedEvent> getWorkshop(String workshopId) {
         return getAllWorkshops()
                 .filter(workshop -> workshop.getWorkshopId().equals(workshopId))
                 .findFirst();
@@ -109,7 +114,7 @@ public class WorkshopAggregate implements EventSubscription {
         if (!(event.isPresent())) {
             throw new NoReservationFoundException("Could not find reservation with token [" + confirmEmailCommand.getReservationToken()+ "]");
         }
-        ReservationAddedByUser reservation = (ReservationAddedByUser) event.get();
+        ReservationAddedByUser reservation = event.get();
         Optional<AbstractEvent> any = eventArrayList.stream()
                 .filter(ae -> {
                     if (!(ae instanceof EmailConfirmedByUser)) {

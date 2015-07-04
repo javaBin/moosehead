@@ -5,10 +5,7 @@ import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.ReservationCancelledByUser;
-import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
@@ -58,18 +55,32 @@ public class WorkshopAggregateTest {
         Configuration.initData(confdata);
     }
 
+    @Test()
+    public void workshopAddedByAdminShouldBeOfTypeWorkshopAddedByAdmin() {
+        AddWorkshopCommand command = new AddWorkshopCommand(w1, AddWorkshopCommand.Author.ADMIN, 10);
+        WorkshopAddedEvent event = workshopAggregate.createEvent(command);
+        assertThat(event).isInstanceOf(WorkshopAddedByAdmin.class);
+    }
+
+    @Test()
+    public void workshopAddedBySystemShouldBeOfTypeWorkshopAddedBySystem() {
+        AddWorkshopCommand command = new AddWorkshopCommand(w1, AddWorkshopCommand.Author.SYSTEM, 10);
+        WorkshopAddedEvent event = workshopAggregate.createEvent(command);
+        assertThat(event).isInstanceOf(WorkshopAddedBySystem.class);
+    }
+
     @Test(expected = WorkshopCanNotBeAddedException.class)
     public void workshopShouldNotBeAddedWhenItExistsAlready() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = new AddWorkshopCommand(w1);
+        AddWorkshopCommand command = new AddWorkshopCommand(w1, AddWorkshopCommand.Author.ADMIN, 10);
         workshopAggregate.createEvent(command);
     }
 
     @Test
     public void aUniqueWorkshopShouldBeAdded() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = new AddWorkshopCommand(w2);
-        WorkshopAddedByAdmin event = workshopAggregate.createEvent(command);
+        AddWorkshopCommand command = new AddWorkshopCommand(w2, AddWorkshopCommand.Author.ADMIN, 10);
+        WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event.getWorkshopId()).isEqualTo(w2);
     }
 
