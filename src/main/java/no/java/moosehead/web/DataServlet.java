@@ -5,6 +5,7 @@ import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.projections.Participant;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +76,7 @@ public class DataServlet extends HttpServlet {
         }
         WorkshopInfo workshopInfo = workshopInfoOptional.get();
         List<JSONObject> participants = workshopInfo.getParticipants().stream()
-                .filter(pa -> pa.isEmailConfirmed())
+                .filter(Participant::isEmailConfirmed)
                 .map(ParticipantApi::participantAsJson)
                 .collect(Collectors.toList());
 

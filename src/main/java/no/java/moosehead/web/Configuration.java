@@ -102,7 +102,7 @@ public class Configuration {
     }
 
     public static String emsEventLocation() {
-        return readConf("emsEventLocation","http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
+        return readConf("emsEventLocation", "http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
     }
 
     public static String loginConfigLocation() {
@@ -141,11 +141,11 @@ public class Configuration {
     }
 
     public static int smtpPort() {
-        return Integer.parseInt(readConf("smtpPort","25"));
+        return Integer.parseInt(readConf("smtpPort", "25"));
     }
 
     public static String bccTo() {
-        return readConf("mailbcc",null);
+        return readConf("mailbcc", null);
     }
 
     public static String mooseheadLocation() {
@@ -157,7 +157,7 @@ public class Configuration {
     }
 
     public static boolean isProdEnviroment() {
-        return "false".equals(readConf("testenv","true"));
+        return "false".equals(readConf("testenv", "true"));
     }
 
     public static boolean secureAdmin() {
@@ -165,10 +165,18 @@ public class Configuration {
     }
 
     public static String adminPassword() {
-        return readConf("adminPassword","password");
+        return readConf("adminPassword", "password");
     }
 
     public static int veryFullNumber() {
-        return Integer.parseInt(readConf("veryFullNumber","20"));
+        return Integer.parseInt(readConf("veryFullNumber", "20"));
+    }
+
+    public static String googleClientId() {
+        return readConf("googleClientId", "xxx");
+    }
+
+    public static String googleClientSecret() {
+        return readConf("googleClientSecret", "xxx");
     }
 }
