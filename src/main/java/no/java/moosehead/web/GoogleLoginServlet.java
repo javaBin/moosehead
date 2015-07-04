@@ -32,8 +32,7 @@ public class GoogleLoginServlet extends HttpServlet {
 
 
     private void handleLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String server = req.getParameter("server");
-        String redir = server + "oauth2callback";
+        String redir = Configuration.mooseheadLocation() + "/oauth2callback";
         req.getSession().setAttribute("redir", redir);
         String sessionid = req.getSession().getId();
         // redirect to google for authorization
