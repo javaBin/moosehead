@@ -178,7 +178,7 @@ public class ClassSerializer {
             }
         }
         String packageName = fieldValue.getClass().getPackage().getName();
-        if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
+        if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName) || "java.time".equals(packageName)) {
             return fieldValue.toString()
                     .replaceAll("&","&amp")
                     .replaceAll(";","&semi")

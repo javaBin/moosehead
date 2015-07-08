@@ -2,7 +2,9 @@ package no.java.moosehead.repository;
 
 import net.hamnaberg.json.Collection;
 import net.hamnaberg.json.Item;
+import net.hamnaberg.json.Link;
 import net.hamnaberg.json.Property;
+import net.hamnaberg.json.extension.Tuple2;
 import net.hamnaberg.json.parser.CollectionParser;
 import no.java.moosehead.web.Configuration;
 
@@ -10,8 +12,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,27 +29,37 @@ public class WorkshopRepository {
         List<Item> items = readItems();
 
         workshops = items.stream()
-                .map(it -> it.getDataAsMap())
+                .map(it -> new Tuple2<>(
+                        it.getDataAsMap(),
+                        it.linkByRel("slot item").get().getPrompt()))
                 .filter(dasm -> {
-                    Property published = dasm.get("published");
+                    Map<String, Property> spMap = dasm._1;
+                    Property published = spMap.get("published");
                     if (!published.hasValue()) {
                         return false;
                     }
-                    Property format = dasm.get("format");
+                    Property format = spMap.get("format");
                     if (!format.hasValue()) {
                         return false;
                     }
                     return published.getValue().get().asBoolean() && "workshop".equals(format.getValue().get().asString());
                 })
                 .map(dasm -> {
-                    String title = dasm.get("title").getValue().get().asString();
-                    String summary = dasm.get("summary").getValue().get().asString();
-                    String slug = dasm.get("slug").getValue().get().asString();
-                    return new WorkshopData(slug,title,summary);
+                    Map<String, Property> spMap = dasm._1;
+                    net.hamnaberg.funclite.Optional<String> startsAndEnds = dasm._2;
+                    String title = spMap.get("title").getValue().get().asString();
+                    String summary = spMap.get("summary").getValue().get().asString();
+                    String slug = spMap.get("slug").getValue().get().asString();
+                    if (startsAndEnds.isSome()) {
+                        String[] dates = startsAndEnds.get().split("\\+");
+                        Instant starts = Instant.parse(dates[0]);
+                        Instant ends = Instant.parse(dates[1]);
+                        return new WorkshopData(slug, title, summary, starts, ends);
+                    } else {
+                        return new WorkshopData(slug, title, summary);
+                    }
                 })
                 .collect(Collectors.toList());
-
-
     }
 
     private List<Item> readItems() {

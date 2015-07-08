@@ -29,7 +29,11 @@ public class WorkshopAggregate implements EventSubscription {
         if (!workshop.isPresent()) {
             WorkshopAddedEvent event;
             if (addWorkshopCommand.getAuthor().equals(AddWorkshopCommand.Author.SYSTEM)) {
-                event = new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+                if (addWorkshopCommand.hasStartAndEndTime()) {
+                    event = new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats(), addWorkshopCommand.getStartTime(), addWorkshopCommand.getEndTime());
+                }   else {
+                    event = new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+                }
             } else {
                 event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
             }

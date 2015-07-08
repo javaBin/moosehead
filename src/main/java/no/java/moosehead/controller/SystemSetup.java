@@ -62,9 +62,6 @@ public class SystemSetup {
 
         eventstore.playbackEventsToSubscribers();
 
-
-
-
     }
 
     public boolean needToLoadSetup() {
@@ -76,7 +73,12 @@ public class SystemSetup {
     private void createAllWorkshops() {
         List<WorkshopData> workshopDatas = workshopRepository.allWorkshops();
         workshopDatas.forEach(wd -> {
-            AddWorkshopCommand addWorkshopCommand = new AddWorkshopCommand(wd.getId(), AddWorkshopCommand.Author.SYSTEM, Configuration.placesPerWorkshop());
+            AddWorkshopCommand addWorkshopCommand;
+            if (wd.hasStartAndEndTime()) {
+                addWorkshopCommand = new AddWorkshopCommand(wd.getId(), AddWorkshopCommand.Author.SYSTEM, Configuration.placesPerWorkshop(), wd.getStartTime(), wd.getEndTime());
+            } else {
+                addWorkshopCommand = new AddWorkshopCommand(wd.getId(), AddWorkshopCommand.Author.SYSTEM, Configuration.placesPerWorkshop());
+            }
             WorkshopAddedEvent event = workshopAggregate.createEvent(addWorkshopCommand);
             eventstore.addEvent(event);
         });
