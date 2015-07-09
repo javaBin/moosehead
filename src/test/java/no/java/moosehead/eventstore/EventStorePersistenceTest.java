@@ -30,7 +30,7 @@ public class EventStorePersistenceTest {
         f.deleteOnExit();
         Eventstore eventstore = new Eventstore(new FileHandler(f.getCanonicalPath()));
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, "W1", 0));
-        assertThat(f.length()).isEqualTo(128);
+        assertThat(f.length()).isEqualTo(160);
     }
 
     @Test

@@ -16,6 +16,7 @@ import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.web.Configuration;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,8 +53,9 @@ public class WorkshopController implements ParticipantApi {
         ;
     }
 
-    private WorkshopStatus computeWorkshopStatus(Workshop ws) {
-        if (Configuration.closedWorkshops().contains(ws.getWorkshopData().getId())) {
+    protected WorkshopStatus computeWorkshopStatus(Workshop ws) {
+        if (Configuration.closedWorkshops().contains(ws.getWorkshopData().getId()) ||
+                (ws.getWorkshopData().hasStartAndEndTime() && ws.getWorkshopData().getStartTime().isAfter(Instant.now()))) {
             return WorkshopStatus.CLOSED;
         }
         if (Configuration.openTime().isAfter(OffsetDateTime.now())) {

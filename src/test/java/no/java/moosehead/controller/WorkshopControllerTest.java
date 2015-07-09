@@ -1,9 +1,11 @@
 package no.java.moosehead.controller;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
+import no.java.moosehead.api.WorkshopStatus;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
@@ -21,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -57,10 +60,17 @@ public class WorkshopControllerTest {
         SystemSetup.setSetup(null);
     }
 
+    @Ignore
+    @Test
+    public void workshopShouldBeOpenBeforeStartTime() {
+        //TODO Write this test, but figure out timestuff first..
+//        WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(new Workshop(new WorkshopData("one", "title", "description"), 30, 3L));
+  //      System.out.println(workshopStatus.toString());
+    }
+
     @Test
     public void shouldReturnWorkshopList() throws Exception {
         when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one", "title", "description"), 30, 3L)));
-
 
         List<WorkshopInfo> workshops = workshopController.workshops();
 
@@ -128,7 +138,6 @@ public class WorkshopControllerTest {
 
         assertThat(cancelReservationCommand.getEmail()).isEqualTo("darth@deathstar.com");
         assertThat(cancelReservationCommand.getWorkshopId()).isEqualTo("one");
-
     }
 
     @Test
@@ -138,7 +147,6 @@ public class WorkshopControllerTest {
         verify(workshopAggregate, never()).createEvent(any(CancelReservationCommand.class));
         assertThat(participantActionResult.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(participantActionResult.getErrormessage()).isEqualTo("Unknown token, reservation not found");
-
     }
 
     @Test
@@ -192,6 +200,5 @@ public class WorkshopControllerTest {
         ParticipantActionResult result = workshopController.confirmEmail("123");
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("My error");
-
     }
 }

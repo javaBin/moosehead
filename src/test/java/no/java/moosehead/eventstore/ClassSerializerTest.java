@@ -10,7 +10,7 @@ public class ClassSerializerTest {
     public void testSerializing() {
         ClassSerializer classSerializer = new ClassSerializer();
         final WorkshopAddedByAdmin addedByAdmin = new WorkshopAddedByAdmin(99999, 1L, "W1", 0);
-        assertThat(classSerializer.asString(addedByAdmin)).isEqualTo("<no.java.moosehead.eventstore.WorkshopAddedByAdmin;workshopId=W1;numberOfSeats=0;systemTimeInMillis=99999;revisionId=1>");
+        assertThat(classSerializer.asString(addedByAdmin)).isEqualTo("<no.java.moosehead.eventstore.WorkshopAddedByAdmin;workshopId=W1;numberOfSeats=0;startTime=<null>;endTime=<null>;systemTimeInMillis=99999;revisionId=1>");
     }
 
     @Test
