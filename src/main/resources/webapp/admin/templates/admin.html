@@ -1,5 +1,5 @@
 <div>
-    <h1>ADMIN: Workshops</h1>
+    <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
     <div ng-repeat="workshop in workshops">
         <h2>{{workshop.title}}</h2>
         <p>Status: {{workshop.status}}</p>
@@ -7,5 +7,8 @@
         <ul ng-repeat="participant in workshop.participants">
             <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}})</li>
         </ul>
+    </div>
+    <div ng-show="showNoAccess">
+        <p>You do not have access here.</p>
     </div>
 </div>

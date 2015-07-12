@@ -64,13 +64,14 @@ public class WebServer {
             webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
         }
 
-         Handler serverHandler;
+         Handler serverHandler = webAppContext;
 
+        /*
         if (Configuration.secureAdmin()) {
             serverHandler = setupSecurity(server, webAppContext);
         } else {
             serverHandler = webAppContext;
-        }
+        }*/
 
         server.setHandler(serverHandler);
 

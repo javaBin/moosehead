@@ -1,11 +1,20 @@
 angular.module('mooseheadModule')
-    .controller('AdminCtrl', ['$scope', '$http',
-        function($scope, $http) {
+    .controller('AdminCtrl', ['$scope', '$http','$location',
+        function($scope, $http, $location) {
             $scope.workshops = [];
-            $http({method: "GET", url: "data/alldata"})
-                .success(function(value) {
-                    $scope.workshops = value;
+            $scope.showNoAccess=false;
+            $http({method: "GET", url: "data/userLogin"})
+                .success(function(userobj) {
+                    if (!(userobj && userobj.email)) {
+                        $scope.showNoAccess = true;
+                        return;
+                    }
+                    $http({method: "GET", url: "data/alldata"})
+                        .success(function(value) {
+                            $scope.workshops = value;
+                        });
                 });
+
             $scope.isConfirmed = function(participant) {
                 if (participant.isEmailConfirmed) {
                     return "Confirmed";

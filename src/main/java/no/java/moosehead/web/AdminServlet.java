@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.controller.SystemSetup;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @WebServlet(urlPatterns = {"/admin/data/*"})
@@ -38,6 +40,10 @@ public class AdminServlet  extends HttpServlet {
             printAllInfo(resp);
         } else if ("/duplreservations".equals(req.getPathInfo())) {
             printDuplicate(resp);
+        } else if ("/userLogin".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
+            JsonNode node = (JsonNode) req.getSession().getAttribute("user");
+            resp.getWriter().append(Optional.ofNullable(node).map(Object::toString).orElse("{}"));
         } else {
             resp.getWriter().print("" +
                     "<html>Protected Admin API:<ul>" +

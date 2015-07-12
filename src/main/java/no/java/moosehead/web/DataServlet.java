@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
@@ -48,6 +49,10 @@ public class DataServlet extends HttpServlet {
         } else if ("/teacherList".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
             printTeacherList(req, resp);
+        } else if ("/userLogin".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
+            JsonNode node = (JsonNode) req.getSession().getAttribute("user");
+            resp.getWriter().append(Optional.ofNullable(node).map(Object::toString).orElse("{}"));
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
