@@ -31,7 +31,7 @@ public class WorkshopRepository {
         workshops = items.stream()
                 .map(it -> new Tuple2<>(
                         it.getDataAsMap(),
-                        it.linkByRel("slot item").get().getPrompt()))
+                        it.linkByRel("slot item")))
                 .filter(dasm -> {
                     Map<String, Property> spMap = dasm._1;
                     Property published = spMap.get("published");
@@ -46,12 +46,12 @@ public class WorkshopRepository {
                 })
                 .map(dasm -> {
                     Map<String, Property> spMap = dasm._1;
-                    net.hamnaberg.funclite.Optional<String> startsAndEnds = dasm._2;
+                    net.hamnaberg.funclite.Optional<Link> startsAndEnds = dasm._2;
                     String title = spMap.get("title").getValue().get().asString();
                     String summary = spMap.get("summary").getValue().get().asString();
                     String slug = spMap.get("slug").getValue().get().asString();
                     if (startsAndEnds.isSome()) {
-                        String[] dates = startsAndEnds.get().split("\\+");
+                        String[] dates = startsAndEnds.get().getPrompt().get().split("\\+");
                         Instant starts = Instant.parse(dates[0]);
                         Instant ends = Instant.parse(dates[1]);
                         return new WorkshopData(slug, title, summary, starts, ends);
