@@ -53,7 +53,5 @@ public class AddWorkshopCommand {
         return endTime;
     }
 
-    public enum Author {
-        SYSTEM, ADMIN
-    }
+
 }

@@ -1,5 +1,6 @@
 package no.java.moosehead.projections;
 
+import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 
@@ -29,8 +30,8 @@ public class Participant {
         }
     }
 
-    public static Participant confirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
-        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,true, reservationAddedByUser.getRevisionId(), reservationAddedByUser.getSystemTimeInMillis());
+    public static Participant confirmedParticipant(AbstractReservationAdded reservationAdded,Workshop workshop) {
+        return new Participant(reservationAdded.getEmail(),reservationAdded.getFullname(),workshop,true, reservationAdded.getRevisionId(), reservationAdded.getSystemTimeInMillis());
     }
 
     public static Participant unconfirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {

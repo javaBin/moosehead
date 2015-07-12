@@ -1,9 +1,6 @@
 package no.java.moosehead.aggregate;
 
-import no.java.moosehead.commands.AddReservationCommand;
-import no.java.moosehead.commands.AddWorkshopCommand;
-import no.java.moosehead.commands.CancelReservationCommand;
-import no.java.moosehead.commands.ConfirmEmailCommand;
+import no.java.moosehead.commands.*;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
@@ -27,17 +24,18 @@ public class WorkshopAggregate implements EventSubscription {
     public WorkshopAddedEvent createEvent(AddWorkshopCommand addWorkshopCommand){
         Optional<WorkshopAddedEvent> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
         if (!workshop.isPresent()) {
-            WorkshopAddedEvent event;
-            if (addWorkshopCommand.getAuthor().equals(AddWorkshopCommand.Author.SYSTEM)) {
-                if (addWorkshopCommand.hasStartAndEndTime()) {
-                    event = new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats(), addWorkshopCommand.getStartTime(), addWorkshopCommand.getEndTime());
-                }   else {
-                    event = new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
-                }
-            } else {
-                event = new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+            switch (addWorkshopCommand.getAuthor()) {
+                case SYSTEM:
+                    if (addWorkshopCommand.hasStartAndEndTime()) {
+                        return new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats(), addWorkshopCommand.getStartTime(), addWorkshopCommand.getEndTime());
+                    }   else {
+                        return new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+                    }
+                case ADMIN:
+                    return new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+                default:
+                    throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("Author + " + Author.USER+ " is not supported"));
             }
-            return event;
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
         }
@@ -47,30 +45,43 @@ public class WorkshopAggregate implements EventSubscription {
         return SystemSetup.instance().revisionGenerator().nextRevisionId();
     }
 
-    public ReservationAddedByUser createEvent(AddReservationCommand addReservationCommand) {
+    public AbstractReservationAdded createEvent(AddReservationCommand addReservationCommand) {
         Optional<WorkshopAddedEvent> workshop = getWorkshop(addReservationCommand.getWorkshopId());
         if (workshop.isPresent()) {
             if (OffsetDateTime.now().isBefore(Configuration.openTime())) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
             }
-            ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
-                    addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
-            if (getReservation(reservationAddedByUser).isPresent()) {
-                throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + reservationAddedByUser.getEmail() + "]");
+            if (getReservation(addReservationCommand).isPresent()) {
+                throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + addReservationCommand.getEmail() + "]");
             }
-            return reservationAddedByUser;
+            switch (addReservationCommand.getAuthor()) {
+                case ADMIN:
+                    return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
+                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
+                case USER:
+                    return new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
+                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
+                default:
+                    throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("Author + " + Author.SYSTEM + " is not supported"));
+            }
         } else {
             throw new ReservationCanNotBeAddedException("The workshop in [" + addReservationCommand + "] does not exists");
         }
     }
 
-    public ReservationCancelledByUser createEvent(CancelReservationCommand cancel) {
-        long count = userWorkshopEvents(cancel.getWorkshopId(), cancel.getEmail()).count();
+    public AbstractReservationCancelled createEvent(CancelReservationCommand cancelReservationCommand) {
+        long count = userWorkshopEvents(cancelReservationCommand.getWorkshopId(), cancelReservationCommand.getEmail()).count();
         if (count % 2 == 0) {
-            throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancel.getEmail(),cancel.getWorkshopId()));
+            throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancelReservationCommand.getEmail(),cancelReservationCommand.getWorkshopId()));
         }
-        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancel.getEmail(), cancel.getWorkshopId());
-        return reservationCancelledByUser;
+        switch (cancelReservationCommand.getAuthor()) {
+            case USER:
+                return new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId());
+            case ADMIN:
+                return new ReservationCancelledByAdmin(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId());
+            default:
+                throw new ReservationCanNotBeCanceledException("Reservation cannot be canceled", new IllegalArgumentException("Author + " + Author.SYSTEM + " is not supported"));
+        }
     }
 
     private Stream<? extends UserWorkshopEvent> userWorkshopEvents(String workshopid,String email) {
@@ -102,9 +113,9 @@ public class WorkshopAggregate implements EventSubscription {
                 .findFirst();
     }
 
-    private Optional<ReservationAddedByUser> getReservation(ReservationAddedByUser reservationAddedByUser) {
-        return getReservationsForWorkshop(reservationAddedByUser.getWorkshopId())
-                .filter(reservation -> reservation.getEmail().equals(reservationAddedByUser.getEmail()))
+    private Optional<ReservationAddedByUser> getReservation(AddReservationCommand reservationAdded) {
+        return getReservationsForWorkshop(reservationAdded.getWorkshopId())
+                .filter(reservation -> reservation.getEmail().equals(reservationAdded.getEmail()))
                 .findFirst();
     }
 

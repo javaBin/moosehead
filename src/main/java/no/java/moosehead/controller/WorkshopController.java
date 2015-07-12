@@ -5,11 +5,10 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.aggregate.WorkshopNotFoundException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
+import no.java.moosehead.commands.Author;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
-import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.ReservationCancelledByUser;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
@@ -77,8 +76,8 @@ public class WorkshopController implements ParticipantApi {
 
     @Override
     public ParticipantActionResult reservation(String workshopid, String email, String fullname) {
-        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid);
-        ReservationAddedByUser event;
+        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, Author.USER);
+        AbstractReservationAdded event;
 
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {
@@ -110,8 +109,8 @@ public class WorkshopController implements ParticipantApi {
         }
 
         Participant participant = optByReservationId.get();
-        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId());
-        ReservationCancelledByUser event;
+        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId(), Author.USER);
+        AbstractReservationCancelled event;
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {
             try {
