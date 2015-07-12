@@ -6,6 +6,7 @@ import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 public class ClassSerializer {
@@ -117,6 +118,8 @@ public class ClassSerializer {
             } catch (InvocationTargetException | IllegalAccessException | InstantiationException | ParseException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+        } else if (Instant.class.equals(type)) {
+            value = Instant.parse(fieldValue);
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
