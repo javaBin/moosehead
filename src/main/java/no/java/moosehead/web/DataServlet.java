@@ -5,6 +5,7 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
 import no.java.moosehead.api.WorkshopInfo;
+import no.java.moosehead.commands.Author;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.projections.Participant;
 import org.json.JSONArray;
@@ -23,6 +24,9 @@ import java.io.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static no.java.moosehead.web.Utils.readField;
+import static no.java.moosehead.web.Utils.readJson;
 
 @WebServlet(urlPatterns = {"/data/*"})
 public class DataServlet extends HttpServlet {
@@ -156,7 +160,7 @@ public class DataServlet extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname);
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.USER);
 
         return Optional.of(reservation);
     }
@@ -168,7 +172,7 @@ public class DataServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return Optional.empty();
         }
-        ParticipantActionResult cancel = participantApi.cancellation(token);
+        ParticipantActionResult cancel = participantApi.cancellation(token, Author.USER);
 
         return Optional.of(cancel);
     }
@@ -187,7 +191,7 @@ public class DataServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JSONObject jsonInput = readJson(req.getInputStream(),resp);
+        JSONObject jsonInput = readJson(req.getInputStream());
         if (jsonInput == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return;
@@ -220,42 +224,8 @@ public class DataServlet extends HttpServlet {
         }
     }
 
-    private String readField(JSONObject jsonInput, String name) {
-        String value;
-        try {
-            value = jsonInput.getString(name);
-        } catch (JSONException e) {
-            return null;
-        }
-        for (char c : value.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || "-_ @.".indexOf(c) != -1) {
-                continue;
-            }
-            return null;
-        }
-        return value;
-    }
-
-    private JSONObject readJson(ServletInputStream inputStream, HttpServletResponse resp) throws IOException {
-        try {
-            return new JSONObject(toString(inputStream));
-        } catch (JSONException e) {
-            return null;
-        }
-    }
-
     public void setParticipantApi(ParticipantApi participantApi) {
         this.participantApi = participantApi;
     }
 
-    private static String toString(InputStream inputStream) throws IOException {
-        try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
-            StringBuilder result = new StringBuilder();
-            int c;
-            while ((c = reader.read()) != -1) {
-                result.append((char)c);
-            }
-            return result.toString();
-        }
-    }
 }

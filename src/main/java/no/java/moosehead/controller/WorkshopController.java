@@ -75,8 +75,8 @@ public class WorkshopController implements ParticipantApi {
     }
 
     @Override
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname) {
-        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, Author.USER);
+    public ParticipantActionResult reservation(String workshopid, String email, String fullname, Author author) {
+        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, author);
         AbstractReservationAdded event;
 
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
@@ -95,7 +95,7 @@ public class WorkshopController implements ParticipantApi {
     }
 
     @Override
-    public ParticipantActionResult cancellation(String reservationId) {
+    public ParticipantActionResult cancellation(String reservationId, Author author) {
         long id;
         try {
             id = Long.parseLong(reservationId);
@@ -109,7 +109,7 @@ public class WorkshopController implements ParticipantApi {
         }
 
         Participant participant = optByReservationId.get();
-        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId(), Author.USER);
+        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId(), author);
         AbstractReservationCancelled event;
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {

@@ -1,8 +1,10 @@
 package no.java.moosehead.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
+import no.java.moosehead.commands.Author;
 import no.java.moosehead.controller.SystemSetup;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,12 +15,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static no.java.moosehead.web.Utils.readField;
+import static no.java.moosehead.web.Utils.readJson;
 
 @WebServlet(urlPatterns = {"/admin/data/*"})
 public class AdminServlet  extends HttpServlet {
@@ -51,7 +57,64 @@ public class AdminServlet  extends HttpServlet {
                     "   <li>/workshop?workshopid=[workshopid]</li>" +
                     "</html>");
         }
+    }
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        JSONObject jsonInput = readJson(req.getInputStream());
+        if (jsonInput == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return;
+        }
+        Optional<ParticipantActionResult> apiResult;
+        if ("/cancel".equals(req.getPathInfo())) {
+            apiResult = doCancelation(jsonInput, resp);
+        } else if ("/reserve".equals(req.getPathInfo())) {
+            apiResult = doReservation(jsonInput, req, resp);
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
+            return;
+        }
+        if (!apiResult.isPresent()) {
+            return;
+        }
+        resp.setContentType("text/json");
+        JSONObject result = new JSONObject();
+        try {
+            result.put("status", apiResult.get().getStatus());
+            String errormessage = apiResult.get().getErrormessage();
+            if (errormessage != null) {
+                result.put("message",errormessage);
+            }
+            result.write(resp.getWriter());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String workshopid = readField(jsonInput, "workshopid");
+        String email = readField(jsonInput,"email");
+        String fullname = readField(jsonInput,"fullname");
+
+        if (workshopid == null || email == null || fullname == null) {
+            return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
+        }
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.ADMIN);
+
+        return Optional.of(reservation);
+    }
+
+    private Optional<ParticipantActionResult> doCancelation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+        String token = readField(jsonInput, "token");
+
+        if (token == null ) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return Optional.empty();
+        }
+        ParticipantActionResult cancel = participantApi.cancellation(token, Author.ADMIN);
+
+        return Optional.of(cancel);
     }
 
     private void printDuplicate(HttpServletResponse resp) throws IOException {

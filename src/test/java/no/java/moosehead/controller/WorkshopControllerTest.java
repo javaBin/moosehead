@@ -7,6 +7,7 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.api.WorkshopStatus;
 import no.java.moosehead.commands.AddReservationCommand;
+import no.java.moosehead.commands.Author;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
@@ -92,7 +93,7 @@ public class WorkshopControllerTest {
 
         when(workshopListProjection.isEmailConfirmed("darth@deathstar.com")).thenReturn(false);
 
-        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader");
+        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", Author.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.CONFIRM_EMAIL);
 
@@ -109,7 +110,7 @@ public class WorkshopControllerTest {
     public void shouldReturnErrorIfAggregateThrowsError() throws Exception {
         doThrow(new MoosheadException("This is errormessage")).when(workshopAggregate).createEvent(any(AddReservationCommand.class));
 
-        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader");
+        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", Author.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");
@@ -128,7 +129,7 @@ public class WorkshopControllerTest {
 
         when(workshopListProjection.findByReservationId(2456L)).thenReturn(Optional.of(participant));
 
-        ParticipantActionResult result = workshopController.cancellation("2456");
+        ParticipantActionResult result = workshopController.cancellation("2456", Author.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.OK);
 
@@ -142,7 +143,7 @@ public class WorkshopControllerTest {
 
     @Test
     public void shouldHandleCorruptCancelId() throws Exception {
-        ParticipantActionResult participantActionResult = workshopController.cancellation("dfg");
+        ParticipantActionResult participantActionResult = workshopController.cancellation("dfg", Author.USER);
 
         verify(workshopAggregate, never()).createEvent(any(CancelReservationCommand.class));
         assertThat(participantActionResult.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
@@ -153,7 +154,7 @@ public class WorkshopControllerTest {
     public void shouldHandleNonExsistingReservationId() throws Exception {
         when(workshopListProjection.findByReservationId(anyLong())).thenReturn(Optional.empty());
 
-        ParticipantActionResult participantActionResult = workshopController.cancellation("123");
+        ParticipantActionResult participantActionResult = workshopController.cancellation("123", Author.USER);
 
         verify(workshopAggregate, never()).createEvent(any(CancelReservationCommand.class));
         assertThat(participantActionResult.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
@@ -170,7 +171,7 @@ public class WorkshopControllerTest {
 
         when(workshopListProjection.findByReservationId(2456L)).thenReturn(Optional.of(participant));
 
-        ParticipantActionResult result = workshopController.cancellation("2456");
+        ParticipantActionResult result = workshopController.cancellation("2456", Author.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");

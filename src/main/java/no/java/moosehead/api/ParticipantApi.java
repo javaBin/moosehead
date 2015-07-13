@@ -1,5 +1,6 @@
 package no.java.moosehead.api;
 
+import no.java.moosehead.commands.Author;
 import no.java.moosehead.projections.Participant;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,9 +12,9 @@ import java.util.stream.Collectors;
 public interface ParticipantApi {
     public WorkshopInfo getWorkshop(String workshopid);
     public List<WorkshopInfo> workshops();
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname);
+    public ParticipantActionResult reservation(String workshopid, String email, String fullname, Author author);
     public ParticipantActionResult confirmEmail(String token);
-    public ParticipantActionResult cancellation(String reservationId);
+    public ParticipantActionResult cancellation(String reservationId, Author author);
     public List<ParticipantReservation> myReservations(String email);
 
     public static JSONObject asAdminJson(WorkshopInfo workshop) {
