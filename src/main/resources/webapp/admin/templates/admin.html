@@ -9,6 +9,7 @@
         </ul>
     </div>
     <div ng-show="showNoAccess">
-        <p>You do not have access here.</p>
+        <p ng-show="needLogin">You need to login using google to access admin. Login <a href="../oauth2callback/login">here</a></p>
+        <p ng-show="needAccess">Your goodle account ({{googleid}}) is not registered for access</p>
     </div>
 </div>

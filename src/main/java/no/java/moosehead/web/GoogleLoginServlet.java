@@ -14,7 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @WebServlet(urlPatterns = {"/oauth2callback/*"})
@@ -104,16 +103,20 @@ public class GoogleLoginServlet extends HttpServlet {
             gsstr = toString(is);
         }
 
-        JsonNode googleAuth = objectMapper.readTree(new StringReader(gsstr));
+        updateUserLogin(req, gsstr);
 
-        String googleId = jsonNode.get("id").asText();
+        resp.sendRedirect("/");
+    }
+
+    private void updateUserLogin(HttpServletRequest req, String gsstr) throws IOException {
+        JsonNode googleAuth = new ObjectMapper().readTree(new StringReader(gsstr));
+
+        String googleId = googleAuth.get("id").asText();
         boolean isAdmin = Configuration.adminGoogleIds().contains(googleId);
-        ObjectNode objnode = (ObjectNode) jsonNode;
+        ObjectNode objnode = (ObjectNode) googleAuth;
         objnode.put("admin",isAdmin);
 
         req.getSession().setAttribute("user", objnode);
-
-        resp.sendRedirect("/");
     }
 
     private static String para(String name, String value) throws UnsupportedEncodingException {
