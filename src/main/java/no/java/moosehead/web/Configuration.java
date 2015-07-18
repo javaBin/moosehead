@@ -106,7 +106,7 @@ public class Configuration {
     }
 
     public static String loginConfigLocation() {
-        return readConf("loginConfigLocation","realm.properties");
+        return readConf("loginConfigLocation", "realm.properties");
     }
 
     public static int placesPerWorkshop() {
@@ -153,19 +153,11 @@ public class Configuration {
     }
 
     public static String eventstoreFilename() {
-        return readConf("eventstoreFilename",null);
+        return readConf("eventstoreFilename", null);
     }
 
     public static boolean isProdEnviroment() {
         return "false".equals(readConf("testenv", "true"));
-    }
-
-    public static boolean secureAdmin() {
-        return "true".equals(readConf("secureAdmin","true"));
-    }
-
-    public static String adminPassword() {
-        return readConf("adminPassword", "password");
     }
 
     public static int veryFullNumber() {
@@ -178,5 +170,9 @@ public class Configuration {
 
     public static String googleClientSecret() {
         return readConf("googleClientSecret", "xxx");
+    }
+
+    public static String adminGoogleIds() {
+        return readConf("adminGoogleIds","");
     }
 }

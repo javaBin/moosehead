@@ -2,6 +2,7 @@ package no.java.moosehead.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -105,7 +106,12 @@ public class GoogleLoginServlet extends HttpServlet {
 
         JsonNode googleAuth = objectMapper.readTree(new StringReader(gsstr));
 
-        req.getSession().setAttribute("user", googleAuth);
+        String googleId = jsonNode.get("id").asText();
+        boolean isAdmin = Configuration.adminGoogleIds().contains(googleId);
+        ObjectNode objnode = (ObjectNode) jsonNode;
+        objnode.put("admin",isAdmin);
+
+        req.getSession().setAttribute("user", objnode);
 
         resp.sendRedirect("/");
     }
