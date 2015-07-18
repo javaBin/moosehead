@@ -37,6 +37,17 @@ public class AdminServlet  extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        JsonNode userAccess = (JsonNode) req.getSession().getAttribute("user");
+        if ("/userLogin".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
+            resp.getWriter().append(Optional.ofNullable(userAccess).map(Object::toString).orElse("{}"));
+            return;
+        }
+        if (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false)) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         if ("/workshopList".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
             printWorkshops(resp);
@@ -46,11 +57,7 @@ public class AdminServlet  extends HttpServlet {
             printAllInfo(resp);
         } else if ("/duplreservations".equals(req.getPathInfo())) {
             printDuplicate(resp);
-        } else if ("/userLogin".equals(req.getPathInfo())) {
-            resp.setContentType("text/json");
-            JsonNode node = (JsonNode) req.getSession().getAttribute("user");
-            resp.getWriter().append(Optional.ofNullable(node).map(Object::toString).orElse("{}"));
-        } else {
+        } else  {
             resp.getWriter().print("" +
                     "<html>Protected Admin API:<ul>" +
                     "   <li>/workshopList</li>" +
