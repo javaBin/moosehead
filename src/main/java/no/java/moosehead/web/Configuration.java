@@ -175,4 +175,8 @@ public class Configuration {
     public static String adminGoogleIds() {
         return readConf("adminGoogleIds","");
     }
+
+    public static boolean secureAdmin() {
+        return "true".equals(readConf("secureAdmin","true"));
+    }
 }

@@ -43,7 +43,7 @@ public class AdminServlet  extends HttpServlet {
             resp.getWriter().append(Optional.ofNullable(userAccess).map(Object::toString).orElse("{}"));
             return;
         }
-        if (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false)) {
+        if (Configuration.secureAdmin() && (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false))) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -68,6 +68,12 @@ public class AdminServlet  extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        JsonNode userAccess = (JsonNode) req.getSession().getAttribute("user");
+        if (Configuration.secureAdmin() && (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false))) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         JSONObject jsonInput = readJson(req.getInputStream());
         if (jsonInput == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
@@ -116,7 +122,7 @@ public class AdminServlet  extends HttpServlet {
         String token = readField(jsonInput, "token");
 
         if (token == null ) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal json input");
             return Optional.empty();
         }
         ParticipantActionResult cancel = participantApi.cancellation(token, Author.ADMIN);
