@@ -6,6 +6,12 @@ angular.module('mooseheadModule')
             $scope.captchasrc = "captcha/img?cb=" + Date.now();
             $scope.workshopid = $routeParams.workshopid;
             $scope.showVeryFull = false;
+            $scope.userObject = {};
+
+            $http({method: "GET", url: "data/userLogin"})
+                .success(function(userobj) {
+                    $scope.userObject = userobj;
+                });
 
             workshopFactory.then(function(workshopList) {
                $scope.workshop = _.find(workshopList,function(w) {
@@ -30,6 +36,14 @@ angular.module('mooseheadModule')
 
             $scope.reloadCaptcha = function() {
                 $scope.captchasrc = "captcha/img?cb=" + Date.now();
+            };
+
+            $scope.fetchGoogleData = function() {
+                if (!$scope.userObject.id) {
+                    return;
+                }
+                $scope.email = $scope.userObject.email;
+                $scope.fullname = $scope.userObject.name;
             };
 
             $scope.register = function() {

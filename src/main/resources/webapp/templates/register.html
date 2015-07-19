@@ -3,6 +3,7 @@
 
     <p class="info" ng-show="showForm"><strong>Enter your information below</strong> to register for the workshop "{{workshop.title}}". We'll send you a confirmation e-mail, and you'll have to press the link in this e-mail to confirm (you probably know the drill…)</p>
     <p class="info" ng-show="showForm">After you have confirmed your e-mail address, you will be assigned a spot immediately. If the workshop is full, you'll get a spot at the waiting list. If any spots becomes availiable, you'll get an e-mail telling you about this.</p>
+    <p class="info" ng-show="showForm">You can also use your google accont to register. <button ng-click="fetchGoogleData()">Fetch data from google account</button></p>
     <p class="info" ng-show="showVeryFull">The waiting list for this workshop is very long. It is unlikely that you will get a spot.</p>
 
     <p class="errormessage" ng-show="showMessage">{{message}}</p>
