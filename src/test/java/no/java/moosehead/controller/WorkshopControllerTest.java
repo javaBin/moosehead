@@ -5,7 +5,6 @@ import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
-import no.java.moosehead.api.WorkshopStatus;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.Author;
 import no.java.moosehead.commands.CancelReservationCommand;
@@ -24,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -93,7 +91,7 @@ public class WorkshopControllerTest {
 
         when(workshopListProjection.isEmailConfirmed("darth@deathstar.com")).thenReturn(false);
 
-        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", Author.USER);
+        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", Author.USER, Optional.empty());
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.CONFIRM_EMAIL);
 
@@ -110,7 +108,7 @@ public class WorkshopControllerTest {
     public void shouldReturnErrorIfAggregateThrowsError() throws Exception {
         doThrow(new MoosheadException("This is errormessage")).when(workshopAggregate).createEvent(any(AddReservationCommand.class));
 
-        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", Author.USER);
+        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", Author.USER, Optional.empty());
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");

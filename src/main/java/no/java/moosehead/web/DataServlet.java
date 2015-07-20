@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -160,7 +159,7 @@ public class DataServlet extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.USER);
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.USER, Optional.empty());
 
         return Optional.of(reservation);
     }

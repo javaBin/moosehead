@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -127,14 +128,14 @@ public class DataServletTest {
         reservationJson.put("fullname", "Darth Vader");
         reservationJson.put("captcha","123");
 
-        when(participantApi.reservation(anyString(), anyString(), anyString(),any(Author.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.reservation(anyString(), anyString(), anyString(),any(Author.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).reservation("123","darth@a.com","Darth Vader", Author.USER);
+        verify(participantApi).reservation("123","darth@a.com","Darth Vader", Author.USER, Optional.empty());
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -215,7 +216,7 @@ public class DataServletTest {
 
         servlet.service(req,resp);
 
-        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(Author.class));
+        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(Author.class), any(Optional.class));
         verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
     }
 
@@ -234,7 +235,7 @@ public class DataServletTest {
 
         servlet.service(req, resp);
 
-        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(Author.class));
+        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(Author.class), any(Optional.class));
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.get("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
         assertThat(jsonObject.get("message")).isEqualTo("Name and email must be present without spesial characters");

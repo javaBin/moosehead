@@ -7,12 +7,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public interface ParticipantApi {
     public WorkshopInfo getWorkshop(String workshopid);
     public List<WorkshopInfo> workshops();
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname, Author author);
+    public ParticipantActionResult reservation(String workshopid, String email, String fullname, Author author, Optional<String> googleEmail);
     public ParticipantActionResult confirmEmail(String token);
     public ParticipantActionResult cancellation(String reservationId, Author author);
     public List<ParticipantReservation> myReservations(String email);
