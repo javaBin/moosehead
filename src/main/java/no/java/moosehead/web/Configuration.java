@@ -179,4 +179,8 @@ public class Configuration {
     public static boolean secureAdmin() {
         return "true".equals(readConf("secureAdmin","true"));
     }
+
+    public static String emsEventsFile() {
+        return readConf("emsEventsFile",null);
+    }
 }

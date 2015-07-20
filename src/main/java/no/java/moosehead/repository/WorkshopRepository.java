@@ -8,7 +8,7 @@ import net.hamnaberg.json.extension.Tuple2;
 import net.hamnaberg.json.parser.CollectionParser;
 import no.java.moosehead.web.Configuration;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -63,6 +63,32 @@ public class WorkshopRepository {
     }
 
     private List<Item> readItems() {
+        InputStream inputStream = openEventInputStream();
+
+        Collection events;
+        try {
+            events = new CollectionParser().parse(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return events.getItems();
+    }
+
+    private InputStream openEventInputStream() {
+        String eventFile = Configuration.emsEventsFile();
+        if (eventFile != null) {
+            try {
+                return new FileInputStream(new File(eventFile));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
         URL url;
         try {
             url = new URL(Configuration.emsEventLocation());
@@ -70,19 +96,14 @@ public class WorkshopRepository {
             throw new RuntimeException(e);
         }
         URLConnection urlConnection;
+        InputStream inputStream;
         try {
             urlConnection = url.openConnection();
+            inputStream = urlConnection.getInputStream();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        Collection events;
-        try {
-            events = new CollectionParser().parse(urlConnection.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return events.getItems();
+        return inputStream;
     }
 
     public List<WorkshopData> allWorkshops() {
