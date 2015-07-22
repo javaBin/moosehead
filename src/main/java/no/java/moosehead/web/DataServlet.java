@@ -1,6 +1,7 @@
 package no.java.moosehead.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
@@ -12,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.mail.Session;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -107,7 +109,7 @@ public class DataServlet extends HttpServlet {
                 jsonObject.put("workshopid", res.getWorkshopid());
                 jsonObject.put("email", res.getEmail());
                 jsonObject.put("status", res.getStatus());
-                jsonObject.put("workshopname",res.getWorkshopname());
+                jsonObject.put("workshopname", res.getWorkshopname());
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -146,8 +148,8 @@ public class DataServlet extends HttpServlet {
 
     private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String workshopid = readField(jsonInput, "workshopid");
-        String email = readField(jsonInput,"email");
-        String fullname = readField(jsonInput,"fullname");
+        String email = readField(jsonInput, "email");
+        String fullname = readField(jsonInput, "fullname");
         String capthca = readField(jsonInput,"captcha");
 
         HttpSession session = req.getSession();
@@ -159,9 +161,18 @@ public class DataServlet extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.USER, Optional.empty());
+        Optional<String> googleEmail = readGoogleMail(session);
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.USER, googleEmail);
 
         return Optional.of(reservation);
+    }
+
+    private Optional<String> readGoogleMail(HttpSession session) {
+        return Optional.ofNullable(session.getAttribute("user"))
+                .map(ob -> (ObjectNode) ob)
+                .map(on -> Optional.ofNullable(on.get("email")))
+                .filter(Optional::isPresent)
+                .map(ma -> ma.get().asText());
     }
 
     private Optional<ParticipantActionResult> doCancelation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {

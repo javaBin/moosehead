@@ -1,5 +1,7 @@
 package no.java.moosehead.web;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.Author;
 import org.json.JSONArray;
@@ -29,13 +31,14 @@ public class DataServletTest {
     private final HttpServletResponse resp = mock(HttpServletResponse.class);
     private final StringWriter jsonContent = new StringWriter();
     private final ParticipantApi participantApi = mock(ParticipantApi.class);
+    private HttpSession session;
 
     @Before
     public void setUp() throws Exception {
         when(resp.getWriter()).thenReturn(new PrintWriter(jsonContent));
         servlet.setParticipantApi(participantApi);
 
-        HttpSession session = mock(HttpSession.class);
+        session = mock(HttpSession.class);
         when(session.getAttribute("captchaAnswer")).thenReturn("123");
         when(req.getSession()).thenReturn(session);
     }
@@ -143,6 +146,39 @@ public class DataServletTest {
     }
 
     @Test
+    public void shouldMakeReservationWithGoogleMail() throws Exception {
+        when(req.getMethod()).thenReturn("POST");
+        when(req.getPathInfo()).thenReturn("/reserve");
+
+        JSONObject reservationJson = new JSONObject();
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth Vader");
+        reservationJson.put("captcha","123");
+
+        ObjectNode googleNode = JsonNodeFactory.instance.objectNode();
+        googleNode.put("email","darth@a.com");
+        googleNode.put("id","435");
+        googleNode.put("name","Darth Vader");
+
+        when(session.getAttribute("user")).thenReturn(googleNode);
+
+
+        when(participantApi.reservation(anyString(), anyString(), anyString(), any(Author.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
+
+        mockInputStream(reservationJson.toString());
+
+        servlet.service(req, resp);
+
+        verify(resp).setContentType("text/json");
+        verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", Author.USER, Optional.of("darth@a.com"));
+
+        JSONObject jsonObject = new JSONObject(jsonContent.toString());
+        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+
+    }
+
+    @Test
     public void shouldReturnErrorWhenWrongCaptcha() throws Exception {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/reserve");
@@ -151,7 +187,7 @@ public class DataServletTest {
         reservationJson.put("workshopid", "123");
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth Vader");
-        reservationJson.put("captcha","456");
+        reservationJson.put("captcha", "456");
 
         mockInputStream(reservationJson.toString());
 
@@ -173,14 +209,14 @@ public class DataServletTest {
         reservationJson.put("token", "123");
         reservationJson.put("email", "darth@a.com");
 
-        when(participantApi.cancellation(anyString(),any(Author.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.cancellation(anyString(), any(Author.class))).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).cancellation("123",Author.USER);
+        verify(participantApi).cancellation("123", Author.USER);
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -214,10 +250,10 @@ public class DataServletTest {
 
         mockInputStream("I am garbage");
 
-        servlet.service(req,resp);
+        servlet.service(req, resp);
 
-        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(Author.class), any(Optional.class));
-        verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+        verify(participantApi, never()).reservation(anyString(), anyString(), anyString(), any(Author.class), any(Optional.class));
+        verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal json input");
     }
 
     @Test
@@ -240,5 +276,6 @@ public class DataServletTest {
         assertThat(jsonObject.get("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
         assertThat(jsonObject.get("message")).isEqualTo("Name and email must be present without spesial characters");
     }
+
 
 }
