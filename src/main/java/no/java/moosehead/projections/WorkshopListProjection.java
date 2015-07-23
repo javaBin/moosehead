@@ -55,11 +55,11 @@ public class WorkshopListProjection implements EventSubscription {
 
         if (reservationAdded instanceof ReservationAddedByUser) {
             ReservationAddedByUser reservationAddedByUser = (ReservationAddedByUser) reservationAdded;
-            Optional<String> confirmedPart = confirmedEmails.stream()
-                    .filter(email -> email.equals(reservationAdded.getEmail()))
-                    .findAny();
-
-            if (confirmedPart.isPresent()) {
+            boolean isReservingWithGoogle = reservingWithGoogle(reservationAddedByUser);
+            if (isReservingWithGoogle) {
+                confirmedEmails.add(reservationAddedByUser.getGoogleUserEmail().get());
+            }
+            if (isReservingWithGoogle || hasConfirmedBefore(reservationAdded)) {
                 participant = Participant.confirmedParticipant(reservationAddedByUser, workshop);
             } else {
                 participant = Participant.unconfirmedParticipant(reservationAddedByUser, workshop);
@@ -69,6 +69,19 @@ public class WorkshopListProjection implements EventSubscription {
             participant = Participant.confirmedParticipant(reservationAdded, workshop);
         }
         workshop.addParticipant(participant);
+    }
+
+    private boolean reservingWithGoogle(ReservationAddedByUser reservationAddedByUser) {
+        Optional<String> googleUserEmail = reservationAddedByUser.getGoogleUserEmail();
+        return googleUserEmail.isPresent() && googleUserEmail.get().equals(reservationAddedByUser.getEmail());
+    }
+
+    private boolean hasConfirmedBefore(AbstractReservationAdded reservationAdded) {
+        Optional<String> confirmedPart = confirmedEmails.stream()
+                .filter(email -> email.equals(reservationAdded.getEmail()))
+                .findAny();
+
+        return confirmedPart.isPresent();
     }
 
     private Workshop findWorkshop(String workshopId) {

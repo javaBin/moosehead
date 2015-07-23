@@ -100,4 +100,12 @@ public class WorkshopListProjectionTest {
         assertThat(participants.get(1).getEmail()).isEqualTo("a@a.com");
 
     }
+
+    @Test
+    public void shouldConfirmEmailWhenLoggedInWithGoogle() throws Exception {
+        WorkshopListProjection workshopListProjection = setupOneWorkshop();
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.of("a@a.com")));
+        assertThat(workshopListProjection.isEmailConfirmed("a@a.com")).isTrue();
+
+    }
 }
