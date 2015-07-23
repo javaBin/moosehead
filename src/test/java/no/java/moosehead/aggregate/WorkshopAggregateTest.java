@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -84,14 +85,14 @@ public class WorkshopAggregateTest {
     @Test(expected = ReservationCanNotBeAddedException.class)
     public void ReservationIsNotOkWhenWorkshopDoesNotExists() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w2, Author.USER);
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w2, Author.USER, Optional.empty());
         workshopAggregate.createEvent(cmd);
     }
 
     @Test
     public void ReservationIsOkWhenWorkshopExists() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER);
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
     }
@@ -99,11 +100,11 @@ public class WorkshopAggregateTest {
     @Test
     public void multipleReservationsAreOk() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER);
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
         eventstore.addEvent(reservationAddedByUser);
-        AddReservationCommand cmd2 = new AddReservationCommand("haha@email","Darth Vader",w1, Author.USER);
+        AddReservationCommand cmd2 = new AddReservationCommand("haha@email","Darth Vader",w1, Author.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser2 =  workshopAggregate.createEvent(cmd2);
         assertThat(reservationAddedByUser2.getWorkshopId()).isEqualTo(w1);
     }
@@ -111,10 +112,10 @@ public class WorkshopAggregateTest {
     @Test(expected = ReservationCanNotBeAddedException.class)
     public void sameEmailIsNotAllowedToReserveTwice() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER);
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         AbstractReservationAdded event = workshopAggregate.createEvent(cmd);
         eventstore.addEvent(event);
-        AddReservationCommand cmd2 = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER);
+        AddReservationCommand cmd2 = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         workshopAggregate.createEvent(cmd2);
     }
 
@@ -130,7 +131,7 @@ public class WorkshopAggregateTest {
         Configuration.initData(confdata);
 
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER);
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         workshopAggregate.createEvent(cmd);
 
     }
@@ -140,7 +141,7 @@ public class WorkshopAggregateTest {
     @Test
     public void shouldBeAbleToCancelReservation() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER);
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         eventstore.addEvent(reservationAddedByUser);
 
@@ -164,7 +165,7 @@ public class WorkshopAggregateTest {
     @Test
     public void shouldConfirmEmail() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "bal@gmail.com", "Darth Vader", w1);
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "bal@gmail.com", "Darth Vader", w1,Optional.empty());
         eventstore.addEvent(reservationAddedByUser);
         ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(reservationAddedByUser.getReservationToken());
         EmailConfirmedByUser emailConfirmedByUser = workshopAggregate.createEvent(confirmEmailCommand);

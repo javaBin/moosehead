@@ -85,7 +85,7 @@ public class WorkshopControllerTest {
     @Test
     public void shouldHandleRegistration() throws Exception {
 
-        ReservationAddedByUser rad = new ReservationAddedByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","Darth Vader","one");
+        ReservationAddedByUser rad = new ReservationAddedByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","Darth Vader","one",Optional.empty());
         ArgumentCaptor<AddReservationCommand> resCmndCapture = ArgumentCaptor.forClass(AddReservationCommand.class);
         when(workshopAggregate.createEvent(resCmndCapture.capture())).thenReturn(rad);
 

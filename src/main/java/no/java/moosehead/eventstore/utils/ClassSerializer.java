@@ -168,6 +168,16 @@ public class ClassSerializer {
             res.append(">");
             return res.toString();
         }
+        if (fieldValue instanceof Optional) {
+            Optional<?> optional = (Optional<?>) fieldValue;
+            if (!optional.isPresent()) {
+                return "<Optional;EMPTY>";
+            }
+            StringBuilder res = new StringBuilder("<Optional");
+            encode(res,optional.get());
+            res.append(">");
+            return res.toString();
+        }
         if (Date.class.equals(fieldValue.getClass())) {
             return dateFormat.format(fieldValue);
         }
@@ -309,6 +319,20 @@ public class ClassSerializer {
             }
 
             return resMap;
+        }
+        if ("Optional".equals(parts[0])) {
+            if ("EMPTY".equals(parts[1])) {
+                return Optional.empty();
+            }
+            String[] valType = splitToParts(parts[1]);
+            Class<?> aClass;
+            try {
+                aClass = Class.forName(valType[0]);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            Object res = objectValueFromString(valType[1], aClass);
+            return Optional.of(res);
         }
 
         return asObject(fieldValue);

@@ -60,7 +60,7 @@ public class WorkshopAggregate implements EventSubscription {
                             addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
                 case USER:
                     return new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
-                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
+                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(),addReservationCommand.getGoogleEmail());
                 default:
                     throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("Author + " + Author.SYSTEM + " is not supported"));
             }
