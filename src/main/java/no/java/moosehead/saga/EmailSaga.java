@@ -59,6 +59,9 @@ public class EmailSaga implements EventSubscription {
             ReservationAddedByUser res = (ReservationAddedByUser) event;
             unconfirmedReservations.add(res);
             EmailSender emailSender = SystemSetup.instance().emailSender();
+            if (res.getGoogleUserEmail().filter(email -> email.equals(res.getEmail())).isPresent()) {
+                confirmedEmails.add(res.getGoogleUserEmail().get());
+            }
             boolean emailIsConfirmed = confirmedEmails.contains(res.getEmail());
             if (sagaIsInitialized) {
                 if (emailIsConfirmed) {
