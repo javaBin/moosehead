@@ -21,7 +21,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class DataServletTest {
@@ -159,7 +159,7 @@ public class DataServletTest {
         ObjectNode googleNode = JsonNodeFactory.instance.objectNode();
         googleNode.put("email","darth@a.com");
         googleNode.put("id","435");
-        googleNode.put("name","Darth Vader");
+        googleNode.put("name", "Darth Vader");
 
         when(session.getAttribute("user")).thenReturn(googleNode);
 
