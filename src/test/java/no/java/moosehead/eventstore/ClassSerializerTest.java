@@ -13,20 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ClassSerializerTest {
 
     @Test
-    public void testSerializing() {
-        ClassSerializer classSerializer = new ClassSerializer();
-        final WorkshopAddedByAdmin addedByAdmin = new WorkshopAddedByAdmin(99999, 1L, "W1", 0);
-        assertThat(classSerializer.asString(addedByAdmin)).isEqualTo("<no.java.moosehead.eventstore.WorkshopAddedByAdmin;workshopId=W1;numberOfSeats=0;startTime=<null>;endTime=<null>;systemTimeInMillis=99999;revisionId=1>");
-    }
-
-    @Test
-    public void testDeserializing() {
-        ClassSerializer classSerializer = new ClassSerializer();
-        WorkshopAddedByAdmin event = (WorkshopAddedByAdmin) classSerializer.asObject("<no.java.moosehead.eventstore.WorkshopAddedByAdmin;workshopId=W1;numberOfSeats=0;systemTimeInMillis=99999;revisionId=1>");
-        assertThat(event.getWorkshopId()).isEqualTo("W1");
-    }
-
-    @Test
     public void shouldHandleOptionals() throws Exception {
         ClassSerializer classSerializer = new ClassSerializer();
         ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(1L, 1L, "a@a.com", "Darth Vader", "xx", Optional.of("a@a.com"));

@@ -29,8 +29,8 @@ public class EventStorePersistenceTest {
         File f = File.createTempFile("tmp", null);
         f.deleteOnExit();
         Eventstore eventstore = new Eventstore(new FileHandler(f.getCanonicalPath()));
-        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, "W1", 0));
-        assertThat(f.length()).isEqualTo(160);
+        eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(),1L, "W1", 0));
+        assertThat(f.length()).isEqualTo(161);
     }
 
     @Test

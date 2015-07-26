@@ -6,6 +6,7 @@ import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
+import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.web.Configuration;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.StrictAssertions.fail;
 
 
 public class WorkshopAggregateTest {
@@ -54,11 +56,35 @@ public class WorkshopAggregateTest {
         Configuration.initData(confdata);
     }
 
-    @Test()
+    @Test
     public void workshopAddedByAdminShouldBeOfTypeWorkshopAddedByAdmin() {
-        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(Author.ADMIN).withNumberOfSeats(10).create();
+        WorkshopData workshopData = new WorkshopData(w1,"Wstitle","A little description");
+        AddWorkshopCommand command = AddWorkshopCommand.builder()
+                .withWorkshopId(w1)
+                .withAuthor(Author.ADMIN)
+                .withNumberOfSeats(10)
+                .withWorkshopData(Optional.of(workshopData))
+                .create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(WorkshopAddedByAdmin.class);
+        WorkshopAddedByAdmin workshopAddedByAdmin = (WorkshopAddedByAdmin) event;
+        assertThat(workshopAddedByAdmin.getWorkshopData()).isEqualTo(workshopData);
+    }
+
+    @Test
+    public void sholdDemandWorkshopInfoOnWorkshopAddedByAdmin() throws Exception {
+        AddWorkshopCommand command = AddWorkshopCommand.builder()
+                .withWorkshopId(w1)
+                .withAuthor(Author.ADMIN)
+                .withNumberOfSeats(10)
+                .create();
+        try {
+            workshopAggregate.createEvent(command);
+            fail("Expected WorkshopCanNotBeAddedException");
+        } catch (WorkshopCanNotBeAddedException e) {
+            assertThat(e.getMessage()).isEqualTo("Need WorkshopData for workshop added by admin");
+        }
+
     }
 
     @Test()
@@ -75,10 +101,12 @@ public class WorkshopAggregateTest {
         workshopAggregate.createEvent(command);
     }
 
+
+
     @Test
     public void aUniqueWorkshopShouldBeAdded() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w2).withAuthor(Author.ADMIN).withNumberOfSeats(10).create();
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w2).withAuthor(Author.SYSTEM).withNumberOfSeats(10).create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event.getWorkshopId()).isEqualTo(w2);
     }
@@ -112,7 +140,7 @@ public class WorkshopAggregateTest {
 
     @Test(expected = ReservationCanNotBeAddedException.class)
     public void sameEmailIsNotAllowedToReserveTwice() throws Exception {
-        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, w1, 0));
         AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
         AbstractReservationAdded event = workshopAggregate.createEvent(cmd);
         eventstore.addEvent(event);
@@ -179,6 +207,7 @@ public class WorkshopAggregateTest {
         workshopAggregate.createEvent(confirmEmailCommand);
 
     }
+
 
     @After
     public void tearDown() throws Exception {

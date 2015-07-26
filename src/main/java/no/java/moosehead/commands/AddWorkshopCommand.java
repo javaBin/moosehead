@@ -1,6 +1,9 @@
 package no.java.moosehead.commands;
 
+import no.java.moosehead.repository.WorkshopData;
+
 import java.time.Instant;
+import java.util.Optional;
 
 public class AddWorkshopCommand {
     private final String workshopId;
@@ -8,6 +11,7 @@ public class AddWorkshopCommand {
     private final int numberOfSeats;
     private final Instant startTime;
     private final Instant endTime;
+    private final Optional<WorkshopData> workshopData;
 
 
     public boolean hasStartAndEndTime() {
@@ -20,6 +24,7 @@ public class AddWorkshopCommand {
         private int numberOfSeats;
         private Instant startTime;
         private Instant endTime;
+        private Optional<WorkshopData> workshopData = Optional.empty();
 
         public Builder withWorkshopId(String workshopId) {
             this.workshopId = workshopId;
@@ -46,6 +51,11 @@ public class AddWorkshopCommand {
             return this;
         }
 
+        public Builder withWorkshopData(Optional<WorkshopData> workshopData) {
+            this.workshopData = workshopData;
+            return this;
+        }
+
         public AddWorkshopCommand create() {
             return new AddWorkshopCommand(this);
         }
@@ -61,6 +71,7 @@ public class AddWorkshopCommand {
         this.numberOfSeats = builder.numberOfSeats;
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
+        this.workshopData = builder.workshopData;
     }
 
 
@@ -88,5 +99,7 @@ public class AddWorkshopCommand {
         return endTime;
     }
 
-
+    public Optional<WorkshopData> getWorkshopData() {
+        return workshopData;
+    }
 }

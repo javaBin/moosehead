@@ -32,7 +32,16 @@ public class WorkshopAggregate implements EventSubscription {
                         return new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
                     }
                 case ADMIN:
-                    return new WorkshopAddedByAdmin(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats());
+                    if (!addWorkshopCommand.getWorkshopData().isPresent()) {
+                        throw new WorkshopCanNotBeAddedException("Need WorkshopData for workshop added by admin");
+                    }
+                    return new WorkshopAddedByAdmin(System.currentTimeMillis(),
+                            nextRevision(),
+                            addWorkshopCommand.getWorkshopId(),
+                            addWorkshopCommand.getNumberOfSeats(),
+                            addWorkshopCommand.getStartTime(),
+                            addWorkshopCommand.getEndTime(),
+                            addWorkshopCommand.getWorkshopData().get());
                 default:
                     throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("Author + " + Author.USER+ " is not supported"));
             }
