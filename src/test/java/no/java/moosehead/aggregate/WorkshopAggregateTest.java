@@ -67,8 +67,7 @@ public class WorkshopAggregateTest {
                 .create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(WorkshopAddedByAdmin.class);
-        WorkshopAddedByAdmin workshopAddedByAdmin = (WorkshopAddedByAdmin) event;
-        assertThat(workshopAddedByAdmin.getWorkshopData()).isEqualTo(workshopData);
+        assertThat(event.getWorkshopData().get()).isEqualTo(workshopData);
     }
 
     @Test

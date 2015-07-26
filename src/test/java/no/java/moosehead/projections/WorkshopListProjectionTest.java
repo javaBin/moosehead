@@ -1,22 +1,21 @@
 package no.java.moosehead.projections;
 
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.ReservationAddedByUser;
-import no.java.moosehead.eventstore.ReservationCancelledByUser;
-import no.java.moosehead.eventstore.WorkshopAddedByAdmin;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class WorkshopListProjectionTest {
+    private WorkshopRepository workshopRepository = mock(WorkshopRepository.class);
+
     @Test
     public void shouldReturnAddedWorkshop() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
@@ -34,18 +33,21 @@ public class WorkshopListProjectionTest {
     }
 
     private WorkshopListProjection setupOneWorkshop() {
-        SystemSetup systemSetup = mock(SystemSetup.class);
-        WorkshopRepository workshopRepository = mock(WorkshopRepository.class);
-        Optional<WorkshopData> optworkshop = Optional.of(new WorkshopData("one","title","description"));
+        Optional<WorkshopData> optworkshop = Optional.of(new WorkshopData("one", "title", "description"));
 
         when(workshopRepository.workshopById("one")).thenReturn(optworkshop);
-        when(systemSetup.workshopRepository()).thenReturn(workshopRepository);
 
-        SystemSetup.setSetup(systemSetup);
 
         WorkshopListProjection workshopListProjection = new WorkshopListProjection();
-        workshopListProjection.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L,"one",30));
+        workshopListProjection.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),1L,"one",30));
         return workshopListProjection;
+    }
+
+    @Before
+    public void setup() {
+        SystemSetup systemSetup = mock(SystemSetup.class);
+        when(systemSetup.workshopRepository()).thenReturn(workshopRepository);
+        SystemSetup.setSetup(systemSetup);
     }
 
     @Test
@@ -106,6 +108,24 @@ public class WorkshopListProjectionTest {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
         workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.of("a@a.com")));
         assertThat(workshopListProjection.isEmailConfirmed("a@a.com")).isTrue();
+
+    }
+
+    @Test
+    public void shouldNotUseRepositoryOnEventWithData() throws Exception {
+        WorkshopListProjection workshopListProjection = new WorkshopListProjection();
+        WorkshopData workshopData = new WorkshopData("one", "title", "description");
+        WorkshopAddedByAdmin one = new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "one", 30,null,null,workshopData);
+        workshopListProjection.eventAdded(one);
+
+        verify(workshopRepository,never()).workshopById(anyString());
+
+        List<Workshop> workshops = workshopListProjection.getWorkshops();
+
+        assertThat(workshops).hasSize(1);
+
+        assertThat(workshops.get(0).getWorkshopData()).isEqualTo(workshopData);
+
 
     }
 }

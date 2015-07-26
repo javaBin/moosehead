@@ -1,9 +1,11 @@
 package no.java.moosehead.eventstore;
 
 import no.java.moosehead.eventstore.core.AbstractEvent;
+import no.java.moosehead.repository.WorkshopData;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 public abstract class WorkshopAddedEvent extends AbstractEvent {
     private String workshopId;
@@ -42,5 +44,9 @@ public abstract class WorkshopAddedEvent extends AbstractEvent {
 
     public Instant getEndTime() {
         return endTime;
+    }
+
+    public Optional<WorkshopData> getWorkshopData() {
+        return Optional.empty();
     }
 }

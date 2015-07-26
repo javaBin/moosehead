@@ -3,6 +3,7 @@ package no.java.moosehead.eventstore;
 import no.java.moosehead.repository.WorkshopData;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public class WorkshopAddedByAdmin extends WorkshopAddedEvent {
     private WorkshopData workshopData;
@@ -19,7 +20,7 @@ public class WorkshopAddedByAdmin extends WorkshopAddedEvent {
         this.workshopData = workshopData;
     }
 
-    public WorkshopData getWorkshopData() {
-        return workshopData;
+    public Optional<WorkshopData> getWorkshopData() {
+        return Optional.of(workshopData);
     }
 }
