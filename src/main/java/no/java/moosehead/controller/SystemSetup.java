@@ -74,12 +74,16 @@ public class SystemSetup {
     private void createAllWorkshops() {
         List<WorkshopData> workshopDatas = workshopRepository.allWorkshops();
         workshopDatas.forEach(wd -> {
-            AddWorkshopCommand addWorkshopCommand;
+            AddWorkshopCommand.Builder builder = AddWorkshopCommand.builder()
+                    .withWorkshopId(wd.getId())
+                    .withAuthor(Author.SYSTEM)
+                    .withNumberOfSeats(Configuration.placesPerWorkshop());
+
+
             if (wd.hasStartAndEndTime()) {
-                addWorkshopCommand = new AddWorkshopCommand(wd.getId(), Author.SYSTEM, Configuration.placesPerWorkshop(), wd.getStartTime(), wd.getEndTime());
-            } else {
-                addWorkshopCommand = new AddWorkshopCommand(wd.getId(), Author.SYSTEM, Configuration.placesPerWorkshop());
+                builder = builder.withStartTime(wd.getStartTime()).withEndTime(wd.getEndTime());
             }
+            AddWorkshopCommand addWorkshopCommand = builder.create();
             WorkshopAddedEvent event = workshopAggregate.createEvent(addWorkshopCommand);
             eventstore.addEvent(event);
         });

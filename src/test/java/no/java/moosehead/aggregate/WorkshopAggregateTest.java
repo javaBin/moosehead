@@ -56,14 +56,14 @@ public class WorkshopAggregateTest {
 
     @Test()
     public void workshopAddedByAdminShouldBeOfTypeWorkshopAddedByAdmin() {
-        AddWorkshopCommand command = new AddWorkshopCommand(w1, Author.ADMIN, 10);
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(Author.ADMIN).withNumberOfSeats(10).create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(WorkshopAddedByAdmin.class);
     }
 
     @Test()
     public void workshopAddedBySystemShouldBeOfTypeWorkshopAddedBySystem() {
-        AddWorkshopCommand command = new AddWorkshopCommand(w1, Author.SYSTEM, 10);
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(Author.SYSTEM).withNumberOfSeats(10).create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(WorkshopAddedBySystem.class);
     }
@@ -71,14 +71,14 @@ public class WorkshopAggregateTest {
     @Test(expected = WorkshopCanNotBeAddedException.class)
     public void workshopShouldNotBeAddedWhenItExistsAlready() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = new AddWorkshopCommand(w1, Author.ADMIN, 10);
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(Author.ADMIN).withNumberOfSeats(10).create();
         workshopAggregate.createEvent(command);
     }
 
     @Test
     public void aUniqueWorkshopShouldBeAdded() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = new AddWorkshopCommand(w2, Author.ADMIN, 10);
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w2).withAuthor(Author.ADMIN).withNumberOfSeats(10).create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event.getWorkshopId()).isEqualTo(w2);
     }
