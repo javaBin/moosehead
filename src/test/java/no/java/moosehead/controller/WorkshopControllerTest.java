@@ -1,6 +1,5 @@
 package no.java.moosehead.controller;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
@@ -22,6 +21,7 @@ import no.java.moosehead.repository.WorkshopData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
