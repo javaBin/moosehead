@@ -74,6 +74,7 @@ public class WorkshopAggregate implements EventSubscription {
             if (getReservation(addReservationCommand).isPresent()) {
                 throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + addReservationCommand.getEmail() + "]");
             }
+
             switch (addReservationCommand.getAuthorEnum()) {
                 case ADMIN:
                     return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),

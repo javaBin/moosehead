@@ -5,6 +5,7 @@ import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
+import no.java.moosehead.api.WorkshopStatus;
 import no.java.moosehead.commands.AddReservationCommand;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.CancelReservationCommand;
@@ -38,6 +39,7 @@ public class WorkshopControllerTest {
     private WorkshopListProjection workshopListProjection;
     private WorkshopAggregate workshopAggregate;
     private Eventstore eventstore;
+    private final String w1 = "W1";
 
     @Before
     public void setUp() throws Exception {
@@ -59,13 +61,28 @@ public class WorkshopControllerTest {
         SystemSetup.setSetup(null);
     }
 
-    @Ignore
     @Test
-    public void workshopShouldBeOpenBeforeStartTime() {
-        //TODO Write this test, but figure out timestuff first..
-//        WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(new Workshop(new WorkshopData("one", "title", "description"), 30, 3L));
-  //      System.out.println(workshopStatus.toString());
+    public void shouldCalculateCorrectStatusFewSpots() {
+        ReservationAddedByUser r1 = new ReservationAddedByUser(System.currentTimeMillis(), 1L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),20);
+        ReservationAddedByUser r2 = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "laban@gmail.com", "Darth Laber", w1,Optional.empty(),9);
+        Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30, 3L);
+        ws.addParticipant(Participant.confirmedParticipant(r1,ws));
+        ws.addParticipant(Participant.confirmedParticipant(r2,ws));
+        WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(ws);
+        assertThat(workshopStatus).isEqualTo(WorkshopStatus.FEW_SPOTS);
     }
+
+    @Test
+    public void shouldCalculateCorrectStatusFull() {
+        ReservationAddedByUser r1 = new ReservationAddedByUser(System.currentTimeMillis(), 1L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),20);
+        ReservationAddedByUser r2 = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "laban@gmail.com", "Darth Laber", w1,Optional.empty(),10);
+        Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30, 3L);
+        ws.addParticipant(Participant.confirmedParticipant(r1,ws));
+        ws.addParticipant(Participant.confirmedParticipant(r2,ws));
+        WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(ws);
+        assertThat(workshopStatus).isEqualTo(WorkshopStatus.FULL);
+    }
+
 
     @Test
     public void shouldReturnWorkshopList() throws Exception {

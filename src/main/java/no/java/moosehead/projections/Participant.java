@@ -14,12 +14,17 @@ public class Participant {
     private Workshop workshop;
     private long reservationEventRevisionId;
     private OffsetDateTime confirmedAt;
+    private int numberOfSeatsReserved;
 
 
-    private Participant(String email, String fullname, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId, long eventMillis) {
+    private Participant(String email, String fullname, int numberOfSeatsReserved, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId, long eventMillis) {
         if (email == null) {
             throw new NullPointerException("Email can not be null");
         }
+        if (numberOfSeatsReserved <1) {
+            throw new IllegalArgumentException("numberOfSeatsReserved can not be less than 1");
+        }
+        this.numberOfSeatsReserved = numberOfSeatsReserved;
         this.workshop = workshop;
         this.reservationEventRevisionId = reservationEventRevisionId;
         this.name = fullname;
@@ -31,15 +36,27 @@ public class Participant {
     }
 
     public static Participant confirmedParticipant(AbstractReservationAdded reservationAdded,Workshop workshop) {
-        return new Participant(reservationAdded.getEmail(),reservationAdded.getFullname(),workshop,true, reservationAdded.getRevisionId(), reservationAdded.getSystemTimeInMillis());
+        return new Participant(reservationAdded.getEmail(),
+                reservationAdded.getFullname(),
+                reservationAdded.getNumberOfSeatsReserved(),
+                workshop,
+                true,
+                reservationAdded.getRevisionId(),
+                reservationAdded.getSystemTimeInMillis());
     }
 
     public static Participant unconfirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
-        return new Participant(reservationAddedByUser.getEmail(),reservationAddedByUser.getFullname(),workshop,false, reservationAddedByUser.getRevisionId(), reservationAddedByUser.getSystemTimeInMillis());
+        return new Participant(reservationAddedByUser.getEmail(),
+                reservationAddedByUser.getFullname(),
+                reservationAddedByUser.getNumberOfSeatsReserved(),
+                workshop,
+                false,
+                reservationAddedByUser.getRevisionId(),
+                reservationAddedByUser.getSystemTimeInMillis());
     }
 
     public static Participant dummyParticipant(String email) {
-        return new Participant(email,null,null,false, 0, 0);
+        return new Participant(email,null,1,null,false, 0, 0);
     }
 
 
@@ -104,5 +121,9 @@ public class Participant {
 
     public Optional<OffsetDateTime> getConfirmedAt() {
         return Optional.ofNullable(confirmedAt);
+    }
+
+    public int getNumberOfSeatsReserved() {
+        return numberOfSeatsReserved;
     }
 }

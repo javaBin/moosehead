@@ -72,7 +72,7 @@ public class WorkshopListProjection implements EventSubscription {
                 participant = Participant.unconfirmedParticipant(reservationAddedByUser, workshop);
             }
         }else {
-            // if added by admin we belive the email to be correct
+            // if added by admin we believe the email to be correct
             participant = Participant.confirmedParticipant(reservationAdded, workshop);
         }
         workshop.addParticipant(participant);

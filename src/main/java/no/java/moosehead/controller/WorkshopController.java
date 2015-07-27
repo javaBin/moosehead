@@ -57,7 +57,10 @@ public class WorkshopController implements ParticipantApi {
         if (Configuration.openTime().isAfter(OffsetDateTime.now())) {
             return WorkshopStatus.NOT_OPENED;
         }
-        int confirmedParticipants = (int) ws.getParticipants().stream().filter(pa -> pa.isEmailConfirmed()).count();
+        int confirmedParticipants = ws.getParticipants().stream()
+                .filter(Participant::isEmailConfirmed)
+                .mapToInt(Participant::getNumberOfSeatsReserved)
+                .sum();
         int seatsLeft = ws.getNumberOfSeats() - confirmedParticipants;
         if (seatsLeft <= -Configuration.veryFullNumber()) {
             return WorkshopStatus.VERY_FULL;
