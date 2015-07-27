@@ -72,7 +72,7 @@ public class WorkshopListProjection implements EventSubscription {
                 participant = Participant.unconfirmedParticipant(reservationAddedByUser, workshop);
             }
         }else {
-            // if added by admin we believe the email to be correct
+            // if added by admin we belive the email to be correct
             participant = Participant.confirmedParticipant(reservationAdded, workshop);
         }
         workshop.addParticipant(participant);
@@ -104,14 +104,15 @@ public class WorkshopListProjection implements EventSubscription {
     }
 
     public List<Workshop> getWorkshops() {
-        return new ArrayList<Workshop>(workshops);
+        return new ArrayList<>(workshops);
     }
 
-    public Optional<Participant> findByReservationId(long reservationid) {
-        return workshops.stream()
+    public Optional<Participant> findByReservationToken(String reservationToken) {
+        Optional<Participant>  op = workshops.stream()
                 .flatMap(ws -> ws.getParticipants().stream())
-                .filter(pa -> pa.getReservationEventRevisionId() == reservationid)
-                .findAny();
+                .filter(pa -> pa.getReservationToken().equals(reservationToken))
+                .findFirst();
+        return op;
     }
     public List<Participant> findAllReservations(String email) {
         return workshops.stream()

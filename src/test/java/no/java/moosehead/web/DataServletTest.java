@@ -81,8 +81,8 @@ public class DataServletTest {
         when(req.getParameter("email")).thenReturn("a@a.com");
 
         when(participantApi.myReservations(anyString())).thenReturn(Arrays.asList(
-           new ParticipantReservation("1","a@a.com","One",ParticipantReservationStatus.HAS_SPACE),
-           new ParticipantReservation("2","a@a.com","Two",ParticipantReservationStatus.HAS_SPACE)
+           new ParticipantReservation("1","a@a.com","One",ParticipantReservationStatus.HAS_SPACE,10),
+           new ParticipantReservation("2","a@a.com","Two",ParticipantReservationStatus.HAS_SPACE,3)
         ));
 
         servlet.service(req,resp);

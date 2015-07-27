@@ -1,6 +1,5 @@
 package no.java.moosehead.controller;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import no.java.moosehead.MoosheadException;
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
@@ -142,9 +141,9 @@ public class WorkshopControllerTest {
         when(participant.getEmail()).thenReturn("darth@deathstar.com");
         when(participant.getWorkshopId()).thenReturn("one");
 
-        when(workshopListProjection.findByReservationId(2456L)).thenReturn(Optional.of(participant));
+        when(workshopListProjection.findByReservationToken("ReservasjonsToken")).thenReturn(Optional.of(participant));
 
-        ParticipantActionResult result = workshopController.cancellation("2456", AuthorEnum.USER);
+        ParticipantActionResult result = workshopController.cancellation("ReservasjonsToken", AuthorEnum.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.OK);
 
@@ -167,9 +166,9 @@ public class WorkshopControllerTest {
 
     @Test
     public void shouldHandleNonExsistingReservationId() throws Exception {
-        when(workshopListProjection.findByReservationId(anyLong())).thenReturn(Optional.empty());
+        when(workshopListProjection.findByReservationToken(anyString())).thenReturn(Optional.empty());
 
-        ParticipantActionResult participantActionResult = workshopController.cancellation("123", AuthorEnum.USER);
+        ParticipantActionResult participantActionResult = workshopController.cancellation("ReservasjonsToken", AuthorEnum.USER);
 
         verify(workshopAggregate, never()).createEvent(any(CancelReservationCommand.class));
         assertThat(participantActionResult.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
@@ -184,9 +183,9 @@ public class WorkshopControllerTest {
         when(participant.getEmail()).thenReturn("darth@deathstar.com");
         when(participant.getWorkshopId()).thenReturn("one");
 
-        when(workshopListProjection.findByReservationId(2456L)).thenReturn(Optional.of(participant));
+        when(workshopListProjection.findByReservationToken("ReservasjonsToken")).thenReturn(Optional.of(participant));
 
-        ParticipantActionResult result = workshopController.cancellation("2456", AuthorEnum.USER);
+        ParticipantActionResult result = workshopController.cancellation("ReservasjonsToken", AuthorEnum.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");

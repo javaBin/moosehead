@@ -12,12 +12,12 @@ public class Participant {
     private final String email;
     private boolean emailConfirmed;
     private Workshop workshop;
-    private long reservationEventRevisionId;
+    private String reservationToken;
     private OffsetDateTime confirmedAt;
     private int numberOfSeatsReserved;
 
 
-    private Participant(String email, String fullname, int numberOfSeatsReserved, Workshop workshop, boolean emailConfirmed, long reservationEventRevisionId, long eventMillis) {
+    private Participant(String email, String fullname, int numberOfSeatsReserved, Workshop workshop, boolean emailConfirmed, String reservationToken, long eventMillis) {
         if (email == null) {
             throw new NullPointerException("Email can not be null");
         }
@@ -26,7 +26,7 @@ public class Participant {
         }
         this.numberOfSeatsReserved = numberOfSeatsReserved;
         this.workshop = workshop;
-        this.reservationEventRevisionId = reservationEventRevisionId;
+        this.reservationToken = reservationToken;
         this.name = fullname;
         this.email = email;
         this.emailConfirmed = emailConfirmed;
@@ -41,7 +41,7 @@ public class Participant {
                 reservationAdded.getNumberOfSeatsReserved(),
                 workshop,
                 true,
-                reservationAdded.getRevisionId(),
+                reservationAdded.getReservationToken(),
                 reservationAdded.getSystemTimeInMillis());
     }
 
@@ -51,12 +51,12 @@ public class Participant {
                 reservationAddedByUser.getNumberOfSeatsReserved(),
                 workshop,
                 false,
-                reservationAddedByUser.getRevisionId(),
+                reservationAddedByUser.getReservationToken(),
                 reservationAddedByUser.getSystemTimeInMillis());
     }
 
     public static Participant dummyParticipant(String email) {
-        return new Participant(email,null,1,null,false, 0, 0);
+        return new Participant(email, null, 1, null, false, "token", 0);
     }
 
 
@@ -115,15 +115,15 @@ public class Participant {
         return email.hashCode();
     }
 
-    public long getReservationEventRevisionId() {
-        return reservationEventRevisionId;
-    }
-
     public Optional<OffsetDateTime> getConfirmedAt() {
         return Optional.ofNullable(confirmedAt);
     }
 
     public int getNumberOfSeatsReserved() {
         return numberOfSeatsReserved;
+    }
+
+    public String getReservationToken() {
+        return reservationToken;
     }
 }
