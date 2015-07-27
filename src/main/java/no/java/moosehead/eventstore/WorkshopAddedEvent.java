@@ -4,7 +4,6 @@ import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.repository.WorkshopData;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 public abstract class WorkshopAddedEvent extends AbstractEvent {

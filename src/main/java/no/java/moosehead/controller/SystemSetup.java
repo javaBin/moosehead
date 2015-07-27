@@ -79,7 +79,6 @@ public class SystemSetup {
                     .withAuthor(Author.SYSTEM)
                     .withNumberOfSeats(Configuration.placesPerWorkshop());
 
-
             if (wd.hasStartAndEndTime()) {
                 builder = builder.withStartTime(wd.getStartTime()).withEndTime(wd.getEndTime());
             }

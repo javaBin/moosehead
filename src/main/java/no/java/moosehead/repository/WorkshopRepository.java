@@ -54,7 +54,7 @@ public class WorkshopRepository {
                         String[] dates = startsAndEnds.get().getPrompt().get().split("\\+");
                         Instant starts = Instant.parse(dates[0]);
                         Instant ends = Instant.parse(dates[1]);
-                        return new WorkshopData(slug, title, summary, starts, ends);
+                        return new WorkshopData(slug, title, summary, starts, ends, Optional.empty());
                     } else {
                         return new WorkshopData(slug, title, summary);
                     }

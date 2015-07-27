@@ -2,6 +2,7 @@ package no.java.moosehead.repository;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 public class WorkshopData {
     private String id;
@@ -9,22 +10,25 @@ public class WorkshopData {
     private String description;
     private Instant startTime;
     private Instant endTime;
+    private Optional<Instant> registrationOpens;
 
     public boolean hasStartAndEndTime() {
         return startTime != null && endTime != null;
     }
+
     public WorkshopData(String id, String title, String description) {
         this.id = id;
         this.title = title;
         this.description = description;
     }
 
-    public WorkshopData(String id, String title, String description, Instant startTime, Instant endTime) {
+    public WorkshopData(String id, String title, String description, Instant startTime, Instant endTime, Optional<Instant> registrationOpens) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.registrationOpens = registrationOpens;
     }
 
     public String getId() {
@@ -45,5 +49,9 @@ public class WorkshopData {
 
     public Instant getEndTime() {
         return endTime;
+    }
+
+    public Optional<Instant> getRegistrationOpens() {
+        return registrationOpens;
     }
 }

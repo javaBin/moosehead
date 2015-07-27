@@ -100,12 +100,41 @@ public class WorkshopAggregateTest {
         workshopAggregate.createEvent(command);
     }
 
+    @Test
+    public void workshopTypeIsSetToKidsaKoderShouldCreateKidsaKoderEvent() {
+        AddWorkshopCommand command = AddWorkshopCommand.builder()
+                .withWorkshopId(w1)
+                .withAuthor(Author.ADMIN)
+                .withNumberOfSeats(10)
+                .withWorkshopType(AddWorkshopCommand.WorkshopType.KIDSAKODER_WORKSHOP)
+                .withWorkshopData(Optional.of(new WorkshopData(w1, "Wstitle", "A little description")))
+                .create();
+        assertThat(command.getWorkshopType()).isEqualTo(AddWorkshopCommand.WorkshopType.KIDSAKODER_WORKSHOP);
+        WorkshopAddedEvent event = workshopAggregate.createEvent(command);
+        assertThat(event).isInstanceOf(KidsaKoderWorkshopAddedByAdmin.class);
+    }
 
+    @Test
+    public void defaultWorkshopTypeShouldBeNormalWorkshop() {
+        AddWorkshopCommand command = AddWorkshopCommand.builder()
+                .withWorkshopId(w1)
+                .withAuthor(Author.ADMIN)
+                .withNumberOfSeats(10)
+                .withWorkshopData(Optional.of(new WorkshopData(w1, "Wstitle", "A little description")))
+                .create();
+        assertThat(command.getWorkshopType()).isEqualTo(AddWorkshopCommand.WorkshopType.NORMAL_WORKSHOP);
+        WorkshopAddedEvent event = workshopAggregate.createEvent(command);
+        assertThat(event).isInstanceOf(WorkshopAddedByAdmin.class);
+    }
 
     @Test
     public void aUniqueWorkshopShouldBeAdded() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w2).withAuthor(Author.SYSTEM).withNumberOfSeats(10).create();
+        AddWorkshopCommand command = AddWorkshopCommand.builder()
+                .withWorkshopId(w2)
+                .withAuthor(Author.SYSTEM)
+                .withNumberOfSeats(10)
+                .create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event.getWorkshopId()).isEqualTo(w2);
     }

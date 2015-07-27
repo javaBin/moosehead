@@ -12,10 +12,15 @@ public class AddWorkshopCommand {
     private final Instant startTime;
     private final Instant endTime;
     private final Optional<WorkshopData> workshopData;
+    private final WorkshopType workshopType;
 
 
     public boolean hasStartAndEndTime() {
         return startTime != null && endTime != null;
+    }
+
+    public WorkshopType getWorkshopType() {
+        return workshopType;
     }
 
     public static class Builder {
@@ -25,6 +30,12 @@ public class AddWorkshopCommand {
         private Instant startTime;
         private Instant endTime;
         private Optional<WorkshopData> workshopData = Optional.empty();
+        private WorkshopType workshopType = WorkshopType.NORMAL_WORKSHOP;
+
+        public Builder withWorkshopType(WorkshopType workshopType) {
+            this.workshopType = workshopType;
+            return this;
+        }
 
         public Builder withWorkshopId(String workshopId) {
             this.workshopId = workshopId;
@@ -72,6 +83,7 @@ public class AddWorkshopCommand {
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
         this.workshopData = builder.workshopData;
+        this.workshopType = builder.workshopType;
     }
 
 
@@ -101,5 +113,10 @@ public class AddWorkshopCommand {
 
     public Optional<WorkshopData> getWorkshopData() {
         return workshopData;
+    }
+
+    public enum WorkshopType {
+        KIDSAKODER_WORKSHOP,
+        NORMAL_WORKSHOP
     }
 }

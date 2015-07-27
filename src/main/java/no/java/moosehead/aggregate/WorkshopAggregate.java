@@ -35,15 +35,26 @@ public class WorkshopAggregate implements EventSubscription {
                     if (!addWorkshopCommand.getWorkshopData().isPresent()) {
                         throw new WorkshopCanNotBeAddedException("Need WorkshopData for workshop added by admin");
                     }
-                    return new WorkshopAddedByAdmin(System.currentTimeMillis(),
-                            nextRevision(),
-                            addWorkshopCommand.getWorkshopId(),
-                            addWorkshopCommand.getNumberOfSeats(),
-                            addWorkshopCommand.getStartTime(),
-                            addWorkshopCommand.getEndTime(),
-                            addWorkshopCommand.getWorkshopData().get());
-                default:
-                    throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("Author + " + Author.USER+ " is not supported"));
+                    switch (addWorkshopCommand.getWorkshopType()) {
+                        case NORMAL_WORKSHOP:
+                            return new WorkshopAddedByAdmin(System.currentTimeMillis(),
+                                    nextRevision(),
+                                    addWorkshopCommand.getWorkshopId(),
+                                    addWorkshopCommand.getNumberOfSeats(),
+                                    addWorkshopCommand.getStartTime(),
+                                    addWorkshopCommand.getEndTime(),
+                                    addWorkshopCommand.getWorkshopData().get());
+                        case KIDSAKODER_WORKSHOP:
+                            return new KidsaKoderWorkshopAddedByAdmin(System.currentTimeMillis(),
+                                    nextRevision(),
+                                    addWorkshopCommand.getWorkshopId(),
+                                    addWorkshopCommand.getNumberOfSeats(),
+                                    addWorkshopCommand.getStartTime(),
+                                    addWorkshopCommand.getEndTime(),
+                                    addWorkshopCommand.getWorkshopData().get());
+                    }
+                    default:
+                        throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("Author + " + Author.USER+ " is not supported"));
             }
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
