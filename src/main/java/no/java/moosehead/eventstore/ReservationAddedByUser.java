@@ -8,8 +8,8 @@ public class ReservationAddedByUser extends AbstractReservationAdded {
 
     public ReservationAddedByUser(){}
 
-    public ReservationAddedByUser(long systemTimeInMillis, long revisionId, String email, String fullname, String workshopId,Optional<String> googleUserEmail) {
-        super(systemTimeInMillis, revisionId,email,fullname,workshopId);
+    public ReservationAddedByUser(long systemTimeInMillis, long revisionId, String email, String fullname, String workshopId,Optional<String> googleUserEmail, int numberOfSeatsReserved) {
+        super(systemTimeInMillis, revisionId,email,fullname,workshopId,numberOfSeatsReserved);
         this.googleUserEmail = googleUserEmail;
     }
 

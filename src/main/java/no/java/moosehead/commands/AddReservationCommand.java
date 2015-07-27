@@ -3,19 +3,22 @@ package no.java.moosehead.commands;
 import java.util.Optional;
 
 public class AddReservationCommand {
-    private String email;
-    private String fullname;
-    private String workshopId;
-    private AuthorEnum authorEnum;
-    private Optional<String> googleEmail;
-    private WorkshopTypeEnum workshopType = WorkshopTypeEnum.NORMAL_WORKSHOP;
+    private final String email;
+    private final String fullname;
+    private final String workshopId;
+    private final AuthorEnum authorEnum;
+    private final Optional<String> googleEmail;
+    private final WorkshopTypeEnum workshopType;
+    private final int numberOfSeatsReserved;
 
-    public AddReservationCommand(String email, String fullname, String workshopId, AuthorEnum authorEnum, Optional<String> googleEmail) {
+    public AddReservationCommand(String email, String fullname, String workshopId, AuthorEnum authorEnum, Optional<String> googleEmail, WorkshopTypeEnum workshopType,int numberOfSeatsReserved) {
         this.email = email;
         this.fullname = fullname;
         this.workshopId = workshopId;
         this.authorEnum = authorEnum;
         this.googleEmail = googleEmail;
+        this.workshopType = workshopType;
+        this.numberOfSeatsReserved = numberOfSeatsReserved;
     }
 
     public String getWorkshopId() {
@@ -44,5 +47,13 @@ public class AddReservationCommand {
 
     public Optional<String> getGoogleEmail() {
         return googleEmail;
+    }
+
+    public WorkshopTypeEnum getWorkshopType() {
+        return workshopType;
+    }
+
+    public int getNumberOfSeatsReserved() {
+        return numberOfSeatsReserved;
     }
 }

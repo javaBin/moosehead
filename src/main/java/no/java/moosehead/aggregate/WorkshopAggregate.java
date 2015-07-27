@@ -77,10 +77,10 @@ public class WorkshopAggregate implements EventSubscription {
             switch (addReservationCommand.getAuthorEnum()) {
                 case ADMIN:
                     return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
-                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
+                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(), addReservationCommand.getNumberOfSeatsReserved());
                 case USER:
                     return new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
-                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(),addReservationCommand.getGoogleEmail());
+                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(),addReservationCommand.getGoogleEmail(), addReservationCommand.getNumberOfSeatsReserved());
                 default:
                     throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.SYSTEM + " is not supported"));
             }

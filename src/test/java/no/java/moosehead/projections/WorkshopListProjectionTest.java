@@ -54,7 +54,7 @@ public class WorkshopListProjectionTest {
     public void shouldShowParticipants() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty()));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty(),1));
 
         List<Participant> participants = workshopListProjection.getWorkshops().get(0).getParticipants();
         assertThat(participants).hasSize(1);
@@ -68,7 +68,7 @@ public class WorkshopListProjectionTest {
     public void shouldHandleCancellations() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty()));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty(),1));
         workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),3L,"a@a.com","one"));
 
         assertThat(workshopListProjection.getWorkshops().get(0).getParticipants()).isEmpty();
@@ -79,7 +79,7 @@ public class WorkshopListProjectionTest {
     public void shouldGiveConfirmedEmailStatus() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty()));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty(),1));
         workshopListProjection.eventAdded(new EmailConfirmedByUser("a@a.com",System.currentTimeMillis(),5L));
 
         Participant participant = workshopListProjection.getWorkshops().get(0).getParticipants().get(0);
@@ -91,8 +91,8 @@ public class WorkshopListProjectionTest {
     public void queueShouldBeOrderedAccordingToConfirmTime() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty()));
-        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 3L, "b@a.com", "Darth Maul","one",Optional.empty()));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty(),1));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 3L, "b@a.com", "Darth Maul","one",Optional.empty(),1));
         workshopListProjection.eventAdded(new EmailConfirmedByUser("b@a.com",System.currentTimeMillis(),4L));
         workshopListProjection.eventAdded(new EmailConfirmedByUser("a@a.com",System.currentTimeMillis(),5L));
 
@@ -106,7 +106,7 @@ public class WorkshopListProjectionTest {
     @Test
     public void shouldConfirmEmailWhenLoggedInWithGoogle() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
-        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.of("a@a.com")));
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.of("a@a.com"),1));
         assertThat(workshopListProjection.isEmailConfirmed("a@a.com")).isTrue();
 
     }

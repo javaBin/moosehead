@@ -8,13 +8,15 @@ public abstract class AbstractReservationAdded extends AbstractEvent implements 
     private String fullname;
     private String workshopId;
     private String reservationToken;
+    private int numberOfSeatsReserved;
 
-    public AbstractReservationAdded(long systemTimeInMillis, long revisionId, String email, String fullname, String workshopId) {
+    public AbstractReservationAdded(long systemTimeInMillis, long revisionId, String email, String fullname, String workshopId, int numberOfSeatsReserved) {
         super(systemTimeInMillis, revisionId);
         this.email = email;
         this.fullname = fullname;
         this.workshopId = workshopId;
         this.reservationToken = TokenGenerator.randomUUIDString();
+        this.numberOfSeatsReserved = numberOfSeatsReserved;
     }
 
     public AbstractReservationAdded() {
@@ -34,5 +36,9 @@ public abstract class AbstractReservationAdded extends AbstractEvent implements 
 
     public String getReservationToken() {
         return reservationToken;
+    }
+
+    public int getNumberOfSeatsReserved() {
+        return numberOfSeatsReserved;
     }
 }
