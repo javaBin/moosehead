@@ -5,7 +5,7 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.aggregate.WorkshopNotFoundException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AddReservationCommand;
-import no.java.moosehead.commands.Author;
+import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.CancelReservationCommand;
 import no.java.moosehead.commands.ConfirmEmailCommand;
 import no.java.moosehead.eventstore.*;
@@ -75,8 +75,8 @@ public class WorkshopController implements ParticipantApi {
     }
 
     @Override
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname, Author author, Optional<String> googleEmail) {
-        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, author, googleEmail);
+    public ParticipantActionResult reservation(String workshopid, String email, String fullname, AuthorEnum authorEnum, Optional<String> googleEmail) {
+        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, authorEnum, googleEmail);
         AbstractReservationAdded event;
 
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
@@ -95,7 +95,7 @@ public class WorkshopController implements ParticipantApi {
     }
 
     @Override
-    public ParticipantActionResult cancellation(String reservationId, Author author) {
+    public ParticipantActionResult cancellation(String reservationId, AuthorEnum authorEnum) {
         long id;
         try {
             id = Long.parseLong(reservationId);
@@ -109,7 +109,7 @@ public class WorkshopController implements ParticipantApi {
         }
 
         Participant participant = optByReservationId.get();
-        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId(), author);
+        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId(), authorEnum);
         AbstractReservationCancelled event;
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {

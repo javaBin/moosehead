@@ -1,7 +1,5 @@
 package no.java.moosehead.eventstore;
 
-import no.java.moosehead.commands.AddReservationCommand;
-import no.java.moosehead.commands.Author;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import org.junit.*;
 

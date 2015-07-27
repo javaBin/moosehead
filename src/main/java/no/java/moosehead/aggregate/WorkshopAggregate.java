@@ -24,7 +24,7 @@ public class WorkshopAggregate implements EventSubscription {
     public WorkshopAddedEvent createEvent(AddWorkshopCommand addWorkshopCommand){
         Optional<WorkshopAddedEvent> workshop = getWorkshop(addWorkshopCommand.getWorkshopId());
         if (!workshop.isPresent()) {
-            switch (addWorkshopCommand.getAuthor()) {
+            switch (addWorkshopCommand.getAuthorEnum()) {
                 case SYSTEM:
                     if (addWorkshopCommand.hasStartAndEndTime()) {
                         return new WorkshopAddedBySystem(System.currentTimeMillis(), nextRevision(), addWorkshopCommand.getWorkshopId(), addWorkshopCommand.getNumberOfSeats(), addWorkshopCommand.getStartTime(), addWorkshopCommand.getEndTime());
@@ -35,7 +35,7 @@ public class WorkshopAggregate implements EventSubscription {
                     if (!addWorkshopCommand.getWorkshopData().isPresent()) {
                         throw new WorkshopCanNotBeAddedException("Need WorkshopData for workshop added by admin");
                     }
-                    switch (addWorkshopCommand.getWorkshopType()) {
+                    switch (addWorkshopCommand.getWorkshopTypeEnum()) {
                         case NORMAL_WORKSHOP:
                             return new WorkshopAddedByAdmin(System.currentTimeMillis(),
                                     nextRevision(),
@@ -54,7 +54,7 @@ public class WorkshopAggregate implements EventSubscription {
                                     addWorkshopCommand.getWorkshopData().get());
                     }
                     default:
-                        throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("Author + " + Author.USER+ " is not supported"));
+                        throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.USER+ " is not supported"));
             }
         } else {
             throw new WorkshopCanNotBeAddedException("The workshop in [" + addWorkshopCommand + "] already exists");
@@ -74,7 +74,7 @@ public class WorkshopAggregate implements EventSubscription {
             if (getReservation(addReservationCommand).isPresent()) {
                 throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + addReservationCommand.getEmail() + "]");
             }
-            switch (addReservationCommand.getAuthor()) {
+            switch (addReservationCommand.getAuthorEnum()) {
                 case ADMIN:
                     return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                             addReservationCommand.getFullname(), addReservationCommand.getWorkshopId());
@@ -82,7 +82,7 @@ public class WorkshopAggregate implements EventSubscription {
                     return new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                             addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(),addReservationCommand.getGoogleEmail());
                 default:
-                    throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("Author + " + Author.SYSTEM + " is not supported"));
+                    throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.SYSTEM + " is not supported"));
             }
         } else {
             throw new ReservationCanNotBeAddedException("The workshop in [" + addReservationCommand + "] does not exists");
@@ -94,13 +94,13 @@ public class WorkshopAggregate implements EventSubscription {
         if (count % 2 == 0) {
             throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancelReservationCommand.getEmail(),cancelReservationCommand.getWorkshopId()));
         }
-        switch (cancelReservationCommand.getAuthor()) {
+        switch (cancelReservationCommand.getAuthorEnum()) {
             case USER:
                 return new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId());
             case ADMIN:
                 return new ReservationCancelledByAdmin(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId());
             default:
-                throw new ReservationCanNotBeCanceledException("Reservation cannot be canceled", new IllegalArgumentException("Author + " + Author.SYSTEM + " is not supported"));
+                throw new ReservationCanNotBeCanceledException("Reservation cannot be canceled", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.SYSTEM + " is not supported"));
         }
     }
 

@@ -3,7 +3,7 @@ package no.java.moosehead.web;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.*;
-import no.java.moosehead.commands.Author;
+import no.java.moosehead.commands.AuthorEnum;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -131,14 +131,14 @@ public class DataServletTest {
         reservationJson.put("fullname", "Darth Vader");
         reservationJson.put("captcha","123");
 
-        when(participantApi.reservation(anyString(), anyString(), anyString(),any(Author.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.reservation(anyString(), anyString(), anyString(),any(AuthorEnum.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).reservation("123","darth@a.com","Darth Vader", Author.USER, Optional.empty());
+        verify(participantApi).reservation("123","darth@a.com","Darth Vader", AuthorEnum.USER, Optional.empty());
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -164,14 +164,14 @@ public class DataServletTest {
         when(session.getAttribute("user")).thenReturn(googleNode);
 
 
-        when(participantApi.reservation(anyString(), anyString(), anyString(), any(Author.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", Author.USER, Optional.of("darth@a.com"));
+        verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", AuthorEnum.USER, Optional.of("darth@a.com"));
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -209,14 +209,14 @@ public class DataServletTest {
         reservationJson.put("token", "123");
         reservationJson.put("email", "darth@a.com");
 
-        when(participantApi.cancellation(anyString(), any(Author.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.cancellation(anyString(), any(AuthorEnum.class))).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).cancellation("123", Author.USER);
+        verify(participantApi).cancellation("123", AuthorEnum.USER);
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -252,7 +252,7 @@ public class DataServletTest {
 
         servlet.service(req, resp);
 
-        verify(participantApi, never()).reservation(anyString(), anyString(), anyString(), any(Author.class), any(Optional.class));
+        verify(participantApi, never()).reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class));
         verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal json input");
     }
 
@@ -271,7 +271,7 @@ public class DataServletTest {
 
         servlet.service(req, resp);
 
-        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(Author.class), any(Optional.class));
+        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(AuthorEnum.class), any(Optional.class));
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.get("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
         assertThat(jsonObject.get("message")).isEqualTo("Name and email must be present without spesial characters");

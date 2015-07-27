@@ -3,12 +3,12 @@ package no.java.moosehead.commands;
 public class CancelReservationCommand {
     private String email;
     private String workshopId;
-    private Author author;
+    private AuthorEnum authorEnum;
 
-    public CancelReservationCommand(String email,String workshopId, Author author) {
+    public CancelReservationCommand(String email,String workshopId, AuthorEnum authorEnum) {
         this.email = email;
         this.workshopId = workshopId;
-        this.author = author;
+        this.authorEnum = authorEnum;
     }
 
     public String getWorkshopId() {
@@ -22,10 +22,10 @@ public class CancelReservationCommand {
 
     public String toString() {
         return "CancelReservationCommand for workshop:" + workshopId +
-                " for user with email:" + email + " by " + author.name();
+                " for user with email:" + email + " by " + authorEnum.name();
     }
 
-    public Author getAuthor() {
-        return author;
+    public AuthorEnum getAuthorEnum() {
+        return authorEnum;
     }
 }

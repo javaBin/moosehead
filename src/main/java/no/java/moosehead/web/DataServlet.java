@@ -6,14 +6,13 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
 import no.java.moosehead.api.WorkshopInfo;
-import no.java.moosehead.commands.Author;
+import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.projections.Participant;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.mail.Session;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -162,7 +161,7 @@ public class DataServlet extends HttpServlet {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
         Optional<String> googleEmail = readGoogleMail(session);
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.USER, googleEmail);
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.USER, googleEmail);
 
         return Optional.of(reservation);
     }
@@ -182,7 +181,7 @@ public class DataServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return Optional.empty();
         }
-        ParticipantActionResult cancel = participantApi.cancellation(token, Author.USER);
+        ParticipantActionResult cancel = participantApi.cancellation(token, AuthorEnum.USER);
 
         return Optional.of(cancel);
     }

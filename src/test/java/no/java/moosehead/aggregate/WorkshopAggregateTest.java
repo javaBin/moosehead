@@ -61,7 +61,7 @@ public class WorkshopAggregateTest {
         WorkshopData workshopData = new WorkshopData(w1,"Wstitle","A little description");
         AddWorkshopCommand command = AddWorkshopCommand.builder()
                 .withWorkshopId(w1)
-                .withAuthor(Author.ADMIN)
+                .withAuthor(AuthorEnum.ADMIN)
                 .withNumberOfSeats(10)
                 .withWorkshopData(Optional.of(workshopData))
                 .create();
@@ -74,7 +74,7 @@ public class WorkshopAggregateTest {
     public void sholdDemandWorkshopInfoOnWorkshopAddedByAdmin() throws Exception {
         AddWorkshopCommand command = AddWorkshopCommand.builder()
                 .withWorkshopId(w1)
-                .withAuthor(Author.ADMIN)
+                .withAuthor(AuthorEnum.ADMIN)
                 .withNumberOfSeats(10)
                 .create();
         try {
@@ -88,7 +88,7 @@ public class WorkshopAggregateTest {
 
     @Test()
     public void workshopAddedBySystemShouldBeOfTypeWorkshopAddedBySystem() {
-        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(Author.SYSTEM).withNumberOfSeats(10).create();
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(AuthorEnum.SYSTEM).withNumberOfSeats(10).create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(WorkshopAddedBySystem.class);
     }
@@ -96,7 +96,7 @@ public class WorkshopAggregateTest {
     @Test(expected = WorkshopCanNotBeAddedException.class)
     public void workshopShouldNotBeAddedWhenItExistsAlready() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(Author.ADMIN).withNumberOfSeats(10).create();
+        AddWorkshopCommand command = AddWorkshopCommand.builder().withWorkshopId(w1).withAuthor(AuthorEnum.ADMIN).withNumberOfSeats(10).create();
         workshopAggregate.createEvent(command);
     }
 
@@ -104,12 +104,12 @@ public class WorkshopAggregateTest {
     public void workshopTypeIsSetToKidsaKoderShouldCreateKidsaKoderEvent() {
         AddWorkshopCommand command = AddWorkshopCommand.builder()
                 .withWorkshopId(w1)
-                .withAuthor(Author.ADMIN)
+                .withAuthor(AuthorEnum.ADMIN)
                 .withNumberOfSeats(10)
-                .withWorkshopType(AddWorkshopCommand.WorkshopType.KIDSAKODER_WORKSHOP)
+                .withWorkshopType(WorkshopTypeEnum.KIDSAKODER_WORKSHOP)
                 .withWorkshopData(Optional.of(new WorkshopData(w1, "Wstitle", "A little description")))
                 .create();
-        assertThat(command.getWorkshopType()).isEqualTo(AddWorkshopCommand.WorkshopType.KIDSAKODER_WORKSHOP);
+        assertThat(command.getWorkshopTypeEnum()).isEqualTo(WorkshopTypeEnum.KIDSAKODER_WORKSHOP);
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(KidsaKoderWorkshopAddedByAdmin.class);
     }
@@ -118,11 +118,11 @@ public class WorkshopAggregateTest {
     public void defaultWorkshopTypeShouldBeNormalWorkshop() {
         AddWorkshopCommand command = AddWorkshopCommand.builder()
                 .withWorkshopId(w1)
-                .withAuthor(Author.ADMIN)
+                .withAuthor(AuthorEnum.ADMIN)
                 .withNumberOfSeats(10)
                 .withWorkshopData(Optional.of(new WorkshopData(w1, "Wstitle", "A little description")))
                 .create();
-        assertThat(command.getWorkshopType()).isEqualTo(AddWorkshopCommand.WorkshopType.NORMAL_WORKSHOP);
+        assertThat(command.getWorkshopTypeEnum()).isEqualTo(WorkshopTypeEnum.NORMAL_WORKSHOP);
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
         assertThat(event).isInstanceOf(WorkshopAddedByAdmin.class);
     }
@@ -132,7 +132,7 @@ public class WorkshopAggregateTest {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
         AddWorkshopCommand command = AddWorkshopCommand.builder()
                 .withWorkshopId(w2)
-                .withAuthor(Author.SYSTEM)
+                .withAuthor(AuthorEnum.SYSTEM)
                 .withNumberOfSeats(10)
                 .create();
         WorkshopAddedEvent event = workshopAggregate.createEvent(command);
@@ -142,14 +142,14 @@ public class WorkshopAggregateTest {
     @Test(expected = ReservationCanNotBeAddedException.class)
     public void ReservationIsNotOkWhenWorkshopDoesNotExists() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w2, Author.USER, Optional.empty());
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w2, AuthorEnum.USER, Optional.empty());
         workshopAggregate.createEvent(cmd);
     }
 
     @Test
     public void ReservationIsOkWhenWorkshopExists() {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
     }
@@ -157,11 +157,11 @@ public class WorkshopAggregateTest {
     @Test
     public void multipleReservationsAreOk() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
         eventstore.addEvent(reservationAddedByUser);
-        AddReservationCommand cmd2 = new AddReservationCommand("haha@email","Darth Vader",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd2 = new AddReservationCommand("haha@email","Darth Vader",w1, AuthorEnum.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser2 =  workshopAggregate.createEvent(cmd2);
         assertThat(reservationAddedByUser2.getWorkshopId()).isEqualTo(w1);
     }
@@ -169,10 +169,10 @@ public class WorkshopAggregateTest {
     @Test(expected = ReservationCanNotBeAddedException.class)
     public void sameEmailIsNotAllowedToReserveTwice() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty());
         AbstractReservationAdded event = workshopAggregate.createEvent(cmd);
         eventstore.addEvent(event);
-        AddReservationCommand cmd2 = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd2 = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty());
         workshopAggregate.createEvent(cmd2);
     }
 
@@ -188,7 +188,7 @@ public class WorkshopAggregateTest {
         Configuration.initData(confdata);
 
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty());
         workshopAggregate.createEvent(cmd);
 
     }
@@ -198,11 +198,11 @@ public class WorkshopAggregateTest {
     @Test
     public void shouldBeAbleToCancelReservation() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
-        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, Author.USER, Optional.empty());
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty());
         AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
         eventstore.addEvent(reservationAddedByUser);
 
-        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1, Author.USER);
+        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1, AuthorEnum.USER);
         AbstractReservationCancelled rcbu = workshopAggregate.createEvent(cancel);
 
         assertThat(rcbu).isNotNull();
@@ -214,7 +214,7 @@ public class WorkshopAggregateTest {
     public void shouldNotBeAbleToCancelNonExsistingReservation() throws Exception {
         eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
 
-        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1, Author.USER);
+        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1, AuthorEnum.USER);
         workshopAggregate.createEvent(cancel);
 
     }

@@ -6,14 +6,15 @@ public class AddReservationCommand {
     private String email;
     private String fullname;
     private String workshopId;
-    private Author author;
+    private AuthorEnum authorEnum;
     private Optional<String> googleEmail;
+    private WorkshopTypeEnum workshopType = WorkshopTypeEnum.NORMAL_WORKSHOP;
 
-    public AddReservationCommand(String email, String fullname, String workshopId, Author author, Optional<String> googleEmail) {
+    public AddReservationCommand(String email, String fullname, String workshopId, AuthorEnum authorEnum, Optional<String> googleEmail) {
         this.email = email;
         this.fullname = fullname;
         this.workshopId = workshopId;
-        this.author = author;
+        this.authorEnum = authorEnum;
         this.googleEmail = googleEmail;
     }
 
@@ -33,12 +34,12 @@ public class AddReservationCommand {
         return "AddReservationCommand for workshop:" + workshopId +
                 " for user:" + fullname +
                 " with email:" + email +
-                " by " + author.name() +
+                " by " + authorEnum.name() +
                 " googlemail: " + googleEmail;
     }
 
-    public Author getAuthor() {
-        return author;
+    public AuthorEnum getAuthorEnum() {
+        return authorEnum;
     }
 
     public Optional<String> getGoogleEmail() {

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
-import no.java.moosehead.commands.Author;
+import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.controller.SystemSetup;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -112,7 +112,7 @@ public class AdminServlet  extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, Author.ADMIN, Optional.empty());
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.ADMIN, Optional.empty());
 
         return Optional.of(reservation);
     }
@@ -124,7 +124,7 @@ public class AdminServlet  extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal json input");
             return Optional.empty();
         }
-        ParticipantActionResult cancel = participantApi.cancellation(token, Author.ADMIN);
+        ParticipantActionResult cancel = participantApi.cancellation(token, AuthorEnum.ADMIN);
 
         return Optional.of(cancel);
     }

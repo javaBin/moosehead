@@ -7,33 +7,33 @@ import java.util.Optional;
 
 public class AddWorkshopCommand {
     private final String workshopId;
-    private final Author author;
+    private final AuthorEnum authorEnum;
     private final int numberOfSeats;
     private final Instant startTime;
     private final Instant endTime;
     private final Optional<WorkshopData> workshopData;
-    private final WorkshopType workshopType;
+    private final WorkshopTypeEnum workshopTypeEnum;
 
 
     public boolean hasStartAndEndTime() {
         return startTime != null && endTime != null;
     }
 
-    public WorkshopType getWorkshopType() {
-        return workshopType;
+    public WorkshopTypeEnum getWorkshopTypeEnum() {
+        return workshopTypeEnum;
     }
 
     public static class Builder {
         private String workshopId;
-        private Author author;
+        private AuthorEnum authorEnum;
         private int numberOfSeats;
         private Instant startTime;
         private Instant endTime;
         private Optional<WorkshopData> workshopData = Optional.empty();
-        private WorkshopType workshopType = WorkshopType.NORMAL_WORKSHOP;
+        private WorkshopTypeEnum workshopTypeEnum = WorkshopTypeEnum.NORMAL_WORKSHOP;
 
-        public Builder withWorkshopType(WorkshopType workshopType) {
-            this.workshopType = workshopType;
+        public Builder withWorkshopType(WorkshopTypeEnum workshopTypeEnum) {
+            this.workshopTypeEnum = workshopTypeEnum;
             return this;
         }
 
@@ -42,8 +42,8 @@ public class AddWorkshopCommand {
             return this;
         }
 
-        public Builder withAuthor(Author author) {
-            this.author = author;
+        public Builder withAuthor(AuthorEnum authorEnum) {
+            this.authorEnum = authorEnum;
             return this;
         }
 
@@ -78,12 +78,12 @@ public class AddWorkshopCommand {
 
     private AddWorkshopCommand(Builder builder) {
         this.workshopId = builder.workshopId;
-        this.author = builder.author;
+        this.authorEnum = builder.authorEnum;
         this.numberOfSeats = builder.numberOfSeats;
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
         this.workshopData = builder.workshopData;
-        this.workshopType = builder.workshopType;
+        this.workshopTypeEnum = builder.workshopTypeEnum;
     }
 
 
@@ -95,8 +95,8 @@ public class AddWorkshopCommand {
         return "AddWorkshopCommand for workshop " + workshopId;
     }
 
-    public Author getAuthor() {
-        return author;
+    public AuthorEnum getAuthorEnum() {
+        return authorEnum;
     }
 
     public int getNumberOfSeats() {
@@ -115,8 +115,4 @@ public class AddWorkshopCommand {
         return workshopData;
     }
 
-    public enum WorkshopType {
-        KIDSAKODER_WORKSHOP,
-        NORMAL_WORKSHOP
-    }
 }

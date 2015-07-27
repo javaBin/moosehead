@@ -2,7 +2,7 @@ package no.java.moosehead.controller;
 
 import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.commands.AddWorkshopCommand;
-import no.java.moosehead.commands.Author;
+import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
@@ -76,7 +76,7 @@ public class SystemSetup {
         workshopDatas.forEach(wd -> {
             AddWorkshopCommand.Builder builder = AddWorkshopCommand.builder()
                     .withWorkshopId(wd.getId())
-                    .withAuthor(Author.SYSTEM)
+                    .withAuthor(AuthorEnum.SYSTEM)
                     .withNumberOfSeats(Configuration.placesPerWorkshop());
 
             if (wd.hasStartAndEndTime()) {
