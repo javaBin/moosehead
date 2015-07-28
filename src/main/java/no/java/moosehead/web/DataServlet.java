@@ -20,7 +20,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,15 +70,9 @@ public class DataServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");
             return;
         }
-        final long revisionId;
-        try {
-            revisionId = Long.parseLong(workshop);
-        } catch (NumberFormatException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");
-            return;
-        }
+
         Optional<WorkshopInfo> workshopInfoOptional = participantApi.workshops().stream()
-                .filter(ws -> ws.getCreatedRevisionId() == revisionId)
+                .filter(ws -> ws.getId().equals(workshop))
                 .findAny();
         if (!workshopInfoOptional.isPresent()) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");

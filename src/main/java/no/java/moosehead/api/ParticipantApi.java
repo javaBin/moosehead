@@ -25,7 +25,6 @@ public interface ParticipantApi {
             jsonObject.put("title", workshop.getTitle());
             jsonObject.put("description", workshop.getDescription());
             jsonObject.put("status", workshop.getStatus().name());
-            jsonObject.put("createdRevisionId",workshop.getCreatedRevisionId());
 
             List<JSONObject> partList = workshop.getParticipants().stream().sequential()
                     .map(ParticipantApi::participantAsJson)
@@ -44,6 +43,7 @@ public interface ParticipantApi {
 
         try {
             partObj.put("email", participant.getEmail());
+            partObj.put("numberOfSeats", participant.getNumberOfSeatsReserved());
             partObj.put("name", participant.getName());
             partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
             partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));

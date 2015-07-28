@@ -72,11 +72,23 @@ public class Workshop {
         if (pos < 0) {
             return -1;
         }
-        int listNumber = pos + 1 - numberOfSeats;
-        if (listNumber < 0) {
-            return 0;
+
+        // calculate the index where the workshop is full
+        int seatCounter=0;
+        int fullIndex=0;
+        for (;fullIndex<confirmed.size() && seatCounter <= numberOfSeats; fullIndex++) {
+            seatCounter+=confirmed.get(fullIndex).getNumberOfSeatsReserved();
         }
-        return listNumber;
+
+        if (seatCounter > numberOfSeats) {
+            fullIndex--;
+        }
+
+        if (pos < fullIndex) {
+            return 0;
+        } else {
+            return  pos + 1 - fullIndex;
+        }
     }
 
     public long getCreatedRevisionId() {

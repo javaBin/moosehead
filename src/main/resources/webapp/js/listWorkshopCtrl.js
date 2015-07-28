@@ -7,8 +7,6 @@ angular.module('mooseheadModule')
             $scope.showMessage = true;
             $scope.participants = [];
 
-
-
             $http({method: "GET", url: "data/teacherList?workshop=" + $routeParams.token})
                 .success(function(data) {
                     $scope.title = data.title;

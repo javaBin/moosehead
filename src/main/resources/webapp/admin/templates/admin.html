@@ -3,9 +3,9 @@
     <div ng-repeat="workshop in workshops">
         <h2>{{workshop.title}}</h2>
         <p>Status: {{workshop.status}}</p>
-        <p><a ng-href="../#/list/{{workshop.createdRevisionId}}">Workshop list</a></p>
+        <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
         <ul ng-repeat="participant in workshop.participants">
-            <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}})</li>
+            <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}}</li>
         </ul>
     </div>
     <div ng-show="showNoAccess">

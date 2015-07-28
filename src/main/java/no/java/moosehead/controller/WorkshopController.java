@@ -5,7 +5,9 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.aggregate.WorkshopNotFoundException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.*;
-import no.java.moosehead.eventstore.*;
+import no.java.moosehead.eventstore.AbstractReservationAdded;
+import no.java.moosehead.eventstore.AbstractReservationCancelled;
+import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
@@ -30,7 +32,7 @@ public class WorkshopController implements ParticipantApi {
             Workshop ws = workshopOptional.get();
             WorkshopData wd = ws.getWorkshopData();
             WorkshopStatus status = computeWorkshopStatus(ws);
-            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getCreatedRevisionId());
+            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status);
         } else
             throw new WorkshopNotFoundException();
     }
@@ -43,7 +45,7 @@ public class WorkshopController implements ParticipantApi {
                     WorkshopData wd = ws.getWorkshopData();
                     WorkshopStatus status = computeWorkshopStatus(ws);
 
-                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status,ws.getCreatedRevisionId());
+                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status);
                 })
                 .collect(Collectors.toList())
         ;

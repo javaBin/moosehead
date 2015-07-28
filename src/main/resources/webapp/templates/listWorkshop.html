@@ -3,7 +3,7 @@
     <p ng-show="showMessage">{{message}}</p>
     <h2>Participants</h2>
     <ul>
-        <li ng-repeat="participant in participants" ng-show="!participant.isWaiting">{{participant.name}} - {{participant.email}}</li>
+        <li ng-repeat="participant in participants" ng-show="!participant.isWaiting">{{participant.name}} - {{participant.email}}  - Seats reserved: {{participant.numberOfSeats}}</li>
     </ul>
     <h2>Waiting list</h2>
     <ul>

@@ -48,8 +48,8 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("GET");
         when(req.getPathInfo()).thenReturn("/workshopList");
 
-        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", null, WorkshopStatus.FREE_SPOTS,10L);
-        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", null, WorkshopStatus.FREE_SPOTS,10L);
+        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", null, WorkshopStatus.FREE_SPOTS);
+        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", null, WorkshopStatus.FREE_SPOTS);
 
         when(participantApi.workshops()).thenReturn(Arrays.asList(one, two));
 

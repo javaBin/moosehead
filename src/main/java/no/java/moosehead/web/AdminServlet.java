@@ -218,6 +218,7 @@ public class AdminServlet  extends HttpServlet {
                             try {
                                 json.put("name", pa.getName());
                                 json.put("email", pa.getEmail());
+                                json.put("numberOfSeats", pa.getNumberOfSeatsReserved());
                                 json.put("isEmailConfirmed",pa.isEmailConfirmed());
                             } catch (JSONException e) {
                                 e.printStackTrace();
