@@ -1,0 +1,23 @@
+<div>
+    <div ng-show="!showNoAccess">
+        <h1>ADMIN: Add workshop</h1>
+        <p class="errormessage" ng-show="showMessage">{{message}}</p>
+        <form>
+            <p>
+                <input type="text" placeholder="Slug (id)" ng-model="slug" id="slug"/>
+            </p>
+            <p>
+                <input type="text" placeholder="Workshop title" ng-model="title" id="title"/>
+            </p>
+
+            <p>
+                <button ng-click="addWorkshop()" class="button">Add workshop</button>
+            </p>
+
+        </form>
+    </div>
+    <div ng-show="showNoAccess">
+        <p ng-show="needLogin">You need to login using google to access admin. Login <a href="../oauth2callback/login">here</a></p>
+        <p ng-show="needAccess">Your goodle account ({{googleid}}) is not registered for access</p>
+    </div>
+</div>

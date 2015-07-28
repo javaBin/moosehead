@@ -11,6 +11,10 @@
                         templateUrl: 'templates/admin.html',
                         controller: 'AdminCtrl'
                     })
+                    .when('/addWorkshop', {
+                        templateUrl: 'templates/addWorkshop.html',
+                        controller: 'AddWorkshopCtrl'
+                    })
                 ;
         }]);
         
