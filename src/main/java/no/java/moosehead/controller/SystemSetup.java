@@ -52,6 +52,7 @@ public class SystemSetup {
         eventstore.addEventSubscriber(workshopAggregate);
         eventstore.addEventSubscriber(workshopListProjection);
         eventstore.addEventSubscriber(new EmailSaga());
+        eventstore.addEventSubscriber(workshopRepository);
         workshopController = new WorkshopController();
         emailSender = Configuration.smtpServer() != null ? new SmtpEmailSender() : new DummyEmailSender();
 

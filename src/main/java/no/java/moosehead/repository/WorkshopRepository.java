@@ -6,6 +6,9 @@ import net.hamnaberg.json.Link;
 import net.hamnaberg.json.Property;
 import net.hamnaberg.json.extension.Tuple2;
 import net.hamnaberg.json.parser.CollectionParser;
+import no.java.moosehead.eventstore.WorkshopAddedEvent;
+import no.java.moosehead.eventstore.core.AbstractEvent;
+import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.web.Configuration;
 
 import java.io.*;
@@ -22,13 +25,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class WorkshopRepository {
+public class WorkshopRepository implements EventSubscription {
     private List<WorkshopData> workshops;
 
     public WorkshopRepository() {
         List<Item> items = readItems();
 
-        workshops = items.stream()
+        List<WorkshopData> emsWorkshops = items.stream()
                 .map(it -> new Tuple2<>(
                         it.getDataAsMap(),
                         it.linkByRel("slot item")))
@@ -60,6 +63,7 @@ public class WorkshopRepository {
                     }
                 })
                 .collect(Collectors.toList());
+        workshops = new ArrayList<>(emsWorkshops);
     }
 
     private List<Item> readItems() {
@@ -114,4 +118,14 @@ public class WorkshopRepository {
         return allWorkshops().stream().filter(wi -> wi.getId().equals(id)).findFirst();
     }
 
+    @Override
+    public void eventAdded(AbstractEvent event) {
+        if (event instanceof WorkshopAddedEvent) {
+            WorkshopAddedEvent workshopAddedEvent = (WorkshopAddedEvent) event;
+            Optional<WorkshopData> workshopData = workshopAddedEvent.getWorkshopData();
+            if (workshopData.isPresent()) {
+                workshops.add(workshopData.get());
+            }
+        }
+    }
 }
