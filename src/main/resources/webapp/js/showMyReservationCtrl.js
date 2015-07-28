@@ -29,7 +29,7 @@ angular.module('mooseheadModule')
                 if (reservation.status === "NOT_CONFIRMED") {
                     text+= "Avaiting confirmation (use link in email)";
                 } else if (reservation.status === "HAS_SPACE") {
-                    text+= "Space reserved";
+                    text+= reservation.numberOfSeatsReserved + " seat(s) reserved";
                 } else if (reservation.status === "WAITING_LIST") {
                     text+= "On waiting list";
                 } else  {
