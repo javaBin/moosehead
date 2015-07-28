@@ -6,6 +6,12 @@ import org.json.JSONObject;
 
 import javax.servlet.ServletInputStream;
 import java.io.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 public class Utils {
 
@@ -17,13 +23,15 @@ public class Utils {
             return null;
         }
         for (char c : value.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || "-_ @.".indexOf(c) != -1) {
+            if (Character.isLetterOrDigit(c) || "-_ @./:".indexOf(c) != -1) {
                 continue;
             }
             return null;
         }
         return value;
     }
+
+
 
     public static JSONObject readJson(ServletInputStream inputStream) throws IOException {
         try {
@@ -42,5 +50,20 @@ public class Utils {
             }
             return result.toString();
         }
+    }
+
+    public static Optional<Instant> toInstant(String datestring) {
+        if (datestring == null) {
+            return null;
+        }
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM-yyyy HH:mm");
+        LocalDateTime dateTime;
+        try {
+            dateTime = LocalDateTime.parse(datestring, dateTimeFormatter);
+        } catch (DateTimeParseException e) {
+            return Optional.empty();
+        }
+        Instant instant = dateTime.toInstant(ZoneOffset.ofHours(2));
+        return Optional.of(instant);
     }
 }

@@ -1,6 +1,7 @@
 <div>
     <div ng-show="!showNoAccess">
         <h1>ADMIN: Add workshop</h1>
+        <p>Date fields on format dd/MM-yyyy HH:mm (timezone UTC+2 (norwegian summer time))</p>
         <p class="errormessage" ng-show="showMessage">{{message}}</p>
         <form>
             <p>
@@ -8,6 +9,21 @@
             </p>
             <p>
                 <input type="text" placeholder="Workshop title" ng-model="title" id="title"/>
+            </p>
+            <p>
+                <input type="text" placeholder="Description" ng-model="description" id="description"/>
+            </p>
+            <p>
+                <input type="text" placeholder="Start time" ng-model="startTime" id="startTime"/>
+            </p>
+            <p>
+                <input type="text" placeholder="End time" ng-model="endTime" id="endTime"/>
+            </p>
+            <p>
+                <input type="text" placeholder="Opening time" ng-model="openTime" id="openTime"/>
+            </p>
+            <p>
+                <input type="text" placeholder="Maximum participants" ng-model="maxParticipants" id="maxParticipants"/>
             </p>
 
             <p>

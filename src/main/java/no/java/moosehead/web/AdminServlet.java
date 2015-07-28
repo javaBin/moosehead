@@ -1,11 +1,13 @@
 package no.java.moosehead.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import no.java.moosehead.api.AdminApi;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.repository.WorkshopData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,10 +32,12 @@ import static no.java.moosehead.web.Utils.readJson;
 @WebServlet(urlPatterns = {"/admin/data/*"})
 public class AdminServlet  extends HttpServlet {
     private ParticipantApi participantApi;
+    private AdminApi adminApi;
 
     @Override
     public void init() throws ServletException {
         participantApi = SystemSetup.instance().workshopController();
+        adminApi = SystemSetup.instance().workshopController();
     }
 
     @Override
@@ -39,7 +45,13 @@ public class AdminServlet  extends HttpServlet {
         JsonNode userAccess = (JsonNode) req.getSession().getAttribute("user");
         if ("/userLogin".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
-            resp.getWriter().append(Optional.ofNullable(userAccess).map(Object::toString).orElse("{}"));
+
+            PrintWriter writer = resp.getWriter();
+            if (!Configuration.secureAdmin()) {
+                writer.append("{\"id\":54435,\"admin\":true}");
+                return;
+            }
+            writer.append(Optional.ofNullable(userAccess).map(Object::toString).orElse("{}"));
             return;
         }
         if (Configuration.secureAdmin() && (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false))) {
@@ -78,11 +90,15 @@ public class AdminServlet  extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return;
         }
+
         Optional<ParticipantActionResult> apiResult;
-        if ("/cancel".equals(req.getPathInfo())) {
+        String pathInfo = req.getPathInfo();
+        if ("/cancel".equals(pathInfo)) {
             apiResult = doCancelation(jsonInput, resp);
-        } else if ("/reserve".equals(req.getPathInfo())) {
+        } else if ("/reserve".equals(pathInfo)) {
             apiResult = doReservation(jsonInput, req, resp);
+        } else if ("/addWorkshop".equals(pathInfo)) {
+            apiResult = addWorkshop(jsonInput);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
             return;
@@ -104,10 +120,75 @@ public class AdminServlet  extends HttpServlet {
         }
     }
 
+    private Optional<ParticipantActionResult> addWorkshop(JSONObject jsonInput) {
+        Optional<String> errormessage = validateRequiredAddWorkshopFields(jsonInput);
+        if (errormessage.isPresent()) {
+            return Optional.of(ParticipantActionResult.error(errormessage.get()));
+        }
+        WorkshopData workshopData = new WorkshopData(
+                readField(jsonInput, "slug"),
+                readField(jsonInput, "title"),
+                readField(jsonInput, "description"),
+                readInstantField(jsonInput, "startTime"),
+                readInstantField(jsonInput, "endTime")
+        );
+        ParticipantActionResult result = adminApi.createWorkshop(
+                workshopData,
+                readInstantField(jsonInput, "startTime"),
+                readInstantField(jsonInput, "endTime"),
+                readInstantField(jsonInput, "openTime"),
+                Integer.parseInt(readField(jsonInput, "maxParticipants"))
+        );
+
+        return Optional.of(result);
+    }
+
+    private Optional<String> validateRequiredAddWorkshopFields(JSONObject jsonInput) {
+        List<String> requiredItems = Arrays.asList("slug",
+                "title",
+                "description",
+                "startTime",
+                "endTime",
+                "openTime",
+                "maxParticipants");
+        for (String required : requiredItems) {
+            String value = readField(jsonInput,required);
+            if (value == null || value.trim().isEmpty()) {
+                return Optional.of(String.format("Field %s is required", required));
+            }
+        }
+        List<String> dateFields = Arrays.asList(
+                "startTime",
+                "endTime",
+                "openTime");
+        for (String dateField : dateFields) {
+            if (!Utils.toInstant(readField(jsonInput,dateField)).isPresent()) {
+                return Optional.of(String.format("Field %s must have date format dd/MM-yyyy HH:mm", dateField));
+            }
+
+        }
+        if (!readInstantField(jsonInput,"openTime").isBefore(readInstantField(jsonInput,"startTime"))) {
+            return Optional.of("Open time must be before start time");
+        }
+        if (!readInstantField(jsonInput,"startTime").isBefore(readInstantField(jsonInput,"endTime"))) {
+            return Optional.of("Start time must be before end time");
+        }
+        try {
+            Integer.parseInt(readField(jsonInput,"maxParticipants"));
+        } catch (NumberFormatException e) {
+            return Optional.of("Max participants must be numeric");
+        }
+        return Optional.empty();
+    }
+
+    private static Instant readInstantField(JSONObject jsonInput, String name) {
+        return Utils.toInstant(readField(jsonInput,name)).get();
+    }
+
     private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String workshopid = readField(jsonInput, "workshopid");
         String email = readField(jsonInput,"email");
-        String fullname = readField(jsonInput,"fullname");
+        String fullname = readField(jsonInput, "fullname");
 
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));

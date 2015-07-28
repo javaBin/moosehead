@@ -19,6 +19,40 @@ angular.module('mooseheadModule')
 
                     }
                 });
+
+            $scope.showMessage = false;
+
+            $scope.addWorkshop = function() {
+                $scope.showMessage = false;
+
+                var postData = {
+                    slug: $scope.slug,
+                    title: $scope.title,
+                    description: $scope.description,
+                    startTime: $scope.startTime,
+                    endTime: $scope.endTime,
+                    openTime: $scope.openTime,
+                    maxParticipants: $scope.maxParticipants
+                };
+
+                $http({
+                    method: "POST",
+                    url: "data/addWorkshop",
+                    data: postData
+                }).success(function(data) {
+                    if (data.status === "OK") {
+                        $scope.message = "Workshop added";
+                        $scope.showForm = false;
+                    } else {
+                        $scope.message = data.message;
+                    }
+                    $scope.showMessage = true;
+
+                }).error(function(data, status, headers, config) {
+                    $scope.message = "Some unknown error occured. Error: " + data + " status: " + status;
+                    $scope.showMessage = true;
+                });
+            }
         }]);
 
 

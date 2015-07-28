@@ -8,6 +8,7 @@ import no.java.moosehead.commands.*;
 import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.AbstractReservationCancelled;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class WorkshopController implements ParticipantApi {
+public class WorkshopController implements ParticipantApi,AdminApi {
     @Override
     public WorkshopInfo getWorkshop(String workshopid) {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
@@ -153,5 +154,28 @@ public class WorkshopController implements ParticipantApi {
                     return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, status, pa.getNumberOfSeatsReserved());
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ParticipantActionResult createWorkshop(WorkshopData workshopData, Instant startTime, Instant endTime, Instant openTime, int maxParticipants) {
+        AddWorkshopCommand addWorkshopCommand = AddWorkshopCommand.builder()
+                .withWorkshopId(workshopData.getId())
+                .withWorkshopData(Optional.of(workshopData))
+                .withStartTime(startTime)
+                .withEndTime(endTime)
+                .withNumberOfSeats(maxParticipants)
+                .withAuthor(AuthorEnum.ADMIN)
+                .create();
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+            WorkshopAddedEvent event;
+            try {
+                event = workshopAggregate.createEvent(addWorkshopCommand);
+            } catch (MoosheadException e) {
+                return ParticipantActionResult.error(e.getMessage());
+            }
+            SystemSetup.instance().eventstore().addEvent(event);
+        }
+        return ParticipantActionResult.ok();
     }
 }
