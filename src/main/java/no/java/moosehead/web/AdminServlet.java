@@ -130,7 +130,8 @@ public class AdminServlet  extends HttpServlet {
                 readField(jsonInput, "title"),
                 readField(jsonInput, "description"),
                 readInstantField(jsonInput, "startTime"),
-                readInstantField(jsonInput, "endTime")
+                readInstantField(jsonInput, "endTime"),
+                Optional.of(readInstantField(jsonInput,"openTime"))
         );
         ParticipantActionResult result = adminApi.createWorkshop(
                 workshopData,
