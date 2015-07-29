@@ -164,6 +164,10 @@ public class Configuration {
         return Integer.parseInt(readConf("veryFullNumber", "20"));
     }
 
+    public static int fewSpotsNumber() {
+        return Integer.parseInt(readConf("fewSpotsNumber", "5"));
+    }
+
     public static String googleClientId() {
         return readConf("googleClientId", "xxx");
     }
@@ -177,10 +181,15 @@ public class Configuration {
     }
 
     public static boolean secureAdmin() {
-        return "true".equals(readConf("secureAdmin","true"));
+        return "true".equals(readConf("secureAdmin", "true"));
     }
 
     public static String emsEventsFile() {
-        return readConf("emsEventsFile",null);
+        return readConf("emsEventsFile", null);
     }
+
+    public static int maxNumberOfSeatsToReserve() {
+        return Integer.parseInt(readConf("maxNumberOfSeatsToReserve", "3"));
+    }
+
 }

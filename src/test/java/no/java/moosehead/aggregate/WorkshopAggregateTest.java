@@ -112,6 +112,27 @@ public class WorkshopAggregateTest {
         assertThat(event).isInstanceOf(KidsaKoderWorkshopAddedByAdmin.class);
     }
 
+    @Test(expected = ReservationCanNotBeAddedException.class)
+    public void tooManySeatsReservedForKidsaKoder() {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, w1, 10));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), WorkshopTypeEnum.KIDSAKODER_WORKSHOP,5);
+        workshopAggregate.createEvent(cmd);
+    }
+
+    @Test(expected = ReservationCanNotBeAddedException.class)
+    public void tooManySeatsReservedForNormalWorkshop() {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 10));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), WorkshopTypeEnum.NORMAL_WORKSHOP,2);
+        workshopAggregate.createEvent(cmd);
+    }
+
+    @Test(expected = ReservationCanNotBeAddedException.class)
+    public void tooFewSeatsReservedForNormalWorkshop() {
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 10));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), WorkshopTypeEnum.NORMAL_WORKSHOP,0);
+        workshopAggregate.createEvent(cmd);
+    }
+
     @Test
     public void defaultWorkshopTypeShouldBeNormalWorkshop() {
         AddWorkshopCommand command = AddWorkshopCommand.builder()

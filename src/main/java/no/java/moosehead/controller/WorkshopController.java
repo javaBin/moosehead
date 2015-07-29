@@ -8,7 +8,7 @@ import no.java.moosehead.commands.*;
 import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.AbstractReservationCancelled;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.*;
+import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
@@ -71,7 +71,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
         if (seatsLeft <= 0) {
             return WorkshopStatus.FULL;
         }
-        if (seatsLeft < 5) {
+        if (seatsLeft < Configuration.fewSpotsNumber()) {
             return WorkshopStatus.FEW_SPOTS;
         }
         return WorkshopStatus.FREE_SPOTS;

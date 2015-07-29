@@ -80,6 +80,10 @@ public class WorkshopAggregate implements EventSubscription {
                     return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                             addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(), addReservationCommand.getNumberOfSeatsReserved());
                 case USER:
+                    int maxNumberOfSeatsToReserve = addReservationCommand.getWorkshopType().equals(WorkshopTypeEnum.KIDSAKODER_WORKSHOP)?Configuration.maxNumberOfSeatsToReserve():1;
+                    if (addReservationCommand.getNumberOfSeatsReserved() > maxNumberOfSeatsToReserve || addReservationCommand.getNumberOfSeatsReserved() < 1 ) {
+                        throw new ReservationCanNotBeAddedException("Too many/few seats reserved [" + addReservationCommand.getNumberOfSeatsReserved() + "]");
+                    }
                     return new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                             addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(),addReservationCommand.getGoogleEmail(), addReservationCommand.getNumberOfSeatsReserved());
                 default:
