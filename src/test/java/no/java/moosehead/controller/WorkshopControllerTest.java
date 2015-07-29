@@ -20,8 +20,8 @@ import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.repository.WorkshopData;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
@@ -65,7 +65,7 @@ public class WorkshopControllerTest {
     public void shouldCalculateCorrectStatusFewSpots() {
         ReservationAddedByUser r1 = new ReservationAddedByUser(System.currentTimeMillis(), 1L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),20);
         ReservationAddedByUser r2 = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "laban@gmail.com", "Darth Laber", w1,Optional.empty(),9);
-        Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30, 3L);
+        Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30);
         ws.addParticipant(Participant.confirmedParticipant(r1,ws));
         ws.addParticipant(Participant.confirmedParticipant(r2,ws));
         WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(ws);
@@ -76,7 +76,7 @@ public class WorkshopControllerTest {
     public void shouldCalculateCorrectStatusFull() {
         ReservationAddedByUser r1 = new ReservationAddedByUser(System.currentTimeMillis(), 1L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),20);
         ReservationAddedByUser r2 = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "laban@gmail.com", "Darth Laber", w1,Optional.empty(),10);
-        Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30, 3L);
+        Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30);
         ws.addParticipant(Participant.confirmedParticipant(r1,ws));
         ws.addParticipant(Participant.confirmedParticipant(r2,ws));
         WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(ws);
@@ -86,7 +86,7 @@ public class WorkshopControllerTest {
 
     @Test
     public void shouldReturnWorkshopList() throws Exception {
-        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one", "title", "description"), 30, 3L)));
+        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(new Workshop(new WorkshopData("one", "title", "description"), 30)));
 
         List<WorkshopInfo> workshops = workshopController.workshops();
 

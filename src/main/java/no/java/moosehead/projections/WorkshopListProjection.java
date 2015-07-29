@@ -36,7 +36,7 @@ public class WorkshopListProjection implements EventSubscription {
             Optional<WorkshopData> workshopDataOptional = SystemSetup.instance().workshopRepository().workshopById(workshopAdded.getWorkshopId());
             workshopData = workshopDataOptional.get();
         }
-        workshops.add(new Workshop(workshopData, workshopAdded.getNumberOfSeats(), workshopAdded.getRevisionId()));
+        workshops.add(new Workshop(workshopData, workshopAdded.getNumberOfSeats()));
     }
 
     private void handleEmailConfirmedByUser(EmailConfirmedByUser emailConfirmedByUser) {

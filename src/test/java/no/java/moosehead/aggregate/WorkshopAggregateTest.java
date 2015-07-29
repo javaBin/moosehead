@@ -99,6 +99,20 @@ public class WorkshopAggregateTest {
     }
 
     @Test
+    public void workshopTypeIsSetToBeerShouldCreatBeerEvent() {
+        AddWorkshopCommand command = AddWorkshopCommand.builder()
+                .withWorkshopId(w1)
+                .withAuthor(AuthorEnum.ADMIN)
+                .withNumberOfSeats(10)
+                .withWorkshopType(WorkshopTypeEnum.BEER_WORKSHOP)
+                .withWorkshopData(Optional.of(new WorkshopData(w1, "Wstitle", "A little description")))
+                .create();
+        assertThat(command.getWorkshopTypeEnum()).isEqualTo(WorkshopTypeEnum.BEER_WORKSHOP);
+        WorkshopAddedEvent event = workshopAggregate.createEvent(command);
+        assertThat(event).isInstanceOf(BeerWorkshopAddedByAdmin.class);
+    }
+
+    @Test
     public void workshopTypeIsSetToKidsaKoderShouldCreateKidsaKoderEvent() {
         AddWorkshopCommand command = AddWorkshopCommand.builder()
                 .withWorkshopId(w1)

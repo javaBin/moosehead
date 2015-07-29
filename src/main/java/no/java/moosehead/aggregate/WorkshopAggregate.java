@@ -52,6 +52,14 @@ public class WorkshopAggregate implements EventSubscription {
                                     addWorkshopCommand.getStartTime(),
                                     addWorkshopCommand.getEndTime(),
                                     addWorkshopCommand.getWorkshopData().get());
+                        case BEER_WORKSHOP:
+                            return new BeerWorkshopAddedByAdmin(System.currentTimeMillis(),
+                                    nextRevision(),
+                                    addWorkshopCommand.getWorkshopId(),
+                                    addWorkshopCommand.getNumberOfSeats(),
+                                    addWorkshopCommand.getStartTime(),
+                                    addWorkshopCommand.getEndTime(),
+                                    addWorkshopCommand.getWorkshopData().get());
                     }
                     default:
                         throw new WorkshopCanNotBeAddedException("Workshop cannot be added", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.USER+ " is not supported"));

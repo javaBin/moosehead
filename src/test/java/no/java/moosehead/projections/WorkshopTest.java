@@ -11,7 +11,7 @@ public class WorkshopTest {
     @Test
     public void testWaitingListNumber() throws Exception {
         WorkshopData wsd = new WorkshopData("id","tittel","beskrivelse");
-        Workshop ws = new Workshop(wsd, 10, 1L);
+        Workshop ws = new Workshop(wsd, 10);
 
         final Participant onList_0 = Participant.confirmedParticipant(new ReservationAddedByAdmin(0L, 0L, "email0@em.ail", "0", ws.getWorkshopData().getId(), 5), ws);
         ws.addParticipant(onList_0);
@@ -33,7 +33,7 @@ public class WorkshopTest {
     @Test
     public void testNoWaitingListNumber() throws Exception {
         WorkshopData wsd = new WorkshopData("id","tittel","beskrivelse");
-        Workshop ws = new Workshop(wsd, 10, 1L);
+        Workshop ws = new Workshop(wsd, 10);
 
         final Participant onList_0 = Participant.confirmedParticipant(new ReservationAddedByAdmin(0L, 0L, "email0@em.ail", "0", ws.getWorkshopData().getId(), 5), ws);
         ws.addParticipant(onList_0);

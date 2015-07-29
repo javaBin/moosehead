@@ -8,14 +8,12 @@ import java.util.List;
 public class Workshop {
     private WorkshopData workshopData;
     private int numberOfSeats;
-    private long createdRevisionId;
     private List<Participant> confirmed = new ArrayList<>();
     private List<Participant> notConfirmed = new ArrayList<>();
 
-    public Workshop(WorkshopData workshopData, int numberOfSeats, long createdRevisionId) {
+    public Workshop(WorkshopData workshopData, int numberOfSeats) {
         this.workshopData = workshopData;
         this.numberOfSeats = numberOfSeats;
-        this.createdRevisionId = createdRevisionId;
     }
 
 
@@ -89,9 +87,5 @@ public class Workshop {
         } else {
             return  pos + 1 - fullIndex;
         }
-    }
-
-    public long getCreatedRevisionId() {
-        return createdRevisionId;
     }
 }

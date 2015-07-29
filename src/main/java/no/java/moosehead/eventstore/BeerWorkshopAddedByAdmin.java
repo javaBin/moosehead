@@ -5,13 +5,13 @@ import no.java.moosehead.repository.WorkshopData;
 import java.time.Instant;
 import java.util.Optional;
 
-public class KidsaKoderWorkshopAddedByAdmin extends WorkshopAddedEvent {
+public class BeerWorkshopAddedByAdmin extends WorkshopAddedEvent {
     private WorkshopData workshopData;
 
-    public KidsaKoderWorkshopAddedByAdmin() {
+    public BeerWorkshopAddedByAdmin() {
     }
 
-    public KidsaKoderWorkshopAddedByAdmin(long systemTimeInMillis, long revisionId, String workshopId, int numberOfSeats, Instant opens, Instant closes, WorkshopData workshopData) {
+    public BeerWorkshopAddedByAdmin(long systemTimeInMillis, long revisionId, String workshopId, int numberOfSeats, Instant opens, Instant closes, WorkshopData workshopData) {
         super(systemTimeInMillis, revisionId, workshopId, numberOfSeats, opens, closes);
         this.workshopData = workshopData;
     }
