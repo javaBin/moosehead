@@ -1,6 +1,7 @@
 package no.java.moosehead.web;
 
 
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +15,16 @@ import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 public class Utils {
+
+    public static WorkshopTypeEnum readWorkshopTypeEnum(JSONObject jsonInput, String name) {
+        String value;
+        value = readField(jsonInput,name);
+        if (value == null) {
+            return WorkshopTypeEnum.NORMAL_WORKSHOP;
+        } else {
+            return WorkshopTypeEnum.valueOf(value);
+        }
+    }
 
     public static String readField(JSONObject jsonInput, String name) {
         String value;

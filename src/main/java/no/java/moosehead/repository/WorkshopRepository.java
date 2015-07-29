@@ -6,6 +6,7 @@ import net.hamnaberg.json.Link;
 import net.hamnaberg.json.Property;
 import net.hamnaberg.json.extension.Tuple2;
 import net.hamnaberg.json.parser.CollectionParser;
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -16,9 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +55,7 @@ public class WorkshopRepository implements EventSubscription {
                         String[] dates = startsAndEnds.get().getPrompt().get().split("\\+");
                         Instant starts = Instant.parse(dates[0]);
                         Instant ends = Instant.parse(dates[1]);
-                        return new WorkshopData(slug, title, summary, starts, ends, Optional.empty());
+                        return new WorkshopData(slug, title, summary, starts, ends, Optional.empty(), WorkshopTypeEnum.NORMAL_WORKSHOP);
                     } else {
                         return new WorkshopData(slug, title, summary);
                     }

@@ -1,17 +1,15 @@
 package no.java.moosehead.web;
 
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Optional;
 
 import static org.assertj.core.api.StrictAssertions.assertThat;
 
 public class UtilsTest {
+
     @Test
     public void shouldConvertFromStringToInstant() throws Exception {
         Optional<Instant> instant = Utils.toInstant("28/07-2015 15:45");

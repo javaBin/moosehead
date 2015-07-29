@@ -33,7 +33,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
             Workshop ws = workshopOptional.get();
             WorkshopData wd = ws.getWorkshopData();
             WorkshopStatus status = computeWorkshopStatus(ws);
-            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status);
+            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum());
         } else
             throw new WorkshopNotFoundException();
     }
@@ -46,7 +46,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                     WorkshopData wd = ws.getWorkshopData();
                     WorkshopStatus status = computeWorkshopStatus(ws);
 
-                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status);
+                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status, ws.getWorkshopData().getWorkshopTypeEnum());
                 })
                 .collect(Collectors.toList())
         ;
@@ -165,6 +165,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                 .withEndTime(endTime)
                 .withNumberOfSeats(maxParticipants)
                 .withAuthor(AuthorEnum.ADMIN)
+                .withWorkshopType(workshopData.getWorkshopTypeEnum())
                 .create();
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {

@@ -1,7 +1,8 @@
 package no.java.moosehead.repository;
 
+import no.java.moosehead.commands.WorkshopTypeEnum;
+
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 public class WorkshopData {
@@ -11,6 +12,7 @@ public class WorkshopData {
     private Instant startTime;
     private Instant endTime;
     private Optional<Instant> registrationOpens;
+    private WorkshopTypeEnum workshopTypeEnum;
 
     public boolean hasStartAndEndTime() {
         return startTime != null && endTime != null;
@@ -20,15 +22,17 @@ public class WorkshopData {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.workshopTypeEnum = WorkshopTypeEnum.NORMAL_WORKSHOP;
     }
 
-    public WorkshopData(String id, String title, String description, Instant startTime, Instant endTime, Optional<Instant> registrationOpens) {
+    public WorkshopData(String id, String title, String description, Instant startTime, Instant endTime, Optional<Instant> registrationOpens, WorkshopTypeEnum workshopTypeEnum) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.startTime = startTime;
         this.endTime = endTime;
         this.registrationOpens = registrationOpens;
+        this.workshopTypeEnum = workshopTypeEnum;
     }
 
     public String getId() {
@@ -53,5 +57,9 @@ public class WorkshopData {
 
     public Optional<Instant> getRegistrationOpens() {
         return registrationOpens;
+    }
+
+    public WorkshopTypeEnum getWorkshopTypeEnum() {
+        return workshopTypeEnum;
     }
 }

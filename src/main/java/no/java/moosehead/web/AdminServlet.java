@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static no.java.moosehead.web.Utils.readField;
-import static no.java.moosehead.web.Utils.readJson;
+import static no.java.moosehead.web.Utils.*;
 
 @WebServlet(urlPatterns = {"/admin/data/*"})
 public class AdminServlet  extends HttpServlet {
@@ -131,7 +130,8 @@ public class AdminServlet  extends HttpServlet {
                 readField(jsonInput, "description"),
                 readInstantField(jsonInput, "startTime"),
                 readInstantField(jsonInput, "endTime"),
-                Optional.of(readInstantField(jsonInput,"openTime"))
+                Optional.of(readInstantField(jsonInput, "openTime")),
+                readWorkshopTypeEnum(jsonInput, "workshopType")
         );
         ParticipantActionResult result = adminApi.createWorkshop(
                 workshopData,

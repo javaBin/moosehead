@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AuthorEnum;
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -48,8 +49,8 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("GET");
         when(req.getPathInfo()).thenReturn("/workshopList");
 
-        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", null, WorkshopStatus.FREE_SPOTS);
-        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", null, WorkshopStatus.FREE_SPOTS);
+        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP);
+        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP);
 
         when(participantApi.workshops()).thenReturn(Arrays.asList(one, two));
 

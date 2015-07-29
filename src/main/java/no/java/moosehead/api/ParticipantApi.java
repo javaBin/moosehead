@@ -25,6 +25,7 @@ public interface ParticipantApi {
             jsonObject.put("title", workshop.getTitle());
             jsonObject.put("description", workshop.getDescription());
             jsonObject.put("status", workshop.getStatus().name());
+            jsonObject.put("workshopType", workshop.getWorkshopTypeEnum());
 
             List<JSONObject> partList = workshop.getParticipants().stream().sequential()
                     .map(ParticipantApi::participantAsJson)
