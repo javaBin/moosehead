@@ -130,16 +130,17 @@ public class DataServletTest {
         reservationJson.put("workshopid", "123");
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth Vader");
-        reservationJson.put("captcha","123");
+        reservationJson.put("numReservations", "1");
+        reservationJson.put("captcha", "123");
 
-        when(participantApi.reservation(anyString(), anyString(), anyString(),any(AuthorEnum.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.reservation(anyString(), anyString(), anyString(),any(AuthorEnum.class), any(Optional.class), anyInt())).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).reservation("123","darth@a.com","Darth Vader", AuthorEnum.USER, Optional.empty());
+        verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", AuthorEnum.USER, Optional.empty(), 1);
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -156,6 +157,7 @@ public class DataServletTest {
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth Vader");
         reservationJson.put("captcha","123");
+        reservationJson.put("numReservations", "1");
 
         ObjectNode googleNode = JsonNodeFactory.instance.objectNode();
         googleNode.put("email","darth@a.com");
@@ -165,14 +167,14 @@ public class DataServletTest {
         when(session.getAttribute("user")).thenReturn(googleNode);
 
 
-        when(participantApi.reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class))).thenReturn(ParticipantActionResult.ok());
+        when(participantApi.reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class), anyInt())).thenReturn(ParticipantActionResult.ok());
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
         verify(resp).setContentType("text/json");
-        verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", AuthorEnum.USER, Optional.of("darth@a.com"));
+        verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", AuthorEnum.USER, Optional.of("darth@a.com"), 1);
 
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
@@ -189,6 +191,7 @@ public class DataServletTest {
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth Vader");
         reservationJson.put("captcha", "456");
+        reservationJson.put("numReservations", "1");
 
         mockInputStream(reservationJson.toString());
 
@@ -253,7 +256,7 @@ public class DataServletTest {
 
         servlet.service(req, resp);
 
-        verify(participantApi, never()).reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class));
+        verify(participantApi, never()).reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class), anyInt());
         verify(resp).sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal json input");
     }
 
@@ -267,12 +270,13 @@ public class DataServletTest {
         reservationJson.put("email", "darth@a.com");
         reservationJson.put("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
         reservationJson.put("captcha", "123");
+        reservationJson.put("numReservations", "1");
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
-        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(AuthorEnum.class), any(Optional.class));
+        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(AuthorEnum.class), any(Optional.class), anyInt());
         JSONObject jsonObject = new JSONObject(jsonContent.toString());
         assertThat(jsonObject.get("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
         assertThat(jsonObject.get("message")).isEqualTo("Name and email must be present without spesial characters");

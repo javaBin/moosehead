@@ -201,7 +201,7 @@ public class AdminServlet  extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.ADMIN, Optional.empty());
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.ADMIN, Optional.empty(), 1);
 
         return Optional.of(reservation);
     }

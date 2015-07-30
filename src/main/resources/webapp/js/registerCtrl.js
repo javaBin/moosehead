@@ -32,6 +32,7 @@ angular.module('mooseheadModule')
                 } else if ($scope.workshop.status === "VERY_FULL") {
                     $scope.showVeryFull = true;
                 }
+                $scope.showMultiReservations = $scope.workshop.maxReservations > 1;
             });
 
             $scope.reloadCaptcha = function() {
@@ -57,11 +58,17 @@ angular.module('mooseheadModule')
                     return;
                 }
                 $scope.message = "Please wait...";
+                var numReservations = "1";
+                if (_.isString($scope.numReservations)) {
+                    numReservations = $scope.numReservations;
+                }
                 var postData = {
                     workshopid: $scope.workshopid,
                     email: $scope.email,
                     fullname: $scope.fullname,
-                    captcha: $scope.captcha
+                    captcha: $scope.captcha,
+                    numReservations: numReservations
+
                 };
                 $http({
                     method: "POST",

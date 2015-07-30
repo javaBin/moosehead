@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public interface ParticipantApi {
     public WorkshopInfo getWorkshop(String workshopid);
     public List<WorkshopInfo> workshops();
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname, AuthorEnum authorEnum, Optional<String> googleEmail);
+    public ParticipantActionResult reservation(String workshopid, String email, String fullname, AuthorEnum authorEnum, Optional<String> googleEmail, int numReservations);
     public ParticipantActionResult confirmEmail(String token);
     public ParticipantActionResult cancellation(String reservationId, AuthorEnum authorEnum);
     public List<ParticipantReservation> myReservations(String email);

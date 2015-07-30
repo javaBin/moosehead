@@ -7,6 +7,7 @@ import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.projections.Participant;
 import org.json.JSONArray;
@@ -126,6 +127,8 @@ public class DataServlet extends HttpServlet {
                         jsonObject.put("title", workshop.getTitle());
                         jsonObject.put("description", workshop.getDescription());
                         jsonObject.put("status", workshop.getStatus().name());
+                        int maxReservationSpaces = workshop.getWorkshopTypeEnum() == WorkshopTypeEnum.KIDSAKODER_WORKSHOP ? Configuration.maxNumberOfSeatsToReserve() : 1;
+                        jsonObject.put("maxReservations", maxReservationSpaces);
 
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -146,6 +149,7 @@ public class DataServlet extends HttpServlet {
         String email = readField(jsonInput, "email");
         String fullname = readField(jsonInput, "fullname");
         String capthca = readField(jsonInput,"captcha");
+        String numReservationStr = readField(jsonInput,"numReservations");
 
         HttpSession session = req.getSession();
         Object captchaAnswer = session.getAttribute("captchaAnswer");
@@ -156,8 +160,17 @@ public class DataServlet extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
+        if (numReservationStr == null) {
+            return Optional.of(ParticipantActionResult.error("Invalid number of reservations"));
+        }
+        int numReservations;
+        try {
+            numReservations = Integer.parseInt(numReservationStr);
+        } catch (NumberFormatException e) {
+            return Optional.of(ParticipantActionResult.error("Invalid number of reservations"));
+        }
         Optional<String> googleEmail = readGoogleMail(session);
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.USER, googleEmail);
+        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.USER, googleEmail, numReservations);
 
         return Optional.of(reservation);
     }
