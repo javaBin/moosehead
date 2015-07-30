@@ -8,16 +8,14 @@ public class AddReservationCommand {
     private final String workshopId;
     private final AuthorEnum authorEnum;
     private final Optional<String> googleEmail;
-    private final WorkshopTypeEnum workshopType;
     private final int numberOfSeatsReserved;
 
-    public AddReservationCommand(String email, String fullname, String workshopId, AuthorEnum authorEnum, Optional<String> googleEmail, WorkshopTypeEnum workshopType,int numberOfSeatsReserved) {
+    public AddReservationCommand(String email, String fullname, String workshopId, AuthorEnum authorEnum, Optional<String> googleEmail, int numberOfSeatsReserved) {
         this.email = email;
         this.fullname = fullname;
         this.workshopId = workshopId;
         this.authorEnum = authorEnum;
         this.googleEmail = googleEmail;
-        this.workshopType = workshopType;
         this.numberOfSeatsReserved = numberOfSeatsReserved;
     }
 
@@ -49,9 +47,6 @@ public class AddReservationCommand {
         return googleEmail;
     }
 
-    public WorkshopTypeEnum getWorkshopType() {
-        return workshopType;
-    }
 
     public int getNumberOfSeatsReserved() {
         return numberOfSeatsReserved;

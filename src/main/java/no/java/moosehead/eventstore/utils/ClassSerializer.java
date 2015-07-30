@@ -21,6 +21,10 @@ public class ClassSerializer {
     }
 
     public AbstractEvent asObject(String serializedValue) {
+        return (AbstractEvent) internalAsObject(serializedValue);
+    }
+
+    private Object internalAsObject(String serializedValue) {
         if ("<null>".equals(serializedValue)) {
             return null;
         }
@@ -30,9 +34,9 @@ public class ClassSerializer {
             try {
                 Class<?> clazz=null;
                 if ("list".equals(parts[0]) || "map".equals(parts[0])) {
-                    return (AbstractEvent)objectValueFromString(serializedValue,null);
+                    return objectValueFromString(serializedValue,null);
                 }
-                return (AbstractEvent)objectValueFromString(parts[1], Class.forName(parts[0]));
+                return objectValueFromString(parts[1], Class.forName(parts[0]));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -48,15 +52,15 @@ public class ClassSerializer {
             String encFieldValue = parts[i].substring(eqPos+1);
 
             Optional<Field> opt = declaredFields.stream()
-                                                .filter(f -> f.getName().equals(fieldName))
-                                                .findFirst();
+                    .filter(f -> f.getName().equals(fieldName))
+                    .findFirst();
             if (opt.isPresent())
                 setFieldValue(object, encFieldValue, opt.get());
             else
                 throw new RuntimeException(new NoSuchFieldError(fieldName));
         }
 
-        return (AbstractEvent)object;
+        return object;
     }
 
     private String[] splitToParts(String serializedValue) {
@@ -122,6 +126,8 @@ public class ClassSerializer {
             value = Instant.parse(fieldValue);
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
+        } else if (type.isEnum()) {
+            value = Enum.valueOf((Class<Enum>) type,fieldValue);
         } else {
             value = fieldValue
                     .replaceAll("&amp","&")
@@ -180,6 +186,9 @@ public class ClassSerializer {
         }
         if (Date.class.equals(fieldValue.getClass())) {
             return dateFormat.format(fieldValue);
+        }
+        if (fieldValue instanceof Enum) {
+            return fieldValue.toString();
         }
         if ("org.joda.time.DateTime".equals(fieldValue.getClass().getName())) {
             try {
@@ -335,7 +344,7 @@ public class ClassSerializer {
             return Optional.of(res);
         }
 
-        return asObject(fieldValue);
+        return internalAsObject(fieldValue);
     }
 
     private Object extractObject(String part) {

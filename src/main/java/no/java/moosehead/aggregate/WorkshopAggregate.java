@@ -5,6 +5,7 @@ import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
+import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.web.Configuration;
 
 import java.time.OffsetDateTime;
@@ -88,7 +89,8 @@ public class WorkshopAggregate implements EventSubscription {
                     return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
                             addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(), addReservationCommand.getNumberOfSeatsReserved());
                 case USER:
-                    int maxNumberOfSeatsToReserve = addReservationCommand.getWorkshopType().equals(WorkshopTypeEnum.KIDSAKODER_WORKSHOP)?Configuration.maxNumberOfSeatsToReserve():1;
+                    WorkshopTypeEnum workshopTypeEnum = workshop.get().getWorkshopData().map(WorkshopData::getWorkshopTypeEnum).orElse(WorkshopTypeEnum.NORMAL_WORKSHOP);
+                    int maxNumberOfSeatsToReserve = workshopTypeEnum.equals(WorkshopTypeEnum.KIDSAKODER_WORKSHOP)?Configuration.maxNumberOfSeatsToReserve():1;
                     if (addReservationCommand.getNumberOfSeatsReserved() > maxNumberOfSeatsToReserve || addReservationCommand.getNumberOfSeatsReserved() < 1 ) {
                         throw new ReservationCanNotBeAddedException("Too many/few seats reserved [" + addReservationCommand.getNumberOfSeatsReserved() + "]");
                     }

@@ -79,7 +79,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
 
     @Override
     public ParticipantActionResult reservation(String workshopid, String email, String fullname, AuthorEnum authorEnum, Optional<String> googleEmail) {
-        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, authorEnum, googleEmail, WorkshopTypeEnum.NORMAL_WORKSHOP,1);
+        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, authorEnum, googleEmail, 1);
         AbstractReservationAdded event;
 
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();

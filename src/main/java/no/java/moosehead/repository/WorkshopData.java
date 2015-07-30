@@ -35,6 +35,10 @@ public class WorkshopData {
         this.workshopTypeEnum = workshopTypeEnum;
     }
 
+    public WorkshopData() {
+
+    }
+
     public String getId() {
         return id;
     }
