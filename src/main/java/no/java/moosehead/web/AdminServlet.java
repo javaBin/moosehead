@@ -6,6 +6,7 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.repository.WorkshopData;
 import org.json.JSONArray;
@@ -151,7 +152,8 @@ public class AdminServlet  extends HttpServlet {
                 "startTime",
                 "endTime",
                 "openTime",
-                "maxParticipants");
+                "maxParticipants",
+                "workshopType");
         for (String required : requiredItems) {
             String value = readField(jsonInput,required);
             if (value == null || value.trim().isEmpty()) {
@@ -178,6 +180,11 @@ public class AdminServlet  extends HttpServlet {
             Integer.parseInt(readField(jsonInput,"maxParticipants"));
         } catch (NumberFormatException e) {
             return Optional.of("Max participants must be numeric");
+        }
+        try {
+            WorkshopTypeEnum.valueOf(readField(jsonInput,"workshopType"));
+        } catch (IllegalArgumentException e) {
+            return Optional.of("Illegal value for workshop type");
         }
         return Optional.empty();
     }

@@ -1,5 +1,6 @@
 package no.java.moosehead.api;
 
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.repository.WorkshopData;
 
 import java.time.Instant;

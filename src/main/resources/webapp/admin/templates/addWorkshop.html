@@ -25,6 +25,11 @@
             <p>
                 <input type="text" placeholder="Maximum participants" ng-model="maxParticipants" id="maxParticipants"/>
             </p>
+            <p>Workshop type <select ng-model="workshopType">
+                <option>NORMAL_WORKSHOP</option>
+                <option>KIDSAKODER_WORKSHOP</option>
+                <option>BEER_WORKSHOP</option>
+            </select></p>
 
             <p>
                 <button ng-click="addWorkshop()" class="button">Add workshop</button>

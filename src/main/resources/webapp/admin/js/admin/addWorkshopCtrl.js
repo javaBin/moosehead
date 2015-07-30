@@ -4,6 +4,7 @@ angular.module('mooseheadModule')
             $scope.showNoAccess=false;
             $scope.needLogin = false;
             $scope.needAccess = false;
+            $scope.workshopType = "NORMAL_WORKSHOP";
             $http({method: "GET", url: "data/userLogin"})
                 .success(function(userobj) {
                     if (!(userobj && userobj.id)) {
@@ -32,7 +33,8 @@ angular.module('mooseheadModule')
                     startTime: $scope.startTime,
                     endTime: $scope.endTime,
                     openTime: $scope.openTime,
-                    maxParticipants: $scope.maxParticipants
+                    maxParticipants: $scope.maxParticipants,
+                    workshopType: $scope.workshopType
                 };
 
                 $http({
