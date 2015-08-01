@@ -1,6 +1,6 @@
 angular.module('mooseheadModule')
-    .controller('RegisterCtrl', ['$scope', '$http','$routeParams','workshopFactory',
-        function($scope, $http,$routeParams,workshopFactory) {
+    .controller('RegisterCtrl', ['$scope', '$http','$routeParams','workshopFactory','$location',
+        function($scope, $http,$routeParams,workshopFactory,$location) {
             $scope.showForm = true;
             $scope.showMessage = false;
             $scope.captchasrc = "captcha/img?cb=" + Date.now();
@@ -11,6 +11,8 @@ angular.module('mooseheadModule')
             $http({method: "GET", url: "data/userLogin"})
                 .success(function(userobj) {
                     $scope.userObject = userobj;
+                    $scope.email = $scope.userObject.email;
+                    $scope.fullname = $scope.userObject.name;
                 });
 
             workshopFactory.then(function(workshopList) {
@@ -39,12 +41,15 @@ angular.module('mooseheadModule')
                 $scope.captchasrc = "captcha/img?cb=" + Date.now();
             };
 
-            $scope.fetchGoogleData = function() {
-                if (!$scope.userObject.id) {
-                    return;
+            $scope.googleLogin = function() {
+                var absloc = $location.absUrl();
+                var newloc = $location.protocol() + "://" + $location.host();
+                var port = $location.port();
+                if (port !== 80) {
+                    newloc = newloc + ":" + port;
                 }
-                $scope.email = $scope.userObject.email;
-                $scope.fullname = $scope.userObject.name;
+                newloc = newloc + "/oauth2callback/login?sendMeTo=" + encodeURIComponent(absloc);
+                window.location.href = newloc; // how do I do this with angular?
             };
 
             $scope.register = function() {

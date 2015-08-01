@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -32,9 +33,14 @@ public class GoogleLoginServlet extends HttpServlet {
 
 
     private void handleLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession();
+        String sendMeTo = req.getParameter("sendMeTo");
+        if (sendMeTo != null) {
+            session.setAttribute("sendMeTo",sendMeTo);
+        }
         String redir = Configuration.mooseheadLocation() + "/oauth2callback";
-        req.getSession().setAttribute("redir", redir);
-        String sessionid = req.getSession().getId();
+        session.setAttribute("redir", redir);
+        String sessionid = session.getId();
         // redirect to google for authorization
         StringBuilder oauthUrl = new StringBuilder().append("https://accounts.google.com/o/oauth2/auth")
                 .append("?client_id=").append(Configuration.googleClientId()) // the client id from the api console registration
@@ -104,8 +110,18 @@ public class GoogleLoginServlet extends HttpServlet {
         }
 
         updateUserLogin(req, gsstr);
+        redirToLandingPage(req,resp);
+    }
 
-        resp.sendRedirect("/");
+    private void redirToLandingPage(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String redir = "/";
+        HttpSession session = req.getSession();
+        String sendMeTo = (String) session.getAttribute("sendMeTo");
+        if (sendMeTo != null) {
+            redir = sendMeTo;
+            session.removeAttribute("sendMeTo");
+        }
+        resp.sendRedirect(redir);
     }
 
     private void updateUserLogin(HttpServletRequest req, String gsstr) throws IOException {
@@ -116,6 +132,7 @@ public class GoogleLoginServlet extends HttpServlet {
         ObjectNode objnode = (ObjectNode) googleAuth;
         objnode.put("admin",isAdmin);
 
+        System.out.println("Setting user logged in " + objnode);
         req.getSession().setAttribute("user", objnode);
     }
 
