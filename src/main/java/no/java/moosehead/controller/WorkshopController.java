@@ -17,6 +17,7 @@ import no.java.moosehead.web.Configuration;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,7 +58,12 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                 (ws.getWorkshopData().hasStartAndEndTime() && ws.getWorkshopData().getStartTime().isBefore(Instant.now()))) {
             return WorkshopStatus.CLOSED;
         }
-        if (Configuration.openTime().isAfter(OffsetDateTime.now())) {
+        Instant openTime = Configuration.openTime().toInstant();
+        Optional<Instant> registrationOpens = ws.getWorkshopData().getRegistrationOpens();
+        if (registrationOpens.isPresent()) {
+            openTime = registrationOpens.get();
+        }
+        if (openTime.isAfter(Instant.now())) {
             return WorkshopStatus.NOT_OPENED;
         }
         int confirmedParticipants = ws.getParticipants().stream()

@@ -5,10 +5,7 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.api.WorkshopStatus;
-import no.java.moosehead.commands.AddReservationCommand;
-import no.java.moosehead.commands.AuthorEnum;
-import no.java.moosehead.commands.CancelReservationCommand;
-import no.java.moosehead.commands.ConfirmEmailCommand;
+import no.java.moosehead.commands.*;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
@@ -18,15 +15,18 @@ import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.projections.WorkshopListProjection;
 import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.web.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -83,6 +83,32 @@ public class WorkshopControllerTest {
         assertThat(workshopStatus).isEqualTo(WorkshopStatus.FULL);
     }
 
+    @Test
+    public void shouldOverrideOpeningDate() throws Exception {
+        Instant before = Instant.now().minusSeconds(60 * 30);
+
+        String later = OffsetDateTime.now().plusMinutes(30).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+        Map<String, String> confdata = new HashMap<>();
+        confdata.put("openTime", later);
+        Configuration.setConfdata(confdata);
+
+
+        WorkshopData workshopData = new WorkshopData(
+                "one",
+                "title",
+                "description",
+                OffsetDateTime.now().plusDays(5).toInstant(),
+                OffsetDateTime.now().plusDays(6).toInstant(),
+                Optional.of(before),
+                WorkshopTypeEnum.KIDSAKODER_WORKSHOP);
+        Workshop ws = new Workshop(workshopData, 30);
+
+        WorkshopStatus workshopStatus = workshopController.computeWorkshopStatus(ws);
+
+        Configuration.setConfdata(null);
+
+        assertThat(workshopStatus).isEqualTo(WorkshopStatus.FREE_SPOTS);
+    }
 
     @Test
     public void shouldReturnWorkshopList() throws Exception {

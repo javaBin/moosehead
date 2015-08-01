@@ -11,7 +11,7 @@ public class WorkshopData {
     private String description;
     private Instant startTime;
     private Instant endTime;
-    private Optional<Instant> registrationOpens;
+    private Optional<Instant> registrationOpens = Optional.empty();
     private WorkshopTypeEnum workshopTypeEnum;
 
     public boolean hasStartAndEndTime() {

@@ -192,4 +192,7 @@ public class Configuration {
         return Integer.parseInt(readConf("maxNumberOfSeatsToReserve", "3"));
     }
 
+    public static void setConfdata(Map<String, String> confdata) {
+        Configuration.confdata = confdata;
+    }
 }
