@@ -7,12 +7,16 @@ angular.module('mooseheadModule')
             $scope.workshopid = $routeParams.workshopid;
             $scope.showVeryFull = false;
             $scope.userObject = {};
+            $scope.loggedIn = false;
 
             $http({method: "GET", url: "data/userLogin"})
                 .success(function(userobj) {
                     $scope.userObject = userobj;
-                    $scope.email = $scope.userObject.email;
-                    $scope.fullname = $scope.userObject.name;
+                    if ($scope.userObject && $scope.userObject.id) {
+                        $scope.email = $scope.userObject.email;
+                        $scope.fullname = $scope.userObject.name;
+                        $scope.loggedIn = true;
+                    }
                 });
 
             workshopFactory.then(function(workshopList) {

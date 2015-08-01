@@ -7,7 +7,8 @@
         <br>
         Log in using your google account to register without having to confirm your email address.
         <br>
-        <button class="button button-tiny" ng-click="googleLogin()">Login here</button>
+        <button ng-show="!loggedIn" class="button button-tiny" ng-click="googleLogin()">Login here</button>
+        <span ng-show="loggedIn">You are logged in - you will not need to confirm your email</span>
     </p>
     <p class="info" ng-show="showForm">After you have confirmed your e-mail address, you will be assigned a spot immediately. If the workshop is full, you'll get a spot at the waiting list. If any spots becomes availiable, you'll get an e-mail telling you about this.</p>
     <p class="info" ng-show="showVeryFull">The waiting list for this workshop is very long. It is unlikely that you will get a spot.</p>
