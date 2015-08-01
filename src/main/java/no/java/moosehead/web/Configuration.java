@@ -137,8 +137,21 @@ public class Configuration {
     }
 
     public static String smtpServer() {
-        return readConf("smtpServer",null);
+        return readConf("smtpServer", null);
     }
+
+    public static boolean useMailSSL() {
+        return "true".equals(readConf("mailSsl","false"));
+    }
+
+    public static String mailUser() {
+        return readConf("mailUser",null);
+    }
+
+    public static String mailPassword() {
+        return readConf("mailPassword",null);
+    }
+
 
     public static int smtpPort() {
         return Integer.parseInt(readConf("smtpPort", "25"));

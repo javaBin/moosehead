@@ -24,17 +24,28 @@ public class SmtpEmailSender extends EmailSender {
     private void sendEmail(EmailType type, String message, String to) throws EmailException {
         String subject = type.getSubject();
         if (!Configuration.isProdEnviroment()) {
-            message = "[This message is just a test. Please disregart and delete]\n" + message;
+            message = "[This message is just a test. Please disregard and delete]\n" + message;
             subject = "[TEST] " + subject;
         }
 
         SimpleEmail mail = new SimpleEmail();
         mail.setHostName(Configuration.smtpServer());
-        mail.setSmtpPort(Configuration.smtpPort());
         mail.setFrom("program@java.no");
         mail.addTo(to);
         mail.setSubject(subject);
         mail.setMsg(message);
+
+        if (Configuration.useMailSSL()) {
+            mail.setSSLOnConnect(true);
+            mail.setSslSmtpPort("" + Configuration.smtpPort());
+        } else {
+            mail.setSmtpPort(Configuration.smtpPort());
+
+        }
+        String mailUser = Configuration.mailUser();
+        if (mailUser != null) {
+            mail.setAuthentication(mailUser, Configuration.mailPassword());
+        }
 
         String bcc = Configuration.bccTo();
         if (bcc != null) {
