@@ -1,13 +1,16 @@
 <div>
-    <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
-    <div ng-repeat="workshop in workshops">
-        <h2>{{workshop.title}}</h2>
-        <p>Status: {{workshop.status}}</p>
-        <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
-        <ul ng-repeat="participant in workshop.participants">
-            <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}}</li>
-        </ul>
-    </div>
+    <span ng-show="!showNoAccess">
+        <p><a href="#/addWorkshop/">Add</a> another workshop</p>
+        <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
+        <div ng-repeat="workshop in workshops">
+            <h2>{{workshop.title}}</h2>
+            <p>Status: {{workshop.status}}</p>
+            <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
+            <ul ng-repeat="participant in workshop.participants">
+                <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}}</li>
+            </ul>
+        </div>
+    </span>
     <div ng-show="showNoAccess">
         <p ng-show="needLogin">You need to login using google to access admin. Login <a href="../oauth2callback/login">here</a></p>
         <p ng-show="needAccess">Your goodle account ({{googleid}}) is not registered for access</p>
