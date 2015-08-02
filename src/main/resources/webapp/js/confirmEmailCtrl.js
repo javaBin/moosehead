@@ -11,7 +11,12 @@ angular.module('mooseheadModule')
                 data: postData
             }).success(function (data) {
                 if (data.status === "OK") {
-                    $scope.message = "Your email address has been confirmed";
+                    if (data.message && data.message !== null) {
+                        $scope.message = data.message;
+                    } else {
+                        $scope.message = "Your email address has been confirmed";
+                    }
+
                 } else {
                     $scope.message = data.message;
                 }
