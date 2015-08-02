@@ -225,8 +225,19 @@ public class WorkshopControllerTest {
         ArgumentCaptor<ConfirmEmailCommand> confirmEmailCommandArgumentCaptor = ArgumentCaptor.forClass(ConfirmEmailCommand.class);
         EmailConfirmedByUser emailConfirmedByUser = new EmailConfirmedByUser("dart@a.com",System.currentTimeMillis(),45L);
         when(workshopAggregate.createEvent(confirmEmailCommandArgumentCaptor.capture())).thenReturn(emailConfirmedByUser);
+        Workshop workshop = mock(Workshop.class);
+        Participant participant = mock(Participant.class);
+        when(participant.getReservationToken()).thenReturn("Dribbledrobbletoken");
+        when(workshop.getParticipants()).thenReturn(Arrays.asList(participant));
+        when(workshop.waitingListNumber(participant)).thenReturn(0);
+        WorkshopData wsdata = mock(WorkshopData.class);
+        when(wsdata.infoText()).thenReturn("xrtyr");
+        when(workshop.getWorkshopData()).thenReturn(wsdata);
+        when(workshopListProjection.getWorkshops()).thenReturn(Arrays.asList(workshop));
 
         ParticipantActionResult result = workshopController.confirmEmail("Dribbledrobbletoken");
+
+        verify(workshop).waitingListNumber(participant);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.OK);
         verify(workshopAggregate).createEvent(any(ConfirmEmailCommand.class));

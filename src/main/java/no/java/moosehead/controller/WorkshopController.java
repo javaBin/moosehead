@@ -98,7 +98,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
             SystemSetup.instance().eventstore().addEvent(event);
         }
         if (SystemSetup.instance().workshopListProjection().isEmailConfirmed(event.getEmail())) {
-            return ParticipantActionResult.ok();
+            return readStatus(event.getReservationToken());
         }
         return ParticipantActionResult.confirmEmail();
     }
@@ -141,7 +141,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
             }
             SystemSetup.instance().eventstore().addEvent(emailConfirmedByUser);
         }
-        return ParticipantActionResult.ok();
+        return readStatus(token);
     }
 
 
@@ -184,5 +184,49 @@ public class WorkshopController implements ParticipantApi,AdminApi {
             SystemSetup.instance().eventstore().addEvent(event);
         }
         return ParticipantActionResult.ok();
+    }
+
+    private ParticipantActionResult readStatus(String token) {
+        List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
+        Optional<Workshop> workshopOptional = workshops.stream()
+                .filter(ws -> ws.getParticipants().stream().filter(pa -> token.equals(pa.getReservationToken())).findAny().isPresent())
+                .findAny();
+        if (!workshopOptional.isPresent()) {
+            return ParticipantActionResult.error("Internal error : Did not find reservation " + token);
+        }
+        Workshop workshop = workshopOptional.get();
+        String workshopInfo = workshop.getWorkshopData().infoText();
+        Participant participant = workshop.getParticipants().stream()
+                .filter(pa -> token.equals(pa.getReservationToken()))
+                .findAny().get();
+
+        int waitingListNumber = workshop.waitingListNumber(participant);
+        if (waitingListNumber < 0) {
+            return ParticipantActionResult.confirmEmail();
+        }
+
+        if (waitingListNumber == 0) {
+            StringBuilder res = new StringBuilder();
+            res.append("You have ");
+            res.append(participant.getNumberOfSeatsReserved());
+            res.append(" space");
+            if (participant.getNumberOfSeatsReserved() > 1) {
+                res.append("s");
+            }
+            res.append(" reserved at ");
+            res.append(workshopInfo);
+            return ParticipantActionResult.okWithMessage(res.toString());
+        }
+
+        StringBuilder res = new StringBuilder();
+        res.append("You are number ");
+        res.append(waitingListNumber);
+        res.append(" on the waiting list for ");
+        res.append(workshopInfo);
+        res.append(". We will send you a mail if you get a spot later");
+        return ParticipantActionResult.waitingList(res.toString());
+
+
+
     }
 }

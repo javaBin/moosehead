@@ -3,6 +3,10 @@ package no.java.moosehead.repository;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class WorkshopData {
@@ -65,5 +69,18 @@ public class WorkshopData {
 
     public WorkshopTypeEnum getWorkshopTypeEnum() {
         return workshopTypeEnum;
+    }
+
+    public String infoText() {
+        StringBuilder res = new StringBuilder();
+        res.append(getTitle());
+        res.append(" (Start time: ");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM-yyy HH:mm").withZone(ZoneId.from(ZonedDateTime.now()));
+        String datestr = Optional.ofNullable(getStartTime())
+                .map(st -> dateTimeFormatter.format(st))
+                .orElse("Unknown");
+        res.append(datestr);
+        res.append(")");
+        return res.toString();
     }
 }

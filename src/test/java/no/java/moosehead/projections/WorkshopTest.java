@@ -1,8 +1,14 @@
 package no.java.moosehead.projections;
 
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.eventstore.ReservationAddedByAdmin;
 import no.java.moosehead.repository.WorkshopData;
 import org.junit.Test;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
 
 import static org.assertj.core.api.StrictAssertions.assertThat;
 
@@ -42,5 +48,15 @@ public class WorkshopTest {
         final Participant onList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(1L, 1L, "email1@em.ail", "1", ws.getWorkshopData().getId(), 5), ws);
         ws.addParticipant(onList_1);
         assertThat(onList_1.waitingListNumber()).isEqualTo(0);
+    }
+
+    @Test
+    public void testWorkshopInfoText() throws Exception {
+        Instant start = LocalDateTime.of(2018, 4, 20, 14, 0, 0).atOffset(ZoneOffset.ofHours(2)).toInstant();
+        Instant end = LocalDateTime.of(2018, 4, 20, 15, 0, 0).atOffset(ZoneOffset.ofHours(2)).toInstant();
+        WorkshopData workshopData = new WorkshopData("xx", "Juggling workshop", "Learn to juggle", start, end, Optional.empty(), WorkshopTypeEnum.NORMAL_WORKSHOP);
+        assertThat(workshopData.infoText()).isEqualTo("Juggling workshop (Start time: 20/04-2018 14:00)");
+
+
     }
 }

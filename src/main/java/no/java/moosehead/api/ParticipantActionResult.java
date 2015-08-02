@@ -16,6 +16,10 @@ public class ParticipantActionResult {
         return new ParticipantActionResult(Status.OK,null);
     }
 
+    public static ParticipantActionResult okWithMessage(String message) {
+        return new ParticipantActionResult(Status.OK,message);
+    }
+
     public static ParticipantActionResult error(String message) {
         return new ParticipantActionResult(Status.ERROR,message);
     }
@@ -28,8 +32,8 @@ public class ParticipantActionResult {
         return new ParticipantActionResult(Status.CONFIRM_EMAIL,null);
     }
 
-    public static ParticipantActionResult waitingList() {
-        return new ParticipantActionResult(Status.CONFIRM_EMAIL,null);
+    public static ParticipantActionResult waitingList(String message) {
+        return new ParticipantActionResult(Status.WAITING_LIST,message);
     }
 
 
