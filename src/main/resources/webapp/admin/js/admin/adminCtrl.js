@@ -36,5 +36,13 @@ angular.module('mooseheadModule')
                 var pos = workshop.participants.indexOf(participant);
                 return pos+1;
             };
+
+            $scope.googleLogin = function() {
+                var absloc = $location.absUrl();
+                var ind=absloc.indexOf("/admin/#");
+                var stratpart = absloc.substr(0,ind);
+                var newloc = stratpart + "/oauth2callback/login?sendMeTo=" + encodeURIComponent(absloc);
+                window.location.href = newloc; // how do I do this with angular?
+            };
         }]);
 

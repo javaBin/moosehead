@@ -12,7 +12,7 @@
         </div>
     </span>
     <div ng-show="showNoAccess">
-        <p ng-show="needLogin">You need to login using google to access admin. Login <a href="../oauth2callback/login">here</a></p>
+        <p ng-show="needLogin">You need to login using google to access admin. <button ng-click="googleLogin()">Login</button></p>
         <p ng-show="needAccess">Your goodle account ({{googleid}}) is not registered for access</p>
     </div>
 </div>

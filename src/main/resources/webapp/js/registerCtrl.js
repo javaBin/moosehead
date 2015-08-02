@@ -48,12 +48,9 @@ angular.module('mooseheadModule')
 
             $scope.googleLogin = function() {
                 var absloc = $location.absUrl();
-                var newloc = $location.protocol() + "://" + $location.host();
-                var port = $location.port();
-                if (port !== 80) {
-                    newloc = newloc + ":" + port;
-                }
-                newloc = newloc + "/oauth2callback/login?sendMeTo=" + encodeURIComponent(absloc);
+                var ind=absloc.indexOf("#");
+                var stratpart = absloc.substr(0,ind);
+                var newloc = stratpart + "oauth2callback/login?sendMeTo=" + encodeURIComponent(absloc);
                 window.location.href = newloc; // how do I do this with angular?
             };
 
