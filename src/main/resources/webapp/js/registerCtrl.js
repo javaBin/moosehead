@@ -8,6 +8,7 @@ angular.module('mooseheadModule')
             $scope.showVeryFull = false;
             $scope.userObject = {};
             $scope.loggedIn = false;
+            $scope.showNotConfirmed = false;
 
             $http({method: "GET", url: "data/userLogin"})
                 .success(function(userobj) {
@@ -88,8 +89,9 @@ angular.module('mooseheadModule')
                         $scope.message = "Registration registered. You will receive an email confirmation.";
                         $scope.showForm = false;
                     } else if (data.status === "CONFIRM_EMAIL") {
-                        $scope.message = "Registration registered. You will receive an email with a link you must click to confirm your registration";
+                        $scope.message = "Registration registered. You will receive an email with a link you must click to confirm your registration.";
                         $scope.showForm = false;
+                        $scope.showNotConfirmed = true;
                     } else if (data.status === "WRONG_CAPTCHA") {
                         $scope.message ="Captcha was wrong. Please try again";
                     } else {
