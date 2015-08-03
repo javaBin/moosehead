@@ -66,8 +66,12 @@ angular.module('mooseheadModule')
                 }
                 $scope.message = "Please wait...";
                 var numReservations = "1";
-                if (_.isString($scope.numReservations)) {
-                    numReservations = $scope.numReservations;
+                var orderedReservations = $scope.numReservations;
+                if (_.isString(orderedReservations)) {
+                    numReservations = orderedReservations;
+                }
+                if (_.isNumber(orderedReservations)) {
+                    numReservations = "" + orderedReservations;
                 }
                 var postData = {
                     workshopid: $scope.workshopid,
