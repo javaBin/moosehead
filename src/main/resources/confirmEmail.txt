@@ -2,12 +2,13 @@ Hi,
 
 Thank you for signing up to the JavaZone workshop "#workshop#".
 
+NOTE: You do NOT have a space at this workshop yet. You need to confirm your email first.
+
 You need to click this link to confirm your email:
 #mooseheadLocation#/#/confirmEmail/#token#
 
 You will then be given a confirmation of your registration.
 
-NOTE: You do NOT have a space at the workshop before you have confirmed your email.
 
 If you have any questions, please contact us at program@java.no
 
