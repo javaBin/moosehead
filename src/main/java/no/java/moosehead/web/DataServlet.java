@@ -48,6 +48,7 @@ public class DataServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("/workshopList".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
+            resp.addHeader("Access-Control-Allow-Origin","*");
             printWorkshops(resp);
         } else if ("/myReservations".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
