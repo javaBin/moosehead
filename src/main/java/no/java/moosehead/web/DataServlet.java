@@ -10,9 +10,9 @@ import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.projections.Participant;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jsonbuddy.JsonArray;
+import org.jsonbuddy.JsonFactory;
+import org.jsonbuddy.JsonObject;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -81,75 +81,55 @@ public class DataServlet extends HttpServlet {
             return;
         }
         WorkshopInfo workshopInfo = workshopInfoOptional.get();
-        List<JSONObject> participants = workshopInfo.getParticipants().stream()
+        List<JsonObject> participants = workshopInfo.getParticipants().stream()
                 .filter(Participant::isEmailConfirmed)
                 .map(ParticipantApi::participantAsJson)
                 .collect(Collectors.toList());
 
-        try {
-            JSONObject result = new JSONObject();
-            result.put("title",workshopInfo.getTitle());
-            result.put("participants",new JSONArray(participants));
-            result.write(resp.getWriter());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        JsonObject result = JsonFactory.jsonObject();
+        result.withValue("title", workshopInfo.getTitle());
+        result.withValue("participants", JsonArray.fromNodeList(participants));
+        result.toJson(resp.getWriter());
+
     }
 
     private void printMyReservations(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String email = req.getParameter("email");
         List<ParticipantReservation> participantReservations = participantApi.myReservations(email);
-        List<JSONObject> reservations = participantReservations.stream().map(res -> {
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("workshopid", res.getWorkshopid());
-                jsonObject.put("email", res.getEmail());
-                jsonObject.put("status", res.getStatus());
-                jsonObject.put("workshopname", res.getWorkshopname());
-                jsonObject.put("numberOfSeatsReserved", res.getNumberOfSeatsReserved());
-                Optional<Integer> waitingListNumber = res.getWaitingListNumber();
-                if (waitingListNumber.isPresent()) {
-                    jsonObject.put("waitingListNumber",waitingListNumber.get());
-                }
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
+        List<JsonObject> reservations = participantReservations.stream().map(res -> {
+            JsonObject jsonObject = JsonFactory.jsonObject();
+            jsonObject.withValue("workshopid", res.getWorkshopid());
+            jsonObject.withValue("email", res.getEmail());
+            jsonObject.withValue("status", res.getStatus());
+            jsonObject.withValue("workshopname", res.getWorkshopname());
+            jsonObject.withValue("numberOfSeatsReserved", res.getNumberOfSeatsReserved());
+            Optional<Integer> waitingListNumber = res.getWaitingListNumber();
+            if (waitingListNumber.isPresent()) {
+                jsonObject.withValue("waitingListNumber", waitingListNumber.get());
             }
             return jsonObject;
         }).collect(Collectors.toList());
-        try {
-            new JSONArray(reservations).write(resp.getWriter());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        JsonArray.fromNodeList(reservations).toJson(resp.getWriter());
     }
 
     private void printWorkshops(HttpServletResponse resp) throws IOException {
         List<WorkshopInfo> workshops = participantApi.workshops();
-        List<JSONObject> jsons = workshops.stream().map(workshop -> {
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("id", workshop.getId());
-                        jsonObject.put("title", workshop.getTitle());
-                        jsonObject.put("description", workshop.getDescription());
-                        jsonObject.put("status", workshop.getStatus().name());
-                        int maxReservationSpaces = workshop.getWorkshopTypeEnum() == WorkshopTypeEnum.KIDSAKODER_WORKSHOP ? Configuration.maxNumberOfSeatsToReserve() : 1;
-                        jsonObject.put("maxReservations", maxReservationSpaces);
-
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+        List<JsonObject> jsons = workshops.stream().map(workshop -> {
+                    JsonObject jsonObject = JsonFactory.jsonObject();
+                    jsonObject.withValue("id", workshop.getId());
+                    jsonObject.withValue("title", workshop.getTitle());
+                    jsonObject.withValue("description", workshop.getDescription());
+                    jsonObject.withValue("status", workshop.getStatus().name());
+                    int maxReservationSpaces = workshop.getWorkshopTypeEnum() == WorkshopTypeEnum.KIDSAKODER_WORKSHOP ? Configuration.maxNumberOfSeatsToReserve() : 1;
+                    jsonObject.withValue("maxReservations", maxReservationSpaces);
                     return jsonObject;
                 }
         ).collect(Collectors.toList());
         PrintWriter writer = resp.getWriter();
-        try {
-            new JSONArray(jsons).write(writer);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        JsonArray.fromNodeList(jsons).toJson(writer);
     }
 
-    private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private Optional<ParticipantActionResult> doReservation(JsonObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String workshopid = readField(jsonInput, "workshopid");
         String email = readField(jsonInput, "email");
         String fullname = readField(jsonInput, "fullname");
@@ -188,7 +168,7 @@ public class DataServlet extends HttpServlet {
                 .map(ma -> ma.get().asText());
     }
 
-    private Optional<ParticipantActionResult> doCancelation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+    private Optional<ParticipantActionResult> doCancelation(JsonObject jsonInput,HttpServletResponse resp) throws IOException {
         String token = readField(jsonInput, "token");
 
         if (token == null ) {
@@ -200,7 +180,7 @@ public class DataServlet extends HttpServlet {
         return Optional.of(cancel);
     }
 
-    private Optional<ParticipantActionResult> doConfirmEmail(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+    private Optional<ParticipantActionResult> doConfirmEmail(JsonObject jsonInput,HttpServletResponse resp) throws IOException {
         String token = readField(jsonInput, "token");
 
         if (token == null) {
@@ -214,7 +194,7 @@ public class DataServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JSONObject jsonInput = readJson(req.getInputStream());
+        JsonObject jsonInput = readJson(req.getInputStream());
         if (jsonInput == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return;
@@ -234,17 +214,13 @@ public class DataServlet extends HttpServlet {
             return;
         }
         resp.setContentType("text/json");
-        JSONObject result = new JSONObject();
-        try {
-            result.put("status", apiResult.get().getStatus());
-            String errormessage = apiResult.get().getErrormessage();
-            if (errormessage != null) {
-                result.put("message",errormessage);
-            }
-            result.write(resp.getWriter());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+        JsonObject result = JsonFactory.jsonObject();
+        result.withValue("status", apiResult.get().getStatus());
+        String errormessage = apiResult.get().getErrormessage();
+        if (errormessage != null) {
+            result.withValue("message",errormessage);
         }
+        result.toJson(resp.getWriter());
     }
 
     public void setParticipantApi(ParticipantApi participantApi) {

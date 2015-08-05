@@ -2,11 +2,13 @@ package no.java.moosehead.web;
 
 
 import no.java.moosehead.commands.WorkshopTypeEnum;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jsonbuddy.JsonNode;
+import org.jsonbuddy.JsonObject;
+import org.jsonbuddy.parse.JsonParseException;
+import org.jsonbuddy.parse.JsonParser;
 
 import javax.servlet.ServletInputStream;
-import java.io.*;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 public class Utils {
 
-    public static WorkshopTypeEnum readWorkshopTypeEnum(JSONObject jsonInput, String name) {
+    public static WorkshopTypeEnum readWorkshopTypeEnum(JsonObject jsonInput, String name) {
         String value;
         value = readField(jsonInput,name);
         if (value == null) {
@@ -26,11 +28,9 @@ public class Utils {
         }
     }
 
-    public static String readField(JSONObject jsonInput, String name) {
-        String value;
-        try {
-            value = jsonInput.getString(name);
-        } catch (JSONException e) {
+    public static String readField(JsonObject jsonInput, String name) {
+        String value = jsonInput.stringValue(name).orElse(null);
+        if (value == null) {
             return null;
         }
         for (char c : value.toCharArray()) {
@@ -44,24 +44,19 @@ public class Utils {
 
 
 
-    public static JSONObject readJson(ServletInputStream inputStream) throws IOException {
+    public static JsonObject readJson(ServletInputStream inputStream) throws IOException {
+        JsonNode parsedJson;
         try {
-            return new JSONObject(toString(inputStream));
-        } catch (JSONException e) {
+            parsedJson = JsonParser.parse(inputStream);
+        } catch (JsonParseException e) {
             return null;
         }
+        if (!(parsedJson instanceof JsonObject)) {
+            return null;
+        }
+        return (JsonObject) parsedJson;
     }
 
-    private static String toString(InputStream inputStream) throws IOException {
-        try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
-            StringBuilder result = new StringBuilder();
-            int c;
-            while ((c = reader.read()) != -1) {
-                result.append((char)c);
-            }
-            return result.toString();
-        }
-    }
 
     public static Optional<Instant> toInstant(String datestring) {
         if (datestring == null) {

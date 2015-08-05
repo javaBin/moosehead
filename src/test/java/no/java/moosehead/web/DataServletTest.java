@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.jsonbuddy.JsonArray;
+import org.jsonbuddy.JsonFactory;
+import org.jsonbuddy.JsonObject;
+import org.jsonbuddy.parse.JsonParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,20 +61,20 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verify(participantApi).workshops();
 
-        JSONArray jsonArray = new JSONArray(jsonContent.toString());
-        assertThat(jsonArray.length()).isEqualTo(2);
+        JsonArray jsonArray = (JsonArray) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonArray.size()).isEqualTo(2);
 
-        JSONObject obone = jsonArray.getJSONObject(0);
-        assertThat(obone.getString("id")).isEqualTo("1");
-        assertThat(obone.getString("title")).isEqualTo("Ws one");
-        assertThat(obone.getString("description")).isEqualTo("desc");
-        assertThat(obone.getString("status")).isEqualTo(WorkshopStatus.FREE_SPOTS.name());
+        JsonObject obone = jsonArray.get(0, JsonObject.class);
+        assertThat(obone.requiredString("id")).isEqualTo("1");
+        assertThat(obone.requiredString("title")).isEqualTo("Ws one");
+        assertThat(obone.requiredString("description")).isEqualTo("desc");
+        assertThat(obone.requiredString("status")).isEqualTo(WorkshopStatus.FREE_SPOTS.name());
 
-        JSONObject obtwo = jsonArray.getJSONObject(1);
-        assertThat(obtwo.getString("id")).isEqualTo("2");
-        assertThat(obtwo.getString("title")).isEqualTo("Ws two");
-        assertThat(obtwo.getString("description")).isEqualTo("desc");
-        assertThat(obtwo.getString("status")).isEqualTo(WorkshopStatus.FREE_SPOTS.name());
+        JsonObject obtwo = jsonArray.get(1, JsonObject.class);
+        assertThat(obtwo.requiredString("id")).isEqualTo("2");
+        assertThat(obtwo.requiredString("title")).isEqualTo("Ws two");
+        assertThat(obtwo.requiredString("description")).isEqualTo("desc");
+        assertThat(obtwo.requiredString("status")).isEqualTo(WorkshopStatus.FREE_SPOTS.name());
     }
 
     @Test
@@ -90,8 +92,8 @@ public class DataServletTest {
 
         verify(participantApi).myReservations("a@a.com");
         verify(resp).setContentType("text/json");
-        JSONArray jsonArray = new JSONArray(jsonContent.toString());
-        assertThat(jsonArray.length()).isEqualTo(2);
+        JsonArray jsonArray = (JsonArray) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonArray.size()).isEqualTo(2);
 
     }
 
@@ -126,12 +128,12 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/reserve");
 
-        JSONObject reservationJson = new JSONObject();
-        reservationJson.put("workshopid", "123");
-        reservationJson.put("email", "darth@a.com");
-        reservationJson.put("fullname", "Darth Vader");
-        reservationJson.put("numReservations", "1");
-        reservationJson.put("captcha", "123");
+        JsonObject reservationJson = JsonFactory.jsonObject();
+        reservationJson.withValue("workshopid", "123");
+        reservationJson.withValue("email", "darth@a.com");
+        reservationJson.withValue("fullname", "Darth Vader");
+        reservationJson.withValue("numReservations", "1");
+        reservationJson.withValue("captcha", "123");
 
         when(participantApi.reservation(anyString(), anyString(), anyString(),any(AuthorEnum.class), any(Optional.class), anyInt())).thenReturn(ParticipantActionResult.ok());
 
@@ -142,8 +144,8 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", AuthorEnum.USER, Optional.empty(), 1);
 
-        JSONObject jsonObject = new JSONObject(jsonContent.toString());
-        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonObject.requiredString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
 
     }
 
@@ -152,12 +154,12 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/reserve");
 
-        JSONObject reservationJson = new JSONObject();
-        reservationJson.put("workshopid", "123");
-        reservationJson.put("email", "darth@a.com");
-        reservationJson.put("fullname", "Darth Vader");
-        reservationJson.put("captcha","123");
-        reservationJson.put("numReservations", "1");
+        JsonObject reservationJson = JsonFactory.jsonObject();
+        reservationJson.withValue("workshopid", "123");
+        reservationJson.withValue("email", "darth@a.com");
+        reservationJson.withValue("fullname", "Darth Vader");
+        reservationJson.withValue("captcha", "123");
+        reservationJson.withValue("numReservations", "1");
 
         ObjectNode googleNode = JsonNodeFactory.instance.objectNode();
         googleNode.put("email","darth@a.com");
@@ -176,8 +178,8 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verify(participantApi).reservation("123", "darth@a.com", "Darth Vader", AuthorEnum.USER, Optional.of("darth@a.com"), 1);
 
-        JSONObject jsonObject = new JSONObject(jsonContent.toString());
-        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonObject.requiredString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
 
     }
 
@@ -186,12 +188,12 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/reserve");
 
-        JSONObject reservationJson = new JSONObject();
-        reservationJson.put("workshopid", "123");
-        reservationJson.put("email", "darth@a.com");
-        reservationJson.put("fullname", "Darth Vader");
-        reservationJson.put("captcha", "456");
-        reservationJson.put("numReservations", "1");
+        JsonObject reservationJson = new JsonObject();
+        reservationJson.withValue("workshopid", "123");
+        reservationJson.withValue("email", "darth@a.com");
+        reservationJson.withValue("fullname", "Darth Vader");
+        reservationJson.withValue("captcha", "456");
+        reservationJson.withValue("numReservations", "1");
 
         mockInputStream(reservationJson.toString());
 
@@ -200,8 +202,8 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verifyNoMoreInteractions(participantApi);
 
-        JSONObject jsonObject = new JSONObject(jsonContent.toString());
-        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.WRONG_CAPTCHA.name());
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonObject.requiredString("status")).isEqualTo(ParticipantActionResult.Status.WRONG_CAPTCHA.name());
     }
 
     @Test
@@ -209,9 +211,9 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/cancel");
 
-        JSONObject reservationJson = new JSONObject();
-        reservationJson.put("token", "123");
-        reservationJson.put("email", "darth@a.com");
+        JsonObject reservationJson = JsonFactory.jsonObject();
+        reservationJson.withValue("token", "123");
+        reservationJson.withValue("email", "darth@a.com");
 
         when(participantApi.cancellation(anyString(), any(AuthorEnum.class))).thenReturn(ParticipantActionResult.ok());
 
@@ -222,8 +224,8 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verify(participantApi).cancellation("123", AuthorEnum.USER);
 
-        JSONObject jsonObject = new JSONObject(jsonContent.toString());
-        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonObject.requiredString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
     }
 
     @Test
@@ -231,8 +233,8 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/confirmEmail");
 
-        JSONObject reservationJson = new JSONObject();
-        reservationJson.put("token", "123456-123456");
+        JsonObject reservationJson = JsonFactory.jsonObject();
+        reservationJson.withValue("token", "123456-123456");
 
         when(participantApi.confirmEmail(anyString())).thenReturn(ParticipantActionResult.ok());
 
@@ -243,8 +245,8 @@ public class DataServletTest {
         verify(resp).setContentType("text/json");
         verify(participantApi).confirmEmail("123456-123456");
 
-        JSONObject jsonObject = new JSONObject(jsonContent.toString());
-        assertThat(jsonObject.getString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonObject.requiredString("status")).isEqualTo(ParticipantActionResult.Status.OK.name());
     }
 
     @Test
@@ -265,21 +267,21 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("POST");
         when(req.getPathInfo()).thenReturn("/reserve");
 
-        JSONObject reservationJson = new JSONObject();
-        reservationJson.put("workshopid", "123");
-        reservationJson.put("email", "darth@a.com");
-        reservationJson.put("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
-        reservationJson.put("captcha", "123");
-        reservationJson.put("numReservations", "1");
+        JsonObject reservationJson = JsonFactory.jsonObject();
+        reservationJson.withValue("workshopid", "123");
+        reservationJson.withValue("email", "darth@a.com");
+        reservationJson.withValue("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
+        reservationJson.withValue("captcha", "123");
+        reservationJson.withValue("numReservations", "1");
 
         mockInputStream(reservationJson.toString());
 
         servlet.service(req, resp);
 
-        verify(participantApi,never()).reservation(anyString(),anyString(),anyString(),any(AuthorEnum.class), any(Optional.class), anyInt());
-        JSONObject jsonObject = new JSONObject(jsonContent.toString());
-        assertThat(jsonObject.get("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
-        assertThat(jsonObject.get("message")).isEqualTo("Name and email must be present without spesial characters");
+        verify(participantApi,never()).reservation(anyString(), anyString(), anyString(), any(AuthorEnum.class), any(Optional.class), anyInt());
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(jsonContent.toString());
+        assertThat(jsonObject.requiredString("status")).isEqualTo(ParticipantActionResult.Status.ERROR.name());
+        assertThat(jsonObject.requiredString("message")).isEqualTo("Name and email must be present without spesial characters");
     }
 
 

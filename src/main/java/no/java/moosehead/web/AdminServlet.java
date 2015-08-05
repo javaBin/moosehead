@@ -10,9 +10,10 @@ import no.java.moosehead.commands.ParitalCancellationCommand;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.repository.WorkshopData;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jsonbuddy.JsonArray;
+import org.jsonbuddy.JsonFactory;
+import org.jsonbuddy.JsonObject;
+import org.jsonbuddy.JsonValueNotPresentException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -86,7 +87,7 @@ public class AdminServlet  extends HttpServlet {
             return;
         }
 
-        JSONObject jsonInput = readJson(req.getInputStream());
+        JsonObject jsonInput = readJson(req.getInputStream());
         if (jsonInput == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
             return;
@@ -110,34 +111,30 @@ public class AdminServlet  extends HttpServlet {
             return;
         }
         resp.setContentType("text/json");
-        JSONObject result = new JSONObject();
-        try {
-            result.put("status", apiResult.get().getStatus());
-            String errormessage = apiResult.get().getErrormessage();
-            if (errormessage != null) {
-                result.put("message",errormessage);
-            }
-            result.write(resp.getWriter());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+        JsonObject result = JsonFactory.jsonObject();
+        result.withValue("status", apiResult.get().getStatus());
+        String errormessage = apiResult.get().getErrormessage();
+        if (errormessage != null) {
+            result.withValue("message",errormessage);
         }
+        result.toJson(resp.getWriter());
     }
 
-    private Optional<ParticipantActionResult> partialCancel(JSONObject jsonInput) {
+    private Optional<ParticipantActionResult> partialCancel(JsonObject jsonInput) {
         String email;
         String workshopid;
         int numSpotCanceled;
         try {
-            email = jsonInput.getString("email");
-            workshopid = jsonInput.getString("workshopid");
-            numSpotCanceled = jsonInput.getInt("numSpotCanceled");
-        } catch (JSONException e) {
+            email = jsonInput.requiredString("email");
+            workshopid = jsonInput.requiredString("workshopid");
+            numSpotCanceled = (int) jsonInput.requiredLong("numSpotCanceled");
+        } catch (JsonValueNotPresentException e) {
             return Optional.of(ParticipantActionResult.error("Need email, workshopid and num canceled"));
         }
         return Optional.of(adminApi.partialCancel(email,workshopid,numSpotCanceled));
     }
 
-    private Optional<ParticipantActionResult> addWorkshop(JSONObject jsonInput) {
+    private Optional<ParticipantActionResult> addWorkshop(JsonObject jsonInput) {
         Optional<String> errormessage = validateRequiredAddWorkshopFields(jsonInput);
         if (errormessage.isPresent()) {
             return Optional.of(ParticipantActionResult.error(errormessage.get()));
@@ -162,7 +159,7 @@ public class AdminServlet  extends HttpServlet {
         return Optional.of(result);
     }
 
-    private Optional<String> validateRequiredAddWorkshopFields(JSONObject jsonInput) {
+    private Optional<String> validateRequiredAddWorkshopFields(JsonObject jsonInput) {
         List<String> requiredItems = Arrays.asList("slug",
                 "title",
                 "description",
@@ -206,11 +203,11 @@ public class AdminServlet  extends HttpServlet {
         return Optional.empty();
     }
 
-    private static Instant readInstantField(JSONObject jsonInput, String name) {
+    private static Instant readInstantField(JsonObject jsonInput, String name) {
         return Utils.toInstant(readField(jsonInput,name)).get();
     }
 
-    private Optional<ParticipantActionResult> doReservation(JSONObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private Optional<ParticipantActionResult> doReservation(JsonObject jsonInput, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String workshopid = readField(jsonInput, "workshopid");
         String email = readField(jsonInput,"email");
         String fullname = readField(jsonInput, "fullname");
@@ -223,7 +220,7 @@ public class AdminServlet  extends HttpServlet {
         return Optional.of(reservation);
     }
 
-    private Optional<ParticipantActionResult> doCancelation(JSONObject jsonInput,HttpServletResponse resp) throws IOException {
+    private Optional<ParticipantActionResult> doCancelation(JsonObject jsonInput,HttpServletResponse resp) throws IOException {
         String token = readField(jsonInput, "token");
 
         if (token == null ) {
@@ -237,7 +234,7 @@ public class AdminServlet  extends HttpServlet {
 
     private void printDuplicate(HttpServletResponse resp) throws IOException {
         resp.setContentType("text/json");
-        List<JSONObject> report = new ArrayList<>();
+        List<JsonObject> report = new ArrayList<>();
         List<WorkshopInfo> workshops = participantApi.workshops();
         for (int i=0;i<workshops.size()-1;i++) {
             WorkshopInfo a = workshops.get(i);
@@ -253,91 +250,66 @@ public class AdminServlet  extends HttpServlet {
                         })
                         .map(pa -> pa.getEmail())
                         .collect(Collectors.toList());
-                JSONObject duplReport = new JSONObject();
-                try {
-                    duplReport.put("wsa",a.getId());
-                    duplReport.put("wsb",b.getId());
-                    duplReport.put("duplicates",new JSONArray(duplicates));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+                JsonObject duplReport = JsonFactory.jsonObject();
+                duplReport.withValue("wsa", a.getId());
+                duplReport.withValue("wsb", b.getId());
+                duplReport.withValue("duplicates", JsonArray.fromStringList(duplicates));
                 report.add(duplReport);
 
             }
         }
-        try {
-            new JSONArray(report).write(resp.getWriter());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        JsonArray.fromNodeList(report).toJson(resp.getWriter());
     }
 
 
     private void printAllInfo(HttpServletResponse resp) throws IOException {
         List<WorkshopInfo> workshops = participantApi.workshops();
-        List<JSONObject> allInfo = workshops.stream()
+        List<JsonObject> allInfo = workshops.stream()
                 .sequential()
                 .map(ParticipantApi::asAdminJson)
                 .collect(Collectors.toList());
-        JSONArray jsonArray = new JSONArray(allInfo);
+        JsonArray jsonArray = JsonArray.fromNodeList(allInfo);
         resp.setContentType("text/json");
         resp.getWriter().append(jsonArray.toString());
     }
 
     private void printWorkshops(HttpServletResponse resp) throws IOException {
         List<WorkshopInfo> workshops = participantApi.workshops();
-        List<JSONObject> jsons = workshops.stream().map(workshop -> {
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("id", workshop.getId());
-                        jsonObject.put("title", workshop.getTitle());
-                        jsonObject.put("description", workshop.getDescription());
-                        jsonObject.put("status", workshop.getStatus().name());
-
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+        List<JsonObject> jsons = workshops.stream().map(workshop -> {
+                    JsonObject jsonObject = JsonFactory.jsonObject();
+                    jsonObject.withValue("id", workshop.getId());
+                    jsonObject.withValue("title", workshop.getTitle());
+                    jsonObject.withValue("description", workshop.getDescription());
+                    jsonObject.withValue("status", workshop.getStatus().name());
                     return jsonObject;
                 }
         ).collect(Collectors.toList());
         PrintWriter writer = resp.getWriter();
-        try {
-            new JSONArray(jsons).write(writer);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        JsonArray.fromNodeList(jsons).toJson(writer);
     }
 
     private void printWorkshopDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String workshopId = req.getParameter("workshopid");
         WorkshopInfo workshop = participantApi.getWorkshop(workshopId);
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", workshop.getId());
-            jsonObject.put("title", workshop.getTitle());
-            jsonObject.put("description", workshop.getDescription());
-            jsonObject.put("status", workshop.getStatus().name());
-            jsonObject.put("participants", new JSONArray(workshop.getParticipants().stream().
-                        map(pa -> {
-                            JSONObject json = new JSONObject();
-                            try {
-                                json.put("name", pa.getName());
-                                json.put("email", pa.getEmail());
-                                json.put("numberOfSeats", pa.getNumberOfSeatsReserved());
-                                json.put("isEmailConfirmed",pa.isEmailConfirmed());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            return json;
-                        }).collect(Collectors.toList())));
+        JsonObject jsonObject = JsonFactory.jsonObject();
+        jsonObject.withValue("id", workshop.getId());
+        jsonObject.withValue("title", workshop.getTitle());
+        jsonObject.withValue("description", workshop.getDescription());
+        jsonObject.withValue("status", workshop.getStatus().name());
+        jsonObject.withValue("participants", JsonArray.fromNodeList(workshop.getParticipants().stream().
+                map(pa -> {
+                    JsonObject json = JsonFactory.jsonObject();
+                    json.withValue("name", pa.getName());
+                    json.withValue("email", pa.getEmail());
+                    json.withValue("numberOfSeats", pa.getNumberOfSeatsReserved());
+                    json.withValue("isEmailConfirmed", pa.isEmailConfirmed());
+                    return json;
+                }).collect(Collectors.toList())));
 
 
-            PrintWriter writer = resp.getWriter();
+        PrintWriter writer = resp.getWriter();
 
-            jsonObject.write(writer);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        jsonObject.toJson(writer);
     }
 }

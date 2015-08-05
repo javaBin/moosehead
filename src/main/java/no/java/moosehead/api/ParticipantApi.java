@@ -3,9 +3,9 @@ package no.java.moosehead.api;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.web.Configuration;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jsonbuddy.JsonArray;
+import org.jsonbuddy.JsonFactory;
+import org.jsonbuddy.JsonObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,58 +19,47 @@ public interface ParticipantApi {
     public ParticipantActionResult cancellation(String reservationId, AuthorEnum authorEnum);
     public List<ParticipantReservation> myReservations(String email);
 
-    public static JSONObject asAdminJson(WorkshopInfo workshop) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", workshop.getId());
-            jsonObject.put("title", workshop.getTitle());
-            jsonObject.put("description", workshop.getDescription());
-            jsonObject.put("status", workshop.getStatus().name());
-            jsonObject.put("workshopType", workshop.getWorkshopTypeEnum());
+    public static JsonObject asAdminJson(WorkshopInfo workshop) {
+        JsonObject jsonObject = JsonFactory.jsonObject();
+            jsonObject.withValue("id", workshop.getId());
+            jsonObject.withValue("title", workshop.getTitle());
+            jsonObject.withValue("description", workshop.getDescription());
+            jsonObject.withValue("status", workshop.getStatus().name());
+            jsonObject.withValue("workshopType", Optional.ofNullable(workshop.getWorkshopTypeEnum()).map(Object::toString).orElse(null));
 
-            List<JSONObject> partList = workshop.getParticipants().stream().sequential()
+            List<JsonObject> partList = workshop.getParticipants().stream().sequential()
                     .map(ParticipantApi::participantAsAdminJson)
                     .collect(Collectors.toList());
-            jsonObject.put("participants",new JSONArray(partList));
+            jsonObject.withValue("participants", JsonArray.fromNodeList(partList));
 
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
         return jsonObject;
 
     }
 
-    public static JSONObject participantAsAdminJson(Participant participant) {
-        JSONObject partObj = new JSONObject();
+    public static JsonObject participantAsAdminJson(Participant participant) {
+        JsonObject partObj = JsonFactory.jsonObject();
 
-        try {
-            partObj.put("email", participant.getEmail());
-            partObj.put("numberOfSeats", participant.getNumberOfSeatsReserved());
-            partObj.put("name", participant.getName());
-            partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
-            partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
-            partObj.put("isWaiting",participant.isWaiting());
-            String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getReservationToken();
-            partObj.put("cancelLink",cancelLink);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        partObj.withValue("email", participant.getEmail());
+        partObj.withValue("numberOfSeats", participant.getNumberOfSeatsReserved());
+        partObj.withValue("name", participant.getName());
+        partObj.withValue("isEmailConfirmed", participant.isEmailConfirmed());
+        partObj.withValue("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
+        partObj.withValue("isWaiting",participant.isWaiting());
+        String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getReservationToken();
+        partObj.withValue("cancelLink",cancelLink);
         return partObj;
     }
 
-    public static JSONObject participantAsJson(Participant participant) {
-        JSONObject partObj = new JSONObject();
+    public static JsonObject participantAsJson(Participant participant) {
+        JsonObject partObj = JsonFactory.jsonObject();
 
-        try {
-            partObj.put("email", participant.getEmail());
-            partObj.put("numberOfSeats", participant.getNumberOfSeatsReserved());
-            partObj.put("name", participant.getName());
-            partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
-            partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
-            partObj.put("isWaiting",participant.isWaiting());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        partObj.withValue("email", participant.getEmail());
+        partObj.withValue("numberOfSeats", participant.getNumberOfSeatsReserved());
+        partObj.withValue("name", participant.getName());
+        partObj.withValue("isEmailConfirmed", participant.isEmailConfirmed());
+        partObj.withValue("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
+        partObj.withValue("isWaiting",participant.isWaiting());
+
         return partObj;
     }
 }
