@@ -1,19 +1,14 @@
 package no.java.moosehead.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import no.java.moosehead.api.AdminApi;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
-import no.java.moosehead.commands.ParitalCancellationCommand;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.repository.WorkshopData;
-import org.jsonbuddy.JsonArray;
-import org.jsonbuddy.JsonFactory;
-import org.jsonbuddy.JsonObject;
-import org.jsonbuddy.JsonValueNotPresentException;
+import org.jsonbuddy.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -44,7 +39,7 @@ public class AdminServlet  extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonNode userAccess = (JsonNode) req.getSession().getAttribute("user");
+        JsonObject userAccess = (JsonObject) req.getSession().getAttribute("user");
         if ("/userLogin".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
 
@@ -56,7 +51,7 @@ public class AdminServlet  extends HttpServlet {
             writer.append(Optional.ofNullable(userAccess).map(Object::toString).orElse("{}"));
             return;
         }
-        if (Configuration.secureAdmin() && (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false))) {
+        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBooleanValue) jn).boolValue()).orElse(false))) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -81,8 +76,8 @@ public class AdminServlet  extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonNode userAccess = (JsonNode) req.getSession().getAttribute("user");
-        if (Configuration.secureAdmin() && (userAccess == null || !Optional.ofNullable(userAccess.get("admin")).map(JsonNode::asBoolean).orElse(false))) {
+        JsonObject userAccess = (JsonObject) req.getSession().getAttribute("user");
+        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBooleanValue) jn).boolValue()).orElse(false))) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }

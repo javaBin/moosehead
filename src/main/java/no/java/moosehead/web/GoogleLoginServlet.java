@@ -1,8 +1,8 @@
 package no.java.moosehead.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jsonbuddy.JsonNode;
+import org.jsonbuddy.JsonObject;
+import org.jsonbuddy.parse.JsonParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -97,9 +97,10 @@ public class GoogleLoginServlet extends HttpServlet {
         outStream.close();
 
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(new InputStreamReader(urlConnection.getInputStream()));
-        String accessToken = jsonNode.get("access_token").asText();
+        String googleJson = toString(urlConnection.getInputStream());
+
+        JsonObject jsonObject = (JsonObject) JsonParser.parse(googleJson);
+        String accessToken = jsonObject.requiredString("access_token");
 
         // get some info about the user with the access token
         String getStr = "https://www.googleapis.com/oauth2/v1/userinfo?" + para("access_token", accessToken);
@@ -125,12 +126,12 @@ public class GoogleLoginServlet extends HttpServlet {
     }
 
     private void updateUserLogin(HttpServletRequest req, String gsstr) throws IOException {
-        JsonNode googleAuth = new ObjectMapper().readTree(new StringReader(gsstr));
+        JsonNode googleAuth = JsonParser.parse(gsstr);
+        JsonObject objnode = (JsonObject) googleAuth;
 
-        String googleId = googleAuth.get("id").asText();
+        String googleId = objnode.requiredString("id");
         boolean isAdmin = Configuration.adminGoogleIds().contains(googleId);
-        ObjectNode objnode = (ObjectNode) googleAuth;
-        objnode.put("admin",isAdmin);
+        objnode.withValue("admin",isAdmin);
 
         System.out.println("Setting user logged in " + objnode);
         req.getSession().setAttribute("user", objnode);

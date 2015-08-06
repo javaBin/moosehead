@@ -1,7 +1,5 @@
 package no.java.moosehead.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
@@ -58,7 +56,7 @@ public class DataServlet extends HttpServlet {
             printTeacherList(req, resp);
         } else if ("/userLogin".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
-            JsonNode node = (JsonNode) req.getSession().getAttribute("user");
+            JsonObject node = (JsonObject) req.getSession().getAttribute("user");
             resp.getWriter().append(Optional.ofNullable(node).map(Object::toString).orElse("{}"));
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -162,10 +160,10 @@ public class DataServlet extends HttpServlet {
 
     private Optional<String> readGoogleMail(HttpSession session) {
         return Optional.ofNullable(session.getAttribute("user"))
-                .map(ob -> (ObjectNode) ob)
-                .map(on -> Optional.ofNullable(on.get("email")))
+                .map(ob -> (JsonObject) ob)
+                .map(on -> on.stringValue("email"))
                 .filter(Optional::isPresent)
-                .map(ma -> ma.get().asText());
+                .map(Optional::get);
     }
 
     private Optional<ParticipantActionResult> doCancelation(JsonObject jsonInput,HttpServletResponse resp) throws IOException {
