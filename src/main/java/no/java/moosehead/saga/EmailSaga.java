@@ -4,50 +4,75 @@ import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
+import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
-import no.java.moosehead.web.Configuration;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class EmailSaga implements EventSubscription {
+    private static class WorkshopReservationInfo {
+        private int spacesLeft;
+        private List<ReservationAddedByUser> spaces = new LinkedList<>();
+        private List<ReservationAddedByUser> waitingList = new LinkedList<>();
+
+        private WorkshopReservationInfo(int spacesLeft) {
+            this.spacesLeft = spacesLeft;
+        }
+    }
 
     private boolean sagaIsInitialized = false;
     private List<ReservationAddedByUser> unconfirmedReservations = new ArrayList<>();
     private Set<String> confirmedEmails = new HashSet<>();
-    private Map<String,List<ReservationAddedByUser>> participants = new HashMap<>();
+    private Map<String,WorkshopReservationInfo> participants = new HashMap<>();
 
-    private void addParticipant(ReservationAddedByUser res) {
-        List<ReservationAddedByUser> partList = participants.get(res.getWorkshopId());
-        if (partList == null) {
-            partList = new ArrayList<>();
-            participants.put(res.getWorkshopId(),partList);
+    private boolean addParticipant(ReservationAddedByUser res) {
+        WorkshopReservationInfo workshopReservationInfo = participants.get(res.getWorkshopId());
+        boolean waitingList = (!workshopReservationInfo.waitingList.isEmpty()) ||
+                (workshopReservationInfo.spacesLeft < res.getNumberOfSeatsReserved());
+        if (waitingList) {
+            workshopReservationInfo.waitingList.add(res);
+        } else {
+            workshopReservationInfo.spaces.add(res);
+            workshopReservationInfo.spacesLeft-=res.getNumberOfSeatsReserved();
         }
-        partList.add(res);
+        return waitingList;
     }
 
-    private boolean removeParticipant(String wsid, String email) {
-        List<ReservationAddedByUser> partList = participants.get(wsid);
-        if (partList == null) {
-            return false;
+
+
+    private void cancelReservation(String wsid, String email) {
+        WorkshopReservationInfo workshopReservationInfo = participants.get(wsid);
+        int indexOfWaitingList = indexOfReservation(workshopReservationInfo.waitingList, email);
+        if (indexOfWaitingList >= 0) {
+            workshopReservationInfo.waitingList.remove(indexOfWaitingList);
+        } else {
+            int index = indexOfReservation(workshopReservationInfo.spaces,email);
+            ReservationAddedByUser remove = workshopReservationInfo.spaces.remove(index);
+            workshopReservationInfo.spacesLeft+=remove.getNumberOfSeatsReserved();
         }
-        Optional<ReservationAddedByUser> res = partList.stream()
-                .filter(rau -> rau.getEmail().equals(email))
-                .findAny();
-        if (!res.isPresent()) {
-            return false;
+        EmailSender emailSender = SystemSetup.instance().emailSender();
+        if (sagaIsInitialized) {
+            emailSender.sendCancellationConfirmation(email, wsid);
         }
-        return partList.remove(res.get());
+        while (!workshopReservationInfo.waitingList.isEmpty()) {
+            ReservationAddedByUser waiting = workshopReservationInfo.waitingList.get(0);
+            if (workshopReservationInfo.spacesLeft < waiting.getNumberOfSeatsReserved()) {
+                break;
+            }
+            workshopReservationInfo.waitingList.remove(0);
+            workshopReservationInfo.spaces.add(waiting);
+            workshopReservationInfo.spacesLeft-=waiting.getNumberOfSeatsReserved();
+            if (sagaIsInitialized) {
+                emailSender.sendReservationConfirmation(waiting.getEmail(), wsid, waiting.getReservationToken());
+            }
+        }
+
     }
 
-    private boolean haveFreeSpots(String wsid) {
-        int numSpots = Configuration.placesPerWorkshop();
-        int takenSpots = participants.getOrDefault(wsid,new ArrayList<>()).size();
-        return (numSpots > takenSpots);
-    }
 
     @Override
     public void eventAdded(AbstractEvent event) {
@@ -55,28 +80,33 @@ public class EmailSaga implements EventSubscription {
             sagaIsInitialized = true;
             return;
         }
+        if (event instanceof WorkshopAddedEvent) {
+            WorkshopAddedEvent workshopAddedEvent = (WorkshopAddedEvent) event;
+            participants.put(workshopAddedEvent.getWorkshopId(),new WorkshopReservationInfo(workshopAddedEvent.getNumberOfSeats()));
+        }
         if (event instanceof ReservationAddedByUser) {
             ReservationAddedByUser res = (ReservationAddedByUser) event;
-            unconfirmedReservations.add(res);
             EmailSender emailSender = SystemSetup.instance().emailSender();
             if (res.getGoogleUserEmail().filter(email -> email.equals(res.getEmail())).isPresent()) {
                 confirmedEmails.add(res.getGoogleUserEmail().get());
             }
             boolean emailIsConfirmed = confirmedEmails.contains(res.getEmail());
-            if (sagaIsInitialized) {
-                if (emailIsConfirmed) {
-                    if (haveFreeSpots(res.getWorkshopId())) {
-                        emailSender.sendReservationConfirmation(res.getEmail(), res.getWorkshopId(),res.getReservationToken());
-                    } else {
-                        emailSender.sendWaitingListInfo(res.getEmail(),res.getWorkshopId());
-                    }
-                } else {
+            if (!emailIsConfirmed) {
+                unconfirmedReservations.add(res);
+                if (sagaIsInitialized) {
                     emailSender.sendEmailConfirmation(res.getEmail(), res.getReservationToken() ,res.getWorkshopId());
                 }
+                return;
             }
-            if (emailIsConfirmed) {
-                addParticipant(res);
+            boolean isWaiting = addParticipant(res);
+            if (sagaIsInitialized) {
+                if (isWaiting) {
+                    emailSender.sendWaitingListInfo(res.getEmail(), res.getWorkshopId());
+                } else {
+                    emailSender.sendReservationConfirmation(res.getEmail(), res.getWorkshopId(), res.getReservationToken());
+                }
             }
+
         }
         if (event instanceof EmailConfirmedByUser) {
             EmailConfirmedByUser emailConfirmedByUser = (EmailConfirmedByUser) event;
@@ -86,15 +116,15 @@ public class EmailSaga implements EventSubscription {
 
             EmailSender emailSender = SystemSetup.instance().emailSender();
             for (ReservationAddedByUser reservationAddedByUser : toConfirm) {
+                unconfirmedReservations.remove(reservationAddedByUser);
+                boolean isWaiting = addParticipant(reservationAddedByUser);
                 if (sagaIsInitialized) {
-                    if (haveFreeSpots(reservationAddedByUser.getWorkshopId())) {
-                        emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(),reservationAddedByUser.getReservationToken());
-                    } else {
+                    if (isWaiting) {
                         emailSender.sendWaitingListInfo(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId());
+                    } else {
+                        emailSender.sendReservationConfirmation(reservationAddedByUser.getEmail(), reservationAddedByUser.getWorkshopId(), reservationAddedByUser.getReservationToken());
                     }
                 }
-                addParticipant(reservationAddedByUser);
-                unconfirmedReservations.remove(reservationAddedByUser);
             }
             confirmedEmails.add(emailConfirmedByUser.getEmail());
         }
@@ -105,23 +135,25 @@ public class EmailSaga implements EventSubscription {
                     .findAny();
             if (reservation.isPresent()) {
                 unconfirmedReservations.remove(reservation.get());
-            }
-            boolean full = !haveFreeSpots(cancelledByUser.getWorkshopId());
-            boolean removed = removeParticipant(cancelledByUser.getWorkshopId(), cancelledByUser.getEmail());
-            if (sagaIsInitialized) {
-                EmailSender emailSender = SystemSetup.instance().emailSender();
-                emailSender.sendCancellationConfirmation(cancelledByUser.getEmail(), cancelledByUser.getWorkshopId());
-                if (full && removed) {
-                    ReservationAddedByUser res = participants.get(cancelledByUser.getWorkshopId()).get(Configuration.placesPerWorkshop() - 1);
-                    if (!Configuration.closedWorkshops().contains(cancelledByUser.getWorkshopId())) {
-                         emailSender.sendReservationConfirmation(res.getEmail(),cancelledByUser.getWorkshopId(),res.getReservationToken());
-                    }
+                if (sagaIsInitialized) {
+                    EmailSender emailSender = SystemSetup.instance().emailSender();
+                    emailSender.sendCancellationConfirmation(cancelledByUser.getEmail(), cancelledByUser.getWorkshopId());
                 }
+                return;
             }
+            cancelReservation(cancelledByUser.getWorkshopId(),cancelledByUser.getEmail());
 
         }
     }
 
+    private int indexOfReservation(List<ReservationAddedByUser> reservationAddedByUsers, String email) {
+        for (int i=0;i<reservationAddedByUsers.size();i++) {
+            if (email.equals(reservationAddedByUsers.get(i).getEmail())) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
 
 }
