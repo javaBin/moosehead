@@ -221,7 +221,7 @@ public class WorkshopAggregateTest {
         confdata.put("openTime",datestr);
         Configuration.initData(confdata);
 
-        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0));
+        eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(),1L, w1, 0));
         AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), 1);
         workshopAggregate.createEvent(cmd);
 

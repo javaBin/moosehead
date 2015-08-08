@@ -8,7 +8,9 @@ import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.web.Configuration;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -77,7 +79,7 @@ public class WorkshopAggregate implements EventSubscription {
     public AbstractReservationAdded createEvent(AddReservationCommand addReservationCommand) {
         Optional<WorkshopAddedEvent> workshop = getWorkshop(addReservationCommand.getWorkshopId());
         if (workshop.isPresent()) {
-            if (OffsetDateTime.now().isBefore(Configuration.openTime())) {
+            if (OffsetDateTime.now().isBefore(computeOpenTime(workshop.get()))) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
             }
             if (getReservation(addReservationCommand).isPresent()) {
@@ -102,6 +104,20 @@ public class WorkshopAggregate implements EventSubscription {
         } else {
             throw new ReservationCanNotBeAddedException("The workshop in [" + addReservationCommand + "] does not exists");
         }
+    }
+
+    private OffsetDateTime computeOpenTime(WorkshopAddedEvent workshop) {
+        Optional<WorkshopData> dataOptional = workshop.getWorkshopData();
+        if (!dataOptional.isPresent()) {
+            return Configuration.openTime();
+        }
+        Optional<Instant> registrationOpens = dataOptional.get().getRegistrationOpens();
+        if (!registrationOpens.isPresent()) {
+            return Configuration.openTime();
+        }
+
+        OffsetDateTime opening = registrationOpens.get().atOffset(ZoneOffset.ofHours(2));
+        return opening;
     }
 
     public AbstractReservationCancelled createEvent(CancelReservationCommand cancelReservationCommand) {
