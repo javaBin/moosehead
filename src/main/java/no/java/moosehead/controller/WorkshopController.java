@@ -16,8 +16,6 @@ import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.web.Configuration;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -154,10 +152,12 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                 .map(pa -> {
                     Optional<WorkshopData> workshopDataOptional = workshopRepository.workshopById(pa.getWorkshopId());
                     String name = workshopDataOptional.map(wd -> wd.getTitle()).orElse("xxx");
+                    int waitingListNumber = pa.waitingListNumber();
+                    Optional<Integer> opwl = Optional.of(waitingListNumber).filter(wl -> wl > 0);
                     ParticipantReservationStatus status = !pa.isEmailConfirmed() ?
                             ParticipantReservationStatus.NOT_CONFIRMED :
-                            pa.waitingListNumber() <= 0 ? ParticipantReservationStatus.HAS_SPACE : ParticipantReservationStatus.WAITING_LIST;
-                    return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, status, pa.getNumberOfSeatsReserved());
+                            waitingListNumber <= 0 ? ParticipantReservationStatus.HAS_SPACE : ParticipantReservationStatus.WAITING_LIST;
+                    return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, status, pa.getNumberOfSeatsReserved(), opwl);
                 })
                 .collect(Collectors.toList());
     }

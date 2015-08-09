@@ -32,6 +32,9 @@ angular.module('mooseheadModule')
                     text+= reservation.numberOfSeatsReserved + " seat(s) reserved";
                 } else if (reservation.status === "WAITING_LIST") {
                     text+= "On waiting list";
+                    if (reservation.waitingListNumber && reservation.waitingListNumber > 0) {
+                        text+= " (Number " + reservation.waitingListNumber + " on the waiting list)";
+                    }
                 } else  {
                     text+= "Status is unknown";
                 }

@@ -48,7 +48,7 @@ public class DataServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("/workshopList".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
-            resp.addHeader("Access-Control-Allow-Origin","*");
+            resp.addHeader("Access-Control-Allow-Origin", "*");
             printWorkshops(resp);
         } else if ("/myReservations".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
@@ -107,6 +107,10 @@ public class DataServlet extends HttpServlet {
                 jsonObject.put("status", res.getStatus());
                 jsonObject.put("workshopname", res.getWorkshopname());
                 jsonObject.put("numberOfSeatsReserved", res.getNumberOfSeatsReserved());
+                Optional<Integer> waitingListNumber = res.getWaitingListNumber();
+                if (waitingListNumber.isPresent()) {
+                    jsonObject.put("waitingListNumber",waitingListNumber.get());
+                }
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
