@@ -30,23 +30,22 @@ public class WorkshopController implements ParticipantApi,AdminApi {
 
         if (workshopOptional.isPresent()) {
             Workshop ws = workshopOptional.get();
-            WorkshopData wd = ws.getWorkshopData();
-            WorkshopStatus status = computeWorkshopStatus(ws);
-            return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum());
+            return createWorkshopInfo(ws);
         } else
             throw new WorkshopNotFoundException();
+    }
+
+    private WorkshopInfo createWorkshopInfo(Workshop ws) {
+        WorkshopData wd = ws.getWorkshopData();
+        WorkshopStatus status = computeWorkshopStatus(ws);
+        return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum());
     }
 
     @Override
     public List<WorkshopInfo> workshops() {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
         return workshops.stream()
-                .map(ws -> {
-                    WorkshopData wd = ws.getWorkshopData();
-                    WorkshopStatus status = computeWorkshopStatus(ws);
-
-                    return new WorkshopInfo(wd.getId(),wd.getTitle(),wd.getDescription(), ws.getParticipants(), status, ws.getWorkshopData().getWorkshopTypeEnum());
-                })
+                .map(this::createWorkshopInfo)
                 .collect(Collectors.toList())
         ;
     }

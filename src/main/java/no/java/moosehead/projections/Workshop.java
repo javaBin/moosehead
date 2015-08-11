@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Workshop {
     private WorkshopData workshopData;
-    private int numberOfSeats;
+    private final int numberOfSeats;
     private List<Participant> confirmed = new ArrayList<>();
     private List<Participant> notConfirmed = new ArrayList<>();
 
