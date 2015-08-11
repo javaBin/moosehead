@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
@@ -167,12 +168,8 @@ public class DataServlet extends HttpServlet {
     }
 
     private Optional<ParticipantActionResult> doCancelation(JsonObject jsonInput,HttpServletResponse resp) throws IOException {
-        String token = readField(jsonInput, "token");
+        String token = Utils.sanitize(jsonInput.requiredString("token"));
 
-        if (token == null ) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
-            return Optional.empty();
-        }
         ParticipantActionResult cancel = participantApi.cancellation(token, AuthorEnum.USER);
 
         return Optional.of(cancel);
@@ -188,6 +185,16 @@ public class DataServlet extends HttpServlet {
         ParticipantActionResult cancel = participantApi.confirmEmail(token);
 
         return Optional.of(cancel);
+    }
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            super.service(req, resp);
+        } catch (JsonParseException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal json input");
+            return;
+        }
     }
 
     @Override

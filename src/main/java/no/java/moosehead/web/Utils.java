@@ -29,12 +29,15 @@ public class Utils {
     }
 
     public static String readField(JsonObject jsonInput, String name) {
-        String value = jsonInput.stringValue(name).orElse(null);
+        return sanitize(jsonInput.requiredString(name));
+    }
+
+    static String sanitize(String value) {
         if (value == null) {
             return null;
         }
         for (char c : value.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || "-_ @./:".indexOf(c) != -1) {
+            if (Character.isLetterOrDigit(c) || " -_@./:".indexOf(c) != -1) {
                 continue;
             }
             return null;
@@ -43,18 +46,12 @@ public class Utils {
     }
 
 
-
     public static JsonObject readJson(ServletInputStream inputStream) throws IOException {
-        JsonNode parsedJson;
         try {
-            parsedJson = JsonParser.parse(inputStream);
-        } catch (JsonParseException e) {
+            return (JsonObject) JsonParser.parse(inputStream);
+        } catch (ClassCastException e) {
             return null;
         }
-        if (!(parsedJson instanceof JsonObject)) {
-            return null;
-        }
-        return (JsonObject) parsedJson;
     }
 
 
