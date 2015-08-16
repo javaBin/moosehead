@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -192,4 +193,5 @@ public class EmailSagaTest {
         verify(emailSender).sendReservationConfirmation("luke@a.com", "wsone", reservationTwo.getReservationToken());
 
     }
+
 }

@@ -2,7 +2,11 @@ Hi,
 
 Thank you for signing up to the JavaZone workshop "#workshop#".
 
-You have been given a place at this workshop. If you, for some reason, won't be able to attend, please cancel your reservation by clicking the following link so we can give your spot to someone else:
+You have been given a place at this workshop.
+
+The workshop starts #starts#. Please show up at least five minutes before the workshop starts. If you don't show up on time, we might give your spot to someone else.
+
+If you, for some reason, won't be able to attend, please cancel your reservation by clicking the following link so we can give your spot to someone else:
 #mooseheadLocation#/#/cancel/#token#
 
 To see the status of your registration(s), visit the page:

@@ -1,11 +1,17 @@
 package no.java.moosehead.saga;
 
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 
 import java.io.*;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class EmailSender {
     public abstract void send(EmailType type,String to,Map<String,String> values);
@@ -18,15 +24,24 @@ public abstract class EmailSender {
         sendWorkshopInfo(to, workshopId, EmailType.RESERVATION_CONFIRMED, reservationToken);
     }
 
-        private void sendWorkshopInfo(String to, String workshopId, EmailType emailType, String token) {
+    private void sendWorkshopInfo(String to, String workshopId, EmailType emailType, String token) {
         WorkshopRepository workshopRepository = SystemSetup.instance().workshopRepository();
-        String wstitle = workshopRepository != null ? workshopRepository.workshopById(workshopId).map(ws -> ws.getTitle()).orElse("Unknown") : "Unknown";
+        Optional<WorkshopData> workshopData = workshopRepository != null ? workshopRepository.workshopById(workshopId) : Optional.empty();
+        String wstitle = workshopData.map(ws -> ws.getTitle()).orElse("Unknown");
+        String start = workshopData.map(ws -> Optional.ofNullable(ws.getStartTime()).map(EmailSender::formatInstant).orElse("Unknown")).orElse("Unknown");
         Map<String, String> values = new HashMap<>();
         values.put("workshop",wstitle);
+        values.put("starts",start);
         if (token != null) {
             values.put("token",token);
         }
         send(emailType, to, values);
+    }
+
+    private static String formatInstant(Instant instant) {
+        OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.ofHours(2));
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE MMMM d'th,' 'at' HH:mm");
+        return dateTimeFormatter.format(offsetDateTime);
     }
 
     public final void sendCancellationConfirmation(String to,String workshopId) {
