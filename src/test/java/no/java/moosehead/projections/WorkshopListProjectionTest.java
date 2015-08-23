@@ -69,7 +69,7 @@ public class WorkshopListProjectionTest {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
         workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader","one",Optional.empty(),1));
-        workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),3L,"a@a.com","one"));
+        workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),3L,"a@a.com","one",1));
 
         assertThat(workshopListProjection.getWorkshops().get(0).getParticipants()).isEmpty();
 

@@ -5,8 +5,8 @@ public class ReservationCancelledByUser extends AbstractReservationCancelled {
 
     public ReservationCancelledByUser(){}
 
-    public ReservationCancelledByUser(long systemTimeInMillis, long revisionId, String email, String workshopId) {
-        super(systemTimeInMillis, revisionId,email,workshopId);
+    public ReservationCancelledByUser(long systemTimeInMillis, long revisionId, String email, String workshopId, int numSpotsCancellled) {
+        super(systemTimeInMillis, revisionId,email,workshopId,numSpotsCancellled);
     }
 
 }

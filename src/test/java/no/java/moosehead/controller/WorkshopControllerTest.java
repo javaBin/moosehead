@@ -161,7 +161,7 @@ public class WorkshopControllerTest {
     public void shouldHandleCancellation() throws Exception {
         ArgumentCaptor<CancelReservationCommand> cancelReservationCommandArgumentCaptor = ArgumentCaptor.forClass(CancelReservationCommand.class);
 
-        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","one");
+        ReservationCancelledByUser reservationCancelledByUser = new ReservationCancelledByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","one",1);
         when(workshopAggregate.createEvent(cancelReservationCommandArgumentCaptor.capture())).thenReturn(reservationCancelledByUser);
 
         Participant participant = mock(Participant.class);

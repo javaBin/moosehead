@@ -71,7 +71,7 @@ public class EmailSagaTest {
         ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "one",Optional.empty(),1);
         emailSaga.eventAdded(reservationAddedByUser);
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
-        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(), 3L, "darth@a.com", "one"));
+        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(), 3L, "darth@a.com", "one",1));
 
         verify(emailSender).sendCancellationConfirmation("darth@a.com", "one");
 
@@ -115,7 +115,7 @@ public class EmailSagaTest {
         final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), 3L, "darth@a.com", "Darth", "one",Optional.empty(),1);
         emailSaga.eventAdded(reservationAddedByUser);
         emailSaga.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 4L, "darth@a.com", "Darth", "two",Optional.empty(),1));
-        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),6L,"darth@a.com","two"));
+        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),6L,"darth@a.com","two",1));
         emailSaga.eventAdded(new SystemBootstrapDone(7L));
 
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 10L));
@@ -154,7 +154,7 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new EmailConfirmedByUser("jarjar@a.com",System.currentTimeMillis(), 2L));
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
 
-        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),7L,"darth@a.com","one"));
+        emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),7L,"darth@a.com","one",1));
 
         verify(emailSender).sendCancellationConfirmation("darth@a.com","one");
         verify(emailSender).sendReservationConfirmation("jarjar@a.com","one",reservationAddedByUser.getReservationToken());
@@ -186,7 +186,7 @@ public class EmailSagaTest {
         emailSaga.eventAdded(reservationTwo);
         emailSaga.eventAdded(new SystemBootstrapDone(4L));
 
-        ReservationCancelledByUser cancelledOne = new ReservationCancelledByUser(System.currentTimeMillis(), 4L, "darth@a.com", "wsone");
+        ReservationCancelledByUser cancelledOne = new ReservationCancelledByUser(System.currentTimeMillis(), 4L, "darth@a.com", "wsone",1);
         emailSaga.eventAdded(cancelledOne);
 
         verify(emailSender).sendCancellationConfirmation("darth@a.com", "wsone");

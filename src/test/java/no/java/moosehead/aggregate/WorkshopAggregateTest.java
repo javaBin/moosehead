@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -189,6 +190,16 @@ public class WorkshopAggregateTest {
     }
 
     @Test
+    public void shouldBeAbleToReserveMulitpleSpots() throws Exception {
+        WorkshopData data = new WorkshopData(w1,"title","desc",null,null,Optional.empty(),WorkshopTypeEnum.KIDSAKODER_WORKSHOP);
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0,null,null,data));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), 2);
+        AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
+        assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
+
+    }
+
+    @Test
     public void multipleReservationsAreOk() throws Exception {
         eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(),1L, w1, 0));
         AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), 1);
@@ -250,6 +261,21 @@ public class WorkshopAggregateTest {
 
         CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1, AuthorEnum.USER);
         workshopAggregate.createEvent(cancel);
+    }
+
+    @Test
+    public void shouldBeAbleToPartlyCancel() throws Exception {
+        WorkshopData data = new WorkshopData(w1,"title","desc",null,null,Optional.empty(),WorkshopTypeEnum.KIDSAKODER_WORKSHOP);
+        eventstore.addEvent(new WorkshopAddedByAdmin(System.currentTimeMillis(),1L, w1, 0,null,null,data));
+        AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), 2);
+        AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
+        eventstore.addEvent(reservationAddedByUser);
+
+        ParitalCancellationCommand  cancellationCommand = new ParitalCancellationCommand("bla@email",w1,1);
+        AbstractReservationCancelled event = workshopAggregate.createEvent(cancellationCommand);
+
+        assertThat(event.getNumSpotsCancelled()).isEqualTo(1);
+
 
     }
 

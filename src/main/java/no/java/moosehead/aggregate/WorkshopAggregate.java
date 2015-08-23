@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class WorkshopAggregate implements EventSubscription {
@@ -106,6 +107,8 @@ public class WorkshopAggregate implements EventSubscription {
         }
     }
 
+
+
     private OffsetDateTime computeOpenTime(WorkshopAddedEvent workshop) {
         Optional<WorkshopData> dataOptional = workshop.getWorkshopData();
         if (!dataOptional.isPresent()) {
@@ -121,19 +124,44 @@ public class WorkshopAggregate implements EventSubscription {
     }
 
     public AbstractReservationCancelled createEvent(CancelReservationCommand cancelReservationCommand) {
-        long count = userWorkshopEvents(cancelReservationCommand.getWorkshopId(), cancelReservationCommand.getEmail()).count();
-        if (count % 2 == 0) {
+        int count = spotsReserved(userWorkshopEvents(cancelReservationCommand.getWorkshopId(), cancelReservationCommand.getEmail()));
+        if (count == 0) {
             throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",cancelReservationCommand.getEmail(),cancelReservationCommand.getWorkshopId()));
         }
         switch (cancelReservationCommand.getAuthorEnum()) {
             case USER:
-                return new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId());
+                return new ReservationCancelledByUser(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId(),count);
             case ADMIN:
-                return new ReservationCancelledByAdmin(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId());
+                return new ReservationCancelledByAdmin(System.currentTimeMillis(), nextRevision(), cancelReservationCommand.getEmail(), cancelReservationCommand.getWorkshopId(),count);
             default:
                 throw new ReservationCanNotBeCanceledException("Reservation cannot be canceled", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.SYSTEM + " is not supported"));
         }
     }
+
+    public AbstractReservationCancelled createEvent(ParitalCancellationCommand paritalCancellationCommand) {
+        int count = spotsReserved(userWorkshopEvents(paritalCancellationCommand.getWorkshopId(), paritalCancellationCommand.getEmail()));
+        if (count == 0) {
+            throw new NoReservationFoundException(String.format("The reservation for %s in %s not found",paritalCancellationCommand.getEmail(),paritalCancellationCommand.getWorkshopId()));
+        }
+        return new ReservationPartallyCancelled(System.currentTimeMillis(), nextRevision(), paritalCancellationCommand.getEmail(), paritalCancellationCommand.getWorkshopId(),paritalCancellationCommand.getNumberOfSpotsCancelled());
+    }
+
+    private int spotsReserved(Stream<? extends UserWorkshopEvent> userWorkshops) {
+        return userWorkshops
+                .map(uw -> {
+                    if (uw instanceof AbstractReservationAdded) {
+                        return ((AbstractReservationAdded) uw).getNumberOfSeatsReserved();
+                    }
+                    if (uw instanceof AbstractReservationCancelled) {
+                        return -((AbstractReservationCancelled) uw).getNumSpotsCancelled();
+                    }
+                    return 0;
+                })
+                .reduce(Integer::sum)
+                .orElse(0);
+    }
+
+
 
     private Stream<? extends UserWorkshopEvent> userWorkshopEvents(String workshopid,String email) {
         return eventArrayList
