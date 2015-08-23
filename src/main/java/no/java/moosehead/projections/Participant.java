@@ -126,4 +126,8 @@ public class Participant {
     public String getReservationToken() {
         return reservationToken;
     }
+
+    public void reduceReservedSeats(int numSpotsCancelled) {
+        numberOfSeatsReserved-=numSpotsCancelled;
+    }
 }

@@ -1,5 +1,6 @@
 package no.java.moosehead.projections;
 
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.repository.WorkshopData;
@@ -7,6 +8,7 @@ import no.java.moosehead.repository.WorkshopRepository;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +74,27 @@ public class WorkshopListProjectionTest {
         workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),3L,"a@a.com","one",1));
 
         assertThat(workshopListProjection.getWorkshops().get(0).getParticipants()).isEmpty();
+    }
+
+    @Test
+    public void shoulHandlePartialReservations() throws Exception {
+        Optional<WorkshopData> optworkshop = Optional.of(new WorkshopData("one", "title", "description",null,null,Optional.<Instant>empty(), WorkshopTypeEnum.KIDSAKODER_WORKSHOP));
+
+        when(workshopRepository.workshopById("one")).thenReturn(optworkshop);
+
+
+        WorkshopListProjection workshopListProjection = new WorkshopListProjection();
+        workshopListProjection.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "one", 30, null, null, optworkshop.get()));
+
+        workshopListProjection.eventAdded(new ReservationAddedByUser(System.currentTimeMillis(), 2L, "a@a.com", "Darth Vader", "one", Optional.of("a@a.com"), 2));
+        workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(), 3L, "a@a.com", "one", 1));
+
+        List<Participant> allReservations = workshopListProjection.findAllReservations("a@a.com");
+
+        assertThat(allReservations).hasSize(1);
+
+        assertThat(allReservations.get(0).getNumberOfSeatsReserved()).isEqualTo(1);
+
 
     }
 

@@ -57,7 +57,18 @@ public class WorkshopListProjection implements EventSubscription {
 
     private void handleReservationCancelled(AbstractReservationCancelled reservationCancelled) {
         Workshop workshop = findWorkshop(reservationCancelled.getWorkshopId());
-        workshop.removeParticipant(reservationCancelled.getEmail());
+        Optional<Participant> participantOptional = workshop.getParticipants().stream()
+                .filter(participant -> participant.getEmail().equals(reservationCancelled.getEmail()))
+                .findAny();
+        if (!participantOptional.isPresent()) {
+            return;
+        }
+        Participant participant = participantOptional.get();
+        if (participant.getNumberOfSeatsReserved() == reservationCancelled.getNumSpotsCancelled()) {
+            workshop.removeParticipant(reservationCancelled.getEmail());
+        } else {
+            participant.reduceReservedSeats(reservationCancelled.getNumSpotsCancelled());
+        }
     }
 
     private void handleReservationAdded(AbstractReservationAdded reservationAdded) {
