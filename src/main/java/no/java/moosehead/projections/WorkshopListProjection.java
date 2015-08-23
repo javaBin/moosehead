@@ -34,6 +34,10 @@ public class WorkshopListProjection implements EventSubscription {
             workshopData = dataOptional.get();
         } else {
             Optional<WorkshopData> workshopDataOptional = SystemSetup.instance().workshopRepository().workshopById(workshopAdded.getWorkshopId());
+            if (!workshopDataOptional.isPresent()) {
+                System.out.println("Warning did not find event " + workshopAdded.getWorkshopId() + ". Ignoring");
+                return;
+            }
             workshopData = workshopDataOptional.get();
         }
         workshops.add(new Workshop(workshopData, workshopAdded.getNumberOfSeats()));
