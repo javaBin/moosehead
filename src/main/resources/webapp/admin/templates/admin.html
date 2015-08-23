@@ -2,12 +2,13 @@
     <span ng-show="!showNoAccess">
         <p><a href="#/addWorkshop/">Add</a> another workshop</p>
         <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
+        <p>The cancel link will take you to the same cancel page as given to the participants in their mail.</p>
         <div ng-repeat="workshop in workshops">
             <h2>{{workshop.title}}</h2>
             <p>Status: {{workshop.status}}</p>
             <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
             <ul ng-repeat="participant in workshop.participants">
-                <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}}</li>
+                <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}} <a ng-href="{{participant.cancelLink}}">Cancel reservation</a></a></li>
             </ul>
         </div>
     </span>

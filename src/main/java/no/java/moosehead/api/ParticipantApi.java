@@ -2,6 +2,7 @@ package no.java.moosehead.api;
 
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.projections.Participant;
+import no.java.moosehead.web.Configuration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +29,7 @@ public interface ParticipantApi {
             jsonObject.put("workshopType", workshop.getWorkshopTypeEnum());
 
             List<JSONObject> partList = workshop.getParticipants().stream().sequential()
-                    .map(ParticipantApi::participantAsJson)
+                    .map(ParticipantApi::participantAsAdminJson)
                     .collect(Collectors.toList());
             jsonObject.put("participants",new JSONArray(partList));
 
@@ -37,6 +38,24 @@ public interface ParticipantApi {
         }
         return jsonObject;
 
+    }
+
+    public static JSONObject participantAsAdminJson(Participant participant) {
+        JSONObject partObj = new JSONObject();
+
+        try {
+            partObj.put("email", participant.getEmail());
+            partObj.put("numberOfSeats", participant.getNumberOfSeatsReserved());
+            partObj.put("name", participant.getName());
+            partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
+            partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
+            partObj.put("isWaiting",participant.isWaiting());
+            String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getReservationToken();
+            partObj.put("cancelLink",cancelLink);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return partObj;
     }
 
     public static JSONObject participantAsJson(Participant participant) {
