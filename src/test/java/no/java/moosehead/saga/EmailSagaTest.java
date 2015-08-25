@@ -191,7 +191,22 @@ public class EmailSagaTest {
 
         verify(emailSender).sendCancellationConfirmation("darth@a.com", "wsone");
         verify(emailSender).sendReservationConfirmation("luke@a.com", "wsone", reservationTwo.getReservationToken());
-
     }
 
+    @Test
+    public void shouldSendConfirmationWhenParticallyCanceled() throws Exception {
+        emailSaga.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "wsone", 3));
+        ReservationAddedByUser reservationOne = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "darth@a.com", "Darth", "wsone", Optional.of("darth@a.com"), 3);
+        emailSaga.eventAdded(reservationOne);
+
+        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(System.currentTimeMillis(), 3L, "luke@a.com", "Luke", "wsone", Optional.of("luke@a.com"), 1);
+        emailSaga.eventAdded(reservationTwo);
+        emailSaga.eventAdded(new SystemBootstrapDone(4L));
+
+        ReservationPartallyCancelled cancelledOne = new ReservationPartallyCancelled(System.currentTimeMillis(), 4L, "darth@a.com", "wsone",1);
+        emailSaga.eventAdded(cancelledOne);
+
+        verify(emailSender).sendReservationConfirmation("luke@a.com", "wsone", reservationTwo.getReservationToken());
+        verifyNoMoreInteractions(emailSender);
+    }
 }
