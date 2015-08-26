@@ -44,5 +44,21 @@ angular.module('mooseheadModule')
                 var newloc = stratpart + "/oauth2callback/login?sendMeTo=" + encodeURIComponent(absloc);
                 window.location.href = newloc; // how do I do this with angular?
             };
+
+            $scope.partCancel = function(workshopid,participant) {
+                var data = {
+                    email: participant.email,
+                    workshopid: workshopid,
+                    numSpotCanceled: Number(participant.numCancel)
+                };
+                $http({method: "GET", url: "data/partCancel",data: data})
+                    .success(function(result) {
+                        if (result.status === "OK") {
+                            participant.message = "Done";
+                        } else {
+                            participant.message = result.message;
+                        }
+                    });
+            };
         }]);
 

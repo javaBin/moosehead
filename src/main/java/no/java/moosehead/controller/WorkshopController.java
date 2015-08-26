@@ -185,6 +185,22 @@ public class WorkshopController implements ParticipantApi,AdminApi {
         return ParticipantActionResult.ok();
     }
 
+    @Override
+    public ParticipantActionResult partialCancel(String email, String workshopid, int numSpotCanceled) {
+        ParitalCancellationCommand cancellationCommand = new ParitalCancellationCommand(email, workshopid, numSpotCanceled);
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+            AbstractReservationCancelled event;
+            try {
+                event = workshopAggregate.createEvent(cancellationCommand);
+            } catch (MoosheadException e) {
+                return ParticipantActionResult.error(e.getMessage());
+            }
+            SystemSetup.instance().eventstore().addEvent(event);
+        }
+        return ParticipantActionResult.ok();
+    }
+
     private ParticipantActionResult readStatus(String token) {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
         Optional<Workshop> workshopOptional = workshops.stream()

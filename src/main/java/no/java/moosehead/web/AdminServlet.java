@@ -6,6 +6,7 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
+import no.java.moosehead.commands.ParitalCancellationCommand;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.repository.WorkshopData;
@@ -99,6 +100,8 @@ public class AdminServlet  extends HttpServlet {
             apiResult = doReservation(jsonInput, req, resp);
         } else if ("/addWorkshop".equals(pathInfo)) {
             apiResult = addWorkshop(jsonInput);
+        } else if ("/partialCancel".equals(pathInfo)) {
+            apiResult = partialCancel(jsonInput);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
             return;
@@ -118,6 +121,20 @@ public class AdminServlet  extends HttpServlet {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Optional<ParticipantActionResult> partialCancel(JSONObject jsonInput) {
+        String email;
+        String workshopid;
+        int numSpotCanceled;
+        try {
+            email = jsonInput.getString("email");
+            workshopid = jsonInput.getString("workshopid");
+            numSpotCanceled = jsonInput.getInt("numSpotCanceled");
+        } catch (JSONException e) {
+            return Optional.of(ParticipantActionResult.error("Need email, workshopid and num canceled"));
+        }
+        return Optional.of(adminApi.partialCancel(email,workshopid,numSpotCanceled));
     }
 
     private Optional<ParticipantActionResult> addWorkshop(JSONObject jsonInput) {
