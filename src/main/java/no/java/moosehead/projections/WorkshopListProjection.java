@@ -64,12 +64,13 @@ public class WorkshopListProjection implements EventSubscription {
             return;
         }
         Participant participant = participantOptional.get();
-        if (participant.getNumberOfSeatsReserved() == reservationCancelled.getNumSpotsCancelled()) {
+        if (participant.getNumberOfSeatsReserved() == reservationCancelled.getNumSpotsCancelled() || reservationCancelled.getNumSpotsCancelled() == 0) {
             workshop.removeParticipant(reservationCancelled.getEmail());
         } else {
             participant.reduceReservedSeats(reservationCancelled.getNumSpotsCancelled());
         }
     }
+
 
     private void handleReservationAdded(AbstractReservationAdded reservationAdded) {
         Workshop workshop = findWorkshop(reservationAdded.getWorkshopId());

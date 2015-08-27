@@ -51,7 +51,7 @@ angular.module('mooseheadModule')
                     workshopid: workshopid,
                     numSpotCanceled: Number(participant.numCancel)
                 };
-                $http({method: "GET", url: "data/partCancel",data: data})
+                $http({method: "POST", url: "data/partialCancel",data: data})
                     .success(function(result) {
                         if (result.status === "OK") {
                             participant.message = "Done";

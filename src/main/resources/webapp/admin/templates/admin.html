@@ -3,6 +3,7 @@
         <p><a href="#/addWorkshop/">Add</a> another workshop</p>
         <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
         <p>The cancel link will take you to the same cancel page as given to the participants in their mail.</p>
+        <p>The partially cancel will cancel that many spaces (Have three spots, selct 2 to cancel => Have one spot left). Mail will not be sent to that participant, but will be sent to any from the waiting list that receives a spot.</p>
         <div ng-repeat="workshop in workshops">
             <h2>{{workshop.title}}</h2>
             <p>Status: {{workshop.status}}</p>
@@ -10,7 +11,7 @@
             <ul ng-repeat="participant in workshop.participants">
                 <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}}
                     <a ng-href="{{participant.cancelLink}}">Cancel reservation</a></a>
-                    <span ng-show="participant.numberOfSeats > 1">Partially cancel <input type="number" ng-model="participant.numCancel" placeholder="Seats to cancel"/><button ng-click="partCancel(workshop.id,participant)">Partially cancel</button> {{paticipant.messeage}}</span>
+                    <span ng-show="participant.numberOfSeats > 1">Partially cancel <input type="number" ng-model="participant.numCancel" placeholder="Seats to cancel"/><button ng-click="partCancel(workshop.id,participant)">Partially cancel</button> {{participant.message}}</span>
                 </li>
             </ul>
         </div>
