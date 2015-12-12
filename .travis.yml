@@ -2,3 +2,6 @@ language: java
 jdk:
 - oraclejdk8
 sudo: false
+notifications:
+  slack:
+    secure: Gw1wflNIuPalN68ZxElxdtCY2OcuovOr1oodyWemV5nDeCVYEI97ijjIECwpeYQq1W3/DQegoc3F+KeQTgCi50jZluvGOQ1JqW5IVIkmG4eIwlMUjhW0bOQtpUK6lxOEEsdmsCm9A0C/XWATeiDHW72W/fcLz/zGy39ufFrLVBU=
