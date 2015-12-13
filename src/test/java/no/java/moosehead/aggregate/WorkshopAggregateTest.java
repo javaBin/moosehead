@@ -7,10 +7,12 @@ import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.saga.EmailSender;
 import no.java.moosehead.web.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Instant;
@@ -24,6 +26,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.StrictAssertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 
 public class WorkshopAggregateTest {
@@ -36,7 +40,7 @@ public class WorkshopAggregateTest {
 
     @Before
     public void beforeTest() {
-        SystemSetup systemSetup = Mockito.mock(SystemSetup.class);
+        SystemSetup systemSetup = mock(SystemSetup.class);
         TokenGenerator tokenGenerator = new TokenGenerator();
         Mockito.when(systemSetup.revisionGenerator()).thenReturn(tokenGenerator);
         SystemSetup.setSetup(systemSetup);
@@ -211,14 +215,23 @@ public class WorkshopAggregateTest {
         assertThat(reservationAddedByUser2.getWorkshopId()).isEqualTo(w1);
     }
 
-    @Test(expected = ReservationCanNotBeAddedException.class)
+    @Test
     public void sameEmailIsNotAllowedToReserveTwice() throws Exception {
+        EmailSender emailSender = mock(EmailSender.class);
+        workshopAggregate.setEmailSender(emailSender);
         eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(), 1L, w1, 0));
         AddReservationCommand cmd = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), 1);
         AbstractReservationAdded event = workshopAggregate.createEvent(cmd);
         eventstore.addEvent(event);
         AddReservationCommand cmd2 = new AddReservationCommand("bla@email","Donnie Darko",w1, AuthorEnum.USER, Optional.empty(), 1);
-        workshopAggregate.createEvent(cmd2);
+        try {
+            workshopAggregate.createEvent(cmd2);
+            fail("Expected exception");
+        } catch (ReservationCanNotBeAddedException e) {
+            assertThat(e.getMessage().contains("bla@email"));
+        }
+
+        verify(emailSender).sendEmailConfirmation("bla@email",event.getReservationToken(),w1);
     }
 
     @Test(expected = ReservationCanNotBeAddedException.class)

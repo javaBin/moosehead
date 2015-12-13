@@ -55,6 +55,7 @@ public class SystemSetup {
         eventstore.addEventSubscriber(workshopRepository);
         workshopController = new WorkshopController();
         emailSender = Configuration.smtpServer() != null ? new SmtpEmailSender() : new DummyEmailSender();
+        workshopAggregate.setEmailSender(emailSender);
 
         if (eventstore.numberOfWorkshops() == 0L) {
             createAllWorkshops();

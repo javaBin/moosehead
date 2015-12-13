@@ -6,6 +6,7 @@ import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
 import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.saga.EmailSender;
 import no.java.moosehead.web.Configuration;
 
 import java.time.Instant;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 public class WorkshopAggregate implements EventSubscription {
 
     private ArrayList<AbstractEvent> eventArrayList = new ArrayList<>();
+    private EmailSender emailSender;
 
     @Override
     public void eventAdded(AbstractEvent event) {
@@ -83,8 +85,12 @@ public class WorkshopAggregate implements EventSubscription {
             if (OffsetDateTime.now().isBefore(computeOpenTime(workshop.get()))) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
             }
-            if (getReservation(addReservationCommand).isPresent()) {
-                throw new ReservationCanNotBeAddedException("A reservation already exsists for [" + addReservationCommand.getEmail() + "]");
+            Optional<ReservationAddedByUser> reservation = getReservation(addReservationCommand);
+            if (reservation.isPresent()) {
+                emailSender.sendEmailConfirmation(reservation.get().getEmail(),reservation.get().getReservationToken(),workshop.get().getWorkshopId());
+                throw new ReservationCanNotBeAddedException(String.format(
+                        "You have already tried to register with email [%s]. You need to click the link in the email to reserve your spot. We have now sent you the email again in case the first one did not reach you.",addReservationCommand.getEmail())
+                );
             }
 
             switch (addReservationCommand.getAuthorEnum()) {
@@ -222,5 +228,9 @@ public class WorkshopAggregate implements EventSubscription {
             throw new NoReservationFoundException("This email is already confirmed");
         }
         return new EmailConfirmedByUser(reservation.getEmail(),System.currentTimeMillis(),nextRevision());
+    }
+
+    public void setEmailSender(EmailSender emailSender) {
+        this.emailSender = emailSender;
     }
 }
