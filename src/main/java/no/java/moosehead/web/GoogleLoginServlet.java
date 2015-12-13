@@ -131,7 +131,7 @@ public class GoogleLoginServlet extends HttpServlet {
 
         String googleId = objnode.requiredString("id");
         boolean isAdmin = Configuration.adminGoogleIds().contains(googleId);
-        objnode.withValue("admin",isAdmin);
+        objnode.put("admin",isAdmin);
 
         System.out.println("Setting user logged in " + objnode);
         req.getSession().setAttribute("user", objnode);

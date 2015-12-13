@@ -1,7 +1,5 @@
 package no.java.moosehead.web;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
@@ -129,11 +127,11 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/reserve");
 
         JsonObject reservationJson = JsonFactory.jsonObject();
-        reservationJson.withValue("workshopid", "123");
-        reservationJson.withValue("email", "darth@a.com");
-        reservationJson.withValue("fullname", "Darth Vader");
-        reservationJson.withValue("numReservations", "1");
-        reservationJson.withValue("captcha", "123");
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth Vader");
+        reservationJson.put("numReservations", "1");
+        reservationJson.put("captcha", "123");
 
         when(participantApi.reservation(anyString(), anyString(), anyString(),any(AuthorEnum.class), any(Optional.class), anyInt())).thenReturn(ParticipantActionResult.ok());
 
@@ -155,13 +153,13 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/reserve");
 
         JsonObject reservationJson = JsonFactory.jsonObject();
-        reservationJson.withValue("workshopid", "123");
-        reservationJson.withValue("email", "darth@a.com");
-        reservationJson.withValue("fullname", "Darth Vader");
-        reservationJson.withValue("captcha", "123");
-        reservationJson.withValue("numReservations", "1");
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth Vader");
+        reservationJson.put("captcha", "123");
+        reservationJson.put("numReservations", "1");
 
-        ObjectNode googleNode = JsonNodeFactory.instance.objectNode();
+        JsonObject googleNode = JsonFactory.jsonObject();
         googleNode.put("email","darth@a.com");
         googleNode.put("id","435");
         googleNode.put("name", "Darth Vader");
@@ -189,11 +187,11 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/reserve");
 
         JsonObject reservationJson = new JsonObject();
-        reservationJson.withValue("workshopid", "123");
-        reservationJson.withValue("email", "darth@a.com");
-        reservationJson.withValue("fullname", "Darth Vader");
-        reservationJson.withValue("captcha", "456");
-        reservationJson.withValue("numReservations", "1");
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth Vader");
+        reservationJson.put("captcha", "456");
+        reservationJson.put("numReservations", "1");
 
         mockInputStream(reservationJson.toString());
 
@@ -212,8 +210,8 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/cancel");
 
         JsonObject reservationJson = JsonFactory.jsonObject();
-        reservationJson.withValue("token", "123");
-        reservationJson.withValue("email", "darth@a.com");
+        reservationJson.put("token", "123");
+        reservationJson.put("email", "darth@a.com");
 
         when(participantApi.cancellation(anyString(), any(AuthorEnum.class))).thenReturn(ParticipantActionResult.ok());
 
@@ -234,7 +232,7 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/confirmEmail");
 
         JsonObject reservationJson = JsonFactory.jsonObject();
-        reservationJson.withValue("token", "123456-123456");
+        reservationJson.put("token", "123456-123456");
 
         when(participantApi.confirmEmail(anyString())).thenReturn(ParticipantActionResult.ok());
 
@@ -268,11 +266,11 @@ public class DataServletTest {
         when(req.getPathInfo()).thenReturn("/reserve");
 
         JsonObject reservationJson = JsonFactory.jsonObject();
-        reservationJson.withValue("workshopid", "123");
-        reservationJson.withValue("email", "darth@a.com");
-        reservationJson.withValue("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
-        reservationJson.withValue("captcha", "123");
-        reservationJson.withValue("numReservations", "1");
+        reservationJson.put("workshopid", "123");
+        reservationJson.put("email", "darth@a.com");
+        reservationJson.put("fullname", "Darth <script type='text/javascript'>alert('noe')</script>Vader");
+        reservationJson.put("captcha", "123");
+        reservationJson.put("numReservations", "1");
 
         mockInputStream(reservationJson.toString());
 

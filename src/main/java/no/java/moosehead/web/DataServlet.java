@@ -1,6 +1,5 @@
 package no.java.moosehead.web;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.ParticipantApi;
 import no.java.moosehead.api.ParticipantReservation;
@@ -12,6 +11,7 @@ import no.java.moosehead.projections.Participant;
 import org.jsonbuddy.JsonArray;
 import org.jsonbuddy.JsonFactory;
 import org.jsonbuddy.JsonObject;
+import org.jsonbuddy.parse.JsonParseException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -86,8 +86,8 @@ public class DataServlet extends HttpServlet {
                 .collect(Collectors.toList());
 
         JsonObject result = JsonFactory.jsonObject();
-        result.withValue("title", workshopInfo.getTitle());
-        result.withValue("participants", JsonArray.fromNodeList(participants));
+        result.put("title", workshopInfo.getTitle());
+        result.put("participants", JsonArray.fromNodeList(participants));
         result.toJson(resp.getWriter());
 
     }
@@ -97,14 +97,14 @@ public class DataServlet extends HttpServlet {
         List<ParticipantReservation> participantReservations = participantApi.myReservations(email);
         List<JsonObject> reservations = participantReservations.stream().map(res -> {
             JsonObject jsonObject = JsonFactory.jsonObject();
-            jsonObject.withValue("workshopid", res.getWorkshopid());
-            jsonObject.withValue("email", res.getEmail());
-            jsonObject.withValue("status", res.getStatus());
-            jsonObject.withValue("workshopname", res.getWorkshopname());
-            jsonObject.withValue("numberOfSeatsReserved", res.getNumberOfSeatsReserved());
+            jsonObject.put("workshopid", res.getWorkshopid());
+            jsonObject.put("email", res.getEmail());
+            jsonObject.put("status", res.getStatus());
+            jsonObject.put("workshopname", res.getWorkshopname());
+            jsonObject.put("numberOfSeatsReserved", res.getNumberOfSeatsReserved());
             Optional<Integer> waitingListNumber = res.getWaitingListNumber();
             if (waitingListNumber.isPresent()) {
-                jsonObject.withValue("waitingListNumber", waitingListNumber.get());
+                jsonObject.put("waitingListNumber", waitingListNumber.get());
             }
             return jsonObject;
         }).collect(Collectors.toList());
@@ -115,12 +115,12 @@ public class DataServlet extends HttpServlet {
         List<WorkshopInfo> workshops = participantApi.workshops();
         List<JsonObject> jsons = workshops.stream().map(workshop -> {
                     JsonObject jsonObject = JsonFactory.jsonObject();
-                    jsonObject.withValue("id", workshop.getId());
-                    jsonObject.withValue("title", workshop.getTitle());
-                    jsonObject.withValue("description", workshop.getDescription());
-                    jsonObject.withValue("status", workshop.getStatus().name());
+                    jsonObject.put("id", workshop.getId());
+                    jsonObject.put("title", workshop.getTitle());
+                    jsonObject.put("description", workshop.getDescription());
+                    jsonObject.put("status", workshop.getStatus().name());
                     int maxReservationSpaces = workshop.getWorkshopTypeEnum() == WorkshopTypeEnum.KIDSAKODER_WORKSHOP ? Configuration.maxNumberOfSeatsToReserve() : 1;
-                    jsonObject.withValue("maxReservations", maxReservationSpaces);
+                    jsonObject.put("maxReservations", maxReservationSpaces);
                     return jsonObject;
                 }
         ).collect(Collectors.toList());
@@ -220,10 +220,10 @@ public class DataServlet extends HttpServlet {
         }
         resp.setContentType("text/json");
         JsonObject result = JsonFactory.jsonObject();
-        result.withValue("status", apiResult.get().getStatus());
+        result.put("status", apiResult.get().getStatus());
         String errormessage = apiResult.get().getErrormessage();
         if (errormessage != null) {
-            result.withValue("message",errormessage);
+            result.put("message",errormessage);
         }
         result.toJson(resp.getWriter());
     }

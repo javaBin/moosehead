@@ -51,7 +51,7 @@ public class AdminServlet  extends HttpServlet {
             writer.append(Optional.ofNullable(userAccess).map(Object::toString).orElse("{}"));
             return;
         }
-        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBooleanValue) jn).boolValue()).orElse(false))) {
+        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBoolean) jn).booleanValue()).orElse(false))) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -77,7 +77,7 @@ public class AdminServlet  extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JsonObject userAccess = (JsonObject) req.getSession().getAttribute("user");
-        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBooleanValue) jn).boolValue()).orElse(false))) {
+        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBoolean) jn).booleanValue()).orElse(false))) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -107,10 +107,10 @@ public class AdminServlet  extends HttpServlet {
         }
         resp.setContentType("text/json");
         JsonObject result = JsonFactory.jsonObject();
-        result.withValue("status", apiResult.get().getStatus());
+        result.put("status", apiResult.get().getStatus());
         String errormessage = apiResult.get().getErrormessage();
         if (errormessage != null) {
-            result.withValue("message",errormessage);
+            result.put("message",errormessage);
         }
         result.toJson(resp.getWriter());
     }
@@ -246,9 +246,9 @@ public class AdminServlet  extends HttpServlet {
                         .map(pa -> pa.getEmail())
                         .collect(Collectors.toList());
                 JsonObject duplReport = JsonFactory.jsonObject();
-                duplReport.withValue("wsa", a.getId());
-                duplReport.withValue("wsb", b.getId());
-                duplReport.withValue("duplicates", JsonArray.fromStringList(duplicates));
+                duplReport.put("wsa", a.getId());
+                duplReport.put("wsb", b.getId());
+                duplReport.put("duplicates", JsonArray.fromStringList(duplicates));
                 report.add(duplReport);
 
             }
@@ -272,10 +272,10 @@ public class AdminServlet  extends HttpServlet {
         List<WorkshopInfo> workshops = participantApi.workshops();
         List<JsonObject> jsons = workshops.stream().map(workshop -> {
                     JsonObject jsonObject = JsonFactory.jsonObject();
-                    jsonObject.withValue("id", workshop.getId());
-                    jsonObject.withValue("title", workshop.getTitle());
-                    jsonObject.withValue("description", workshop.getDescription());
-                    jsonObject.withValue("status", workshop.getStatus().name());
+                    jsonObject.put("id", workshop.getId());
+                    jsonObject.put("title", workshop.getTitle());
+                    jsonObject.put("description", workshop.getDescription());
+                    jsonObject.put("status", workshop.getStatus().name());
                     return jsonObject;
                 }
         ).collect(Collectors.toList());
@@ -288,17 +288,17 @@ public class AdminServlet  extends HttpServlet {
         WorkshopInfo workshop = participantApi.getWorkshop(workshopId);
 
         JsonObject jsonObject = JsonFactory.jsonObject();
-        jsonObject.withValue("id", workshop.getId());
-        jsonObject.withValue("title", workshop.getTitle());
-        jsonObject.withValue("description", workshop.getDescription());
-        jsonObject.withValue("status", workshop.getStatus().name());
-        jsonObject.withValue("participants", JsonArray.fromNodeList(workshop.getParticipants().stream().
+        jsonObject.put("id", workshop.getId());
+        jsonObject.put("title", workshop.getTitle());
+        jsonObject.put("description", workshop.getDescription());
+        jsonObject.put("status", workshop.getStatus().name());
+        jsonObject.put("participants", JsonArray.fromNodeList(workshop.getParticipants().stream().
                 map(pa -> {
                     JsonObject json = JsonFactory.jsonObject();
-                    json.withValue("name", pa.getName());
-                    json.withValue("email", pa.getEmail());
-                    json.withValue("numberOfSeats", pa.getNumberOfSeatsReserved());
-                    json.withValue("isEmailConfirmed", pa.isEmailConfirmed());
+                    json.put("name", pa.getName());
+                    json.put("email", pa.getEmail());
+                    json.put("numberOfSeats", pa.getNumberOfSeatsReserved());
+                    json.put("isEmailConfirmed", pa.isEmailConfirmed());
                     return json;
                 }).collect(Collectors.toList())));
 
