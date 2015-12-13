@@ -17,10 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WorkshopRepository implements EventSubscription {
@@ -65,7 +62,11 @@ public class WorkshopRepository implements EventSubscription {
     }
 
     private List<Item> readItems() {
-        InputStream inputStream = openEventInputStream();
+        Optional<String> emsEventLocation = Configuration.emsEventLocation();
+        if (!emsEventLocation.isPresent()) {
+            return Collections.emptyList();
+        }
+        InputStream inputStream = openEventInputStream(emsEventLocation.get());
 
         Collection events;
         try {
@@ -82,7 +83,7 @@ public class WorkshopRepository implements EventSubscription {
         return events.getItems();
     }
 
-    private InputStream openEventInputStream() {
+    private InputStream openEventInputStream(String emsEventLocation) {
         String eventFile = Configuration.emsEventsFile();
         if (eventFile != null) {
             try {
@@ -93,7 +94,7 @@ public class WorkshopRepository implements EventSubscription {
         }
         URL url;
         try {
-            url = new URL(Configuration.emsEventLocation());
+            url = new URL(emsEventLocation);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

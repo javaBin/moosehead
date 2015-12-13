@@ -5,10 +5,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Configuration {
     private static Map<String, String> confdata;
@@ -101,8 +98,12 @@ public class Configuration {
         return Integer.parseInt(readConf("serverPort","8088"));
     }
 
-    public static String emsEventLocation() {
-        return readConf("emsEventLocation", "http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
+    public static Optional<String> emsEventLocation() {
+        String emsEventLocation = readConf("emsEventLocation", "http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
+        if ("null".equals(emsEventLocation)) {
+            return Optional.empty();
+        }
+        return Optional.of(emsEventLocation);
     }
 
     public static String loginConfigLocation() {
