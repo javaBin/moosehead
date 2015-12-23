@@ -209,4 +209,8 @@ public class Configuration {
     public static void setConfdata(Map<String, String> confdata) {
         Configuration.confdata = confdata;
     }
+
+    public static long emailSleepTime() {
+        return Long.parseLong(readConf("emailSleepTime","5000"));
+    }
 }
