@@ -12,10 +12,8 @@ import no.java.moosehead.web.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -295,7 +293,15 @@ public class WorkshopAggregateTest {
     @Test
     public void shouldConfirmEmail() throws Exception {
         eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(), 1L, w1, 0));
-        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),1);
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(System.currentTimeMillis())
+                        .setRevisionId(2L)
+                        .setEmail("bal@gmail.com")
+                        .setFullname("Darth Vader")
+                        .setWorkshopId(w1)
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(1)
+                );
         eventstore.addEvent(reservationAddedByUser);
         ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(reservationAddedByUser.getReservationToken());
         EmailConfirmedByUser emailConfirmedByUser = workshopAggregate.createEvent(confirmEmailCommand);

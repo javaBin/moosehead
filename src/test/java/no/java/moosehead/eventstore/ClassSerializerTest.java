@@ -15,7 +15,15 @@ public class ClassSerializerTest {
     @Test
     public void shouldHandleOptionals() throws Exception {
         ClassSerializer classSerializer = new ClassSerializer();
-        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(1L, 1L, "a@a.com", "Darth Vader", "xx", Optional.of("a@a.com"),1);
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(1L)
+                        .setRevisionId(1L)
+                        .setEmail("a@a.com")
+                        .setFullname("Darth Vader")
+                        .setWorkshopId("xx")
+                        .setGoogleUserEmail(Optional.of("a@a.com"))
+                        .setNumberOfSeatsReserved(1)
+                );
         String serialized = classSerializer.asString(reservationAddedByUser);
         ReservationAddedByUser copy = (ReservationAddedByUser) classSerializer.asObject(serialized);
         assertThat(copy.getGoogleUserEmail().get()).isEqualTo("a@a.com");
@@ -24,7 +32,15 @@ public class ClassSerializerTest {
     @Test
     public void shouldHandleEmptyOptionals() throws Exception {
         ClassSerializer classSerializer = new ClassSerializer();
-        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(1L, 1L, "a@a.com", "Darth Vader", "xx", Optional.empty(),1);
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(1L)
+                        .setRevisionId(1L)
+                        .setEmail("a@a.com")
+                        .setFullname("Darth Vader")
+                        .setWorkshopId("xx")
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(1)
+                );
         String serialized = classSerializer.asString(reservationAddedByUser);
         ReservationAddedByUser copy = (ReservationAddedByUser) classSerializer.asObject(serialized);
         assertThat(copy.getGoogleUserEmail().isPresent()).isFalse();

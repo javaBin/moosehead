@@ -8,18 +8,6 @@ public class ReservationAddedByUser extends AbstractReservationAdded {
 
     public ReservationAddedByUser(){}
 
-    public ReservationAddedByUser(long systemTimeInMillis, long revisionId, String email, String fullname, String workshopId,Optional<String> googleUserEmail, int numberOfSeatsReserved) {
-        this(AbstractReservationAdded.builder()
-                .setSystemTimeInMillis(systemTimeInMillis)
-                .setRevisionId(revisionId)
-                .setEmail(email)
-                .setFullname(fullname)
-                .setWorkshopId(workshopId)
-                .setGoogleUserEmail(googleUserEmail)
-                .setNumberOfSeatsReserved(numberOfSeatsReserved)
-        );
-    }
-
     public ReservationAddedByUser(Builder builder) {
         super(builder);
         this.googleUserEmail = builder.googleUserEmail;

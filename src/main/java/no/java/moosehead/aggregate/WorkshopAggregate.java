@@ -108,8 +108,15 @@ public class WorkshopAggregate implements EventSubscription {
                     if (addReservationCommand.getNumberOfSeatsReserved() > maxNumberOfSeatsToReserve || addReservationCommand.getNumberOfSeatsReserved() < 1 ) {
                         throw new ReservationCanNotBeAddedException("Too many/few seats reserved [" + addReservationCommand.getNumberOfSeatsReserved() + "]");
                     }
-                    return new ReservationAddedByUser(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
-                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(),addReservationCommand.getGoogleEmail(), addReservationCommand.getNumberOfSeatsReserved());
+                    return new ReservationAddedByUser(AbstractReservationAdded.builder()
+                                    .setSystemTimeInMillis(System.currentTimeMillis())
+                                    .setRevisionId(nextRevision())
+                                    .setEmail(addReservationCommand.getEmail())
+                                    .setFullname(addReservationCommand.getFullname())
+                                    .setWorkshopId(addReservationCommand.getWorkshopId())
+                                    .setGoogleUserEmail(addReservationCommand.getGoogleEmail())
+                                    .setNumberOfSeatsReserved(addReservationCommand.getNumberOfSeatsReserved())
+                            );
                 default:
                     throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.SYSTEM + " is not supported"));
             }

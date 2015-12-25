@@ -6,6 +6,7 @@ import no.java.moosehead.api.ParticipantActionResult;
 import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.api.WorkshopStatus;
 import no.java.moosehead.commands.*;
+import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
@@ -25,7 +26,6 @@ import org.mockito.ArgumentCaptor;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,8 +63,24 @@ public class WorkshopControllerTest {
 
     @Test
     public void shouldCalculateCorrectStatusFewSpots() {
-        ReservationAddedByUser r1 = new ReservationAddedByUser(System.currentTimeMillis(), 1L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),20);
-        ReservationAddedByUser r2 = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "laban@gmail.com", "Darth Laber", w1,Optional.empty(),9);
+        ReservationAddedByUser r1 = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(System.currentTimeMillis())
+                        .setRevisionId(1L)
+                        .setEmail("bal@gmail.com")
+                        .setFullname("Darth Vader")
+                        .setWorkshopId(w1)
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(20)
+                );
+        ReservationAddedByUser r2 = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(System.currentTimeMillis())
+                        .setRevisionId(2L)
+                        .setEmail("laban@gmail.com")
+                        .setFullname("Darth Laber")
+                        .setWorkshopId(w1)
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(9)
+                );
         Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30);
         ws.addParticipant(Participant.confirmedParticipant(r1,ws));
         ws.addParticipant(Participant.confirmedParticipant(r2,ws));
@@ -74,8 +90,24 @@ public class WorkshopControllerTest {
 
     @Test
     public void shouldCalculateCorrectStatusFull() {
-        ReservationAddedByUser r1 = new ReservationAddedByUser(System.currentTimeMillis(), 1L, "bal@gmail.com", "Darth Vader", w1,Optional.empty(),20);
-        ReservationAddedByUser r2 = new ReservationAddedByUser(System.currentTimeMillis(), 2L, "laban@gmail.com", "Darth Laber", w1,Optional.empty(),10);
+        ReservationAddedByUser r1 = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(System.currentTimeMillis())
+                        .setRevisionId(1L)
+                        .setEmail("bal@gmail.com")
+                        .setFullname("Darth Vader")
+                        .setWorkshopId(w1)
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(20)
+                );
+        ReservationAddedByUser r2 = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(System.currentTimeMillis())
+                        .setRevisionId(2L)
+                        .setEmail("laban@gmail.com")
+                        .setFullname("Darth Laber")
+                        .setWorkshopId(w1)
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(10)
+                );
         Workshop ws = new Workshop(new WorkshopData("one", "title", "description"), 30);
         ws.addParticipant(Participant.confirmedParticipant(r1,ws));
         ws.addParticipant(Participant.confirmedParticipant(r2,ws));
@@ -128,7 +160,15 @@ public class WorkshopControllerTest {
     @Test
     public void shouldHandleRegistration() throws Exception {
 
-        ReservationAddedByUser rad = new ReservationAddedByUser(System.currentTimeMillis(),5L,"darth@deathstar.com","Darth Vader","one",Optional.empty(),1);
+        ReservationAddedByUser rad = new ReservationAddedByUser(AbstractReservationAdded.builder()
+                        .setSystemTimeInMillis(System.currentTimeMillis())
+                        .setRevisionId(5L)
+                        .setEmail("darth@deathstar.com")
+                        .setFullname("Darth Vader")
+                        .setWorkshopId("one")
+                        .setGoogleUserEmail(Optional.empty())
+                        .setNumberOfSeatsReserved(1)
+                );
         ArgumentCaptor<AddReservationCommand> resCmndCapture = ArgumentCaptor.forClass(AddReservationCommand.class);
         when(workshopAggregate.createEvent(resCmndCapture.capture())).thenReturn(rad);
 
