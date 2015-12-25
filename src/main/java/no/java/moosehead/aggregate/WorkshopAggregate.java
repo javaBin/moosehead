@@ -14,7 +14,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class WorkshopAggregate implements EventSubscription {
@@ -95,8 +94,14 @@ public class WorkshopAggregate implements EventSubscription {
 
             switch (addReservationCommand.getAuthorEnum()) {
                 case ADMIN:
-                    return new ReservationAddedByAdmin(System.currentTimeMillis(), nextRevision(), addReservationCommand.getEmail(),
-                            addReservationCommand.getFullname(), addReservationCommand.getWorkshopId(), addReservationCommand.getNumberOfSeatsReserved());
+                    return new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+                                    .setSystemTimeInMillis(System.currentTimeMillis())
+                                    .setRevisionId(nextRevision())
+                                    .setEmail(addReservationCommand.getEmail())
+                                    .setFullname(addReservationCommand.getFullname())
+                                    .setWorkshopId(addReservationCommand.getWorkshopId())
+                                    .setNumberOfSeatsReserved(addReservationCommand.getNumberOfSeatsReserved())
+                            );
                 case USER:
                     WorkshopTypeEnum workshopTypeEnum = workshop.get().getWorkshopData().map(WorkshopData::getWorkshopTypeEnum).orElse(WorkshopTypeEnum.NORMAL_WORKSHOP);
                     int maxNumberOfSeatsToReserve = workshopTypeEnum.equals(WorkshopTypeEnum.KIDSAKODER_WORKSHOP)?Configuration.maxNumberOfSeatsToReserve():1;
