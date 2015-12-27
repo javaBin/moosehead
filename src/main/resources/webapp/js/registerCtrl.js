@@ -102,6 +102,17 @@ angular.module('mooseheadModule')
                 }).error(function(data, status, headers, config) {
                     $scope.message = "Some unknown error occured. Error: " + data + " status: " + status;
                 });
+
             }
+
+            $scope.shirts = [];
+            $scope.numResChanged = function() {
+                console.log("xxx");
+                $scope.shirts=_.map(_.range(0,$scope.numReservations),function(d) {
+                    return {
+                        size: "small"
+                    };
+                });
+            };
         }]);
 
