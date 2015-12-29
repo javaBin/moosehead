@@ -2,6 +2,7 @@ package no.java.moosehead.eventstore;
 
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
+import org.jsonbuddy.JsonObject;
 
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ public abstract class AbstractReservationAdded extends AbstractEvent implements 
     private String workshopId;
     private String reservationToken;
     private int numberOfSeatsReserved;
+    private JsonObject additionalInfo;
 
     public AbstractReservationAdded() {
     }
@@ -43,6 +45,10 @@ public abstract class AbstractReservationAdded extends AbstractEvent implements 
 
     public int getNumberOfSeatsReserved() {
         return numberOfSeatsReserved;
+    }
+
+    public JsonObject getAdditionalInfo() {
+        return additionalInfo;
     }
 
     public static Builder builder() {
@@ -100,5 +106,7 @@ public abstract class AbstractReservationAdded extends AbstractEvent implements 
         public ReservationAddedByUser createByUser() {
             return new ReservationAddedByUser(this);
         }
+
+
     }
 }

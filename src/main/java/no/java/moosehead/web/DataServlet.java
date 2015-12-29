@@ -134,6 +134,7 @@ public class DataServlet extends HttpServlet {
         String fullname = readField(jsonInput, "fullname");
         String capthca = readField(jsonInput,"captcha");
         String numReservationStr = readField(jsonInput,"numReservations");
+        Optional<JsonObject> additionalInfo = jsonInput.objectValue("additionalInfo");
 
         HttpSession session = req.getSession();
         Object captchaAnswer = session.getAttribute("captchaAnswer");

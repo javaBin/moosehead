@@ -78,7 +78,10 @@ angular.module('mooseheadModule')
                     email: $scope.email,
                     fullname: $scope.fullname,
                     captcha: $scope.captcha,
-                    numReservations: numReservations
+                    numReservations: numReservations,
+                    additionalInfo: {
+                        tshirts: $scope.shirts
+                    }
 
                 };
                 $http({
