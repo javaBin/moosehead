@@ -1,21 +1,20 @@
 package no.java.moosehead.eventstore;
 
+import no.java.moosehead.domain.WorkshopReservation;
+
 import java.util.Optional;
 
 public class ReservationAddedByUser extends AbstractReservationAdded {
 
-    private Optional<String> googleUserEmail;
-
     public ReservationAddedByUser(){}
 
-    public ReservationAddedByUser(Builder builder) {
-        super(builder);
-        this.googleUserEmail = builder.googleUserEmail;
+    public ReservationAddedByUser(WorkshopReservation workshopReservation) {
+        super(workshopReservation);
     }
 
 
 
     public Optional<String> getGoogleUserEmail() {
-        return googleUserEmail;
+        return getWorkshopReservation().getGoogleUserEmail();
     }
 }

@@ -2,6 +2,7 @@ package no.java.moosehead.projections;
 
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
@@ -56,7 +57,7 @@ public class WorkshopListProjectionTest {
     public void shouldShowParticipants() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("a@a.com")
@@ -64,6 +65,7 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
 
         List<Participant> participants = workshopListProjection.getWorkshops().get(0).getParticipants();
@@ -78,7 +80,7 @@ public class WorkshopListProjectionTest {
     public void shouldHandleCancellations() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("a@a.com")
@@ -86,6 +88,7 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),3L,"a@a.com","one",1));
 
@@ -102,7 +105,7 @@ public class WorkshopListProjectionTest {
         WorkshopListProjection workshopListProjection = new WorkshopListProjection();
         workshopListProjection.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "one", 30, null, null, optworkshop.get()));
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("a@a.com")
@@ -110,6 +113,7 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.of("a@a.com"))
                         .setNumberOfSeatsReserved(2)
+                        .create()
                 ));
         workshopListProjection.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(), 3L, "a@a.com", "one", 1));
 
@@ -126,7 +130,7 @@ public class WorkshopListProjectionTest {
     public void shouldGiveConfirmedEmailStatus() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("a@a.com")
@@ -134,6 +138,7 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         workshopListProjection.eventAdded(new EmailConfirmedByUser("a@a.com",System.currentTimeMillis(),5L));
 
@@ -146,7 +151,7 @@ public class WorkshopListProjectionTest {
     public void queueShouldBeOrderedAccordingToConfirmTime() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
 
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("a@a.com")
@@ -154,8 +159,9 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(3L)
                         .setEmail("b@a.com")
@@ -163,6 +169,7 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         workshopListProjection.eventAdded(new EmailConfirmedByUser("b@a.com",System.currentTimeMillis(),4L));
         workshopListProjection.eventAdded(new EmailConfirmedByUser("a@a.com",System.currentTimeMillis(),5L));
@@ -177,7 +184,7 @@ public class WorkshopListProjectionTest {
     @Test
     public void shouldConfirmEmailWhenLoggedInWithGoogle() throws Exception {
         WorkshopListProjection workshopListProjection = setupOneWorkshop();
-        workshopListProjection.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        workshopListProjection.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("a@a.com")
@@ -185,6 +192,7 @@ public class WorkshopListProjectionTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.of("a@a.com"))
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         assertThat(workshopListProjection.isEmailConfirmed("a@a.com")).isTrue();
 

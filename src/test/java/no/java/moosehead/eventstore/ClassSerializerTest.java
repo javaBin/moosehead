@@ -1,6 +1,7 @@
 package no.java.moosehead.eventstore;
 
 import no.java.moosehead.commands.WorkshopTypeEnum;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.repository.WorkshopData;
 import org.junit.*;
@@ -15,7 +16,7 @@ public class ClassSerializerTest {
     @Test
     public void shouldHandleOptionals() throws Exception {
         ClassSerializer classSerializer = new ClassSerializer();
-        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(1L)
                         .setRevisionId(1L)
                         .setEmail("a@a.com")
@@ -23,6 +24,7 @@ public class ClassSerializerTest {
                         .setWorkshopId("xx")
                         .setGoogleUserEmail(Optional.of("a@a.com"))
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         String serialized = classSerializer.asString(reservationAddedByUser);
         ReservationAddedByUser copy = (ReservationAddedByUser) classSerializer.asObject(serialized);
@@ -32,7 +34,7 @@ public class ClassSerializerTest {
     @Test
     public void shouldHandleEmptyOptionals() throws Exception {
         ClassSerializer classSerializer = new ClassSerializer();
-        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(1L)
                         .setRevisionId(1L)
                         .setEmail("a@a.com")
@@ -40,6 +42,7 @@ public class ClassSerializerTest {
                         .setWorkshopId("xx")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         String serialized = classSerializer.asString(reservationAddedByUser);
         ReservationAddedByUser copy = (ReservationAddedByUser) classSerializer.asObject(serialized);

@@ -2,6 +2,7 @@ package no.java.moosehead.aggregate;
 
 import no.java.moosehead.commands.*;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.Eventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
@@ -293,7 +294,7 @@ public class WorkshopAggregateTest {
     @Test
     public void shouldConfirmEmail() throws Exception {
         eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(), 1L, w1, 0));
-        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("bal@gmail.com")
@@ -301,6 +302,7 @@ public class WorkshopAggregateTest {
                         .setWorkshopId(w1)
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         eventstore.addEvent(reservationAddedByUser);
         ConfirmEmailCommand confirmEmailCommand = new ConfirmEmailCommand(reservationAddedByUser.getReservationToken());

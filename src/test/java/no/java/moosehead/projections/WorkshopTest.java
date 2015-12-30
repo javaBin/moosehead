@@ -1,6 +1,7 @@
 package no.java.moosehead.projections;
 
 import no.java.moosehead.commands.WorkshopTypeEnum;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.ReservationAddedByAdmin;
 import no.java.moosehead.repository.WorkshopData;
@@ -20,46 +21,50 @@ public class WorkshopTest {
         WorkshopData wsd = new WorkshopData("id","tittel","beskrivelse");
         Workshop ws = new Workshop(wsd, 10);
 
-        final Participant onList_0 = Participant.confirmedParticipant(new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+        final Participant onList_0 = Participant.confirmedParticipant(new ReservationAddedByAdmin(WorkshopReservation.builder()
                         .setSystemTimeInMillis(0L)
                         .setRevisionId(0L)
                         .setEmail("email0@em.ail")
                         .setFullname("0")
                         .setWorkshopId(ws.getWorkshopData().getId())
                         .setNumberOfSeatsReserved(5)
+                        .create()
                 ), ws);
         ws.addParticipant(onList_0);
         assertThat(onList_0.waitingListNumber()).isEqualTo(0);
 
-        final Participant onList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+        final Participant onList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(WorkshopReservation.builder()
                         .setSystemTimeInMillis(1L)
                         .setRevisionId(1L)
                         .setEmail("email1@em.ail")
                         .setFullname("1")
                         .setWorkshopId(ws.getWorkshopData().getId())
                         .setNumberOfSeatsReserved(4)
+                        .create()
                 ), ws);
         ws.addParticipant(onList_1);
         assertThat(onList_1.waitingListNumber()).isEqualTo(0);
 
-        final Participant onWaitingList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+        final Participant onWaitingList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(WorkshopReservation.builder()
                         .setSystemTimeInMillis(2L)
                         .setRevisionId(2L)
                         .setEmail("email2@em.ail")
                         .setFullname("2")
                         .setWorkshopId(ws.getWorkshopData().getId())
                         .setNumberOfSeatsReserved(2)
+                        .create()
                 ), ws);
         ws.addParticipant(onWaitingList_1);
         assertThat(onWaitingList_1.waitingListNumber()).isEqualTo(1);
 
-        final Participant onWaitingList_2 = Participant.confirmedParticipant(new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+        final Participant onWaitingList_2 = Participant.confirmedParticipant(new ReservationAddedByAdmin(WorkshopReservation.builder()
                         .setSystemTimeInMillis(3L)
                         .setRevisionId(3L)
                         .setEmail("email3@em.ail")
                         .setFullname("3")
                         .setWorkshopId(ws.getWorkshopData().getId())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ), ws);
         ws.addParticipant(onWaitingList_2);
         assertThat(onWaitingList_2.waitingListNumber()).isEqualTo(2);
@@ -70,24 +75,26 @@ public class WorkshopTest {
         WorkshopData wsd = new WorkshopData("id","tittel","beskrivelse");
         Workshop ws = new Workshop(wsd, 10);
 
-        final Participant onList_0 = Participant.confirmedParticipant(new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+        final Participant onList_0 = Participant.confirmedParticipant(new ReservationAddedByAdmin(WorkshopReservation.builder()
                         .setSystemTimeInMillis(0L)
                         .setRevisionId(0L)
                         .setEmail("email0@em.ail")
                         .setFullname("0")
                         .setWorkshopId(ws.getWorkshopData().getId())
                         .setNumberOfSeatsReserved(5)
+                        .create()
                 ), ws);
         ws.addParticipant(onList_0);
         assertThat(onList_0.waitingListNumber()).isEqualTo(0);
 
-        final Participant onList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+        final Participant onList_1 = Participant.confirmedParticipant(new ReservationAddedByAdmin(WorkshopReservation.builder()
                         .setSystemTimeInMillis(1L)
                         .setRevisionId(1L)
                         .setEmail("email1@em.ail")
                         .setFullname("1")
                         .setWorkshopId(ws.getWorkshopData().getId())
                         .setNumberOfSeatsReserved(5)
+                        .create()
                 ), ws);
         ws.addParticipant(onList_1);
         assertThat(onList_1.waitingListNumber()).isEqualTo(0);

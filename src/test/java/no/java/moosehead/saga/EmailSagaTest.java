@@ -1,6 +1,7 @@
 package no.java.moosehead.saga;
 
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
 import no.java.moosehead.web.Configuration;
@@ -38,7 +39,7 @@ public class EmailSagaTest {
     @Test
     public void shouldSendEmailOnConfirm() throws Exception {
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
-        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -46,6 +47,7 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationAddedByUser);
 
@@ -55,7 +57,7 @@ public class EmailSagaTest {
 
     @Test
     public void shouldNotSendIfBootstrapNotDone() throws Exception {
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -63,6 +65,7 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
 
         verifyNoMoreInteractions(emailSender);
@@ -71,7 +74,7 @@ public class EmailSagaTest {
     @Test
     public void shouldSendReservationConfirmation() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"one",10));
-        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -79,6 +82,7 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationAddedByUser);
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
@@ -89,7 +93,7 @@ public class EmailSagaTest {
 
     @Test
     public void shouldSendCancellationConfirmation() throws Exception {
-        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -97,6 +101,7 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationAddedByUser);
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
@@ -110,7 +115,7 @@ public class EmailSagaTest {
     public void shouldAskForEmailConfirmationOnlyOnce() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"one",10));
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"two",10));
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -118,11 +123,12 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com", System.currentTimeMillis(), 3L));
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
 
-        final ReservationAddedByUser reservationAddedByUser =new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser =new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(4L)
                         .setEmail("darth@a.com")
@@ -130,6 +136,7 @@ public class EmailSagaTest {
                         .setWorkshopId("two")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationAddedByUser);
         verify(emailSender).sendReservationConfirmation("darth@a.com", "two",reservationAddedByUser.getReservationToken());
@@ -140,7 +147,7 @@ public class EmailSagaTest {
     public void shouldSendOneEmailForEachReservation() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"one",10));
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"two",10));
-        final ReservationAddedByUser reservationAddedByUser1 = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser1 = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -148,8 +155,9 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
-        final ReservationAddedByUser reservationAddedByUser2 = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser2 = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(4L)
                         .setEmail("darth@a.com")
@@ -157,6 +165,7 @@ public class EmailSagaTest {
                         .setWorkshopId("two")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationAddedByUser1);
         emailSaga.eventAdded(reservationAddedByUser2);
@@ -173,7 +182,7 @@ public class EmailSagaTest {
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),1L,"one",2));
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),2L,"two",2));
 
-        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(3L)
                         .setEmail("darth@a.com")
@@ -181,9 +190,10 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationAddedByUser);
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(4L)
                         .setEmail("darth@a.com")
@@ -191,6 +201,7 @@ public class EmailSagaTest {
                         .setWorkshopId("two")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new ReservationCancelledByUser(System.currentTimeMillis(),6L,"darth@a.com","two",1));
         emailSaga.eventAdded(new SystemBootstrapDone(7L));
@@ -205,7 +216,7 @@ public class EmailSagaTest {
     @Test
     public void shouldSendWaitingListInfoWhenWorkshopIsFull() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"one",2));
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -213,9 +224,10 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com",System.currentTimeMillis(), 2L));
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(4L)
                         .setEmail("luke@a.com")
@@ -223,9 +235,10 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new EmailConfirmedByUser("luke@a.com",System.currentTimeMillis(), 2L));
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(5L)
                         .setEmail("jarjar@a.com")
@@ -233,6 +246,7 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new SystemBootstrapDone(1L));
 
@@ -246,7 +260,7 @@ public class EmailSagaTest {
     @Test
     public void shouldSendConfirmationWhenPlaceBecomesAvailible() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedBySystem(System.currentTimeMillis(),0L,"one",2));
-        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        final ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(5L)
                         .setEmail("jarjar@a.com")
@@ -254,8 +268,9 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -263,9 +278,10 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new EmailConfirmedByUser("darth@a.com",System.currentTimeMillis(), 2L));
-        emailSaga.eventAdded(new ReservationAddedByUser(AbstractReservationAdded.builder()
+        emailSaga.eventAdded(new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(4L)
                         .setEmail("luke@a.com")
@@ -273,6 +289,7 @@ public class EmailSagaTest {
                         .setWorkshopId("one")
                         .setGoogleUserEmail(Optional.empty())
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 ));
         emailSaga.eventAdded(new EmailConfirmedByUser("luke@a.com",System.currentTimeMillis(), 2L));
         emailSaga.eventAdded(reservationAddedByUser);
@@ -291,7 +308,7 @@ public class EmailSagaTest {
     @Test
     public void workshopCanHaveDifferentSpaces() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "wsone", 3));
-        ReservationAddedByUser reservationOne = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationOne = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -299,11 +316,12 @@ public class EmailSagaTest {
                         .setWorkshopId("wsone")
                         .setGoogleUserEmail(Optional.of("darth@a.com"))
                         .setNumberOfSeatsReserved(3)
+                        .create()
                 );
         emailSaga.eventAdded(reservationOne);
         emailSaga.eventAdded(new SystemBootstrapDone(3L));
 
-        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("luke@a.com")
@@ -311,6 +329,7 @@ public class EmailSagaTest {
                         .setWorkshopId("wsone")
                         .setGoogleUserEmail(Optional.of("luke@a.com"))
                         .setNumberOfSeatsReserved(3)
+                        .create()
                 );
         emailSaga.eventAdded(reservationTwo);
 
@@ -320,7 +339,7 @@ public class EmailSagaTest {
     @Test
     public void shouldSendConfirmWithCancellationHandleSpecificSpaces() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "wsone", 3));
-        ReservationAddedByUser reservationOne = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationOne = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -328,10 +347,11 @@ public class EmailSagaTest {
                         .setWorkshopId("wsone")
                         .setGoogleUserEmail(Optional.of("darth@a.com"))
                         .setNumberOfSeatsReserved(3)
+                        .create()
                 );
         emailSaga.eventAdded(reservationOne);
 
-        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(3L)
                         .setEmail("luke@a.com")
@@ -339,6 +359,7 @@ public class EmailSagaTest {
                         .setWorkshopId("wsone")
                         .setGoogleUserEmail(Optional.of("luke@a.com"))
                         .setNumberOfSeatsReserved(3)
+                        .create()
                 );
         emailSaga.eventAdded(reservationTwo);
         emailSaga.eventAdded(new SystemBootstrapDone(4L));
@@ -353,7 +374,7 @@ public class EmailSagaTest {
     @Test
     public void shouldSendConfirmationWhenParticallyCanceled() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "wsone", 3));
-        ReservationAddedByUser reservationOne = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationOne = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(2L)
                         .setEmail("darth@a.com")
@@ -361,10 +382,11 @@ public class EmailSagaTest {
                         .setWorkshopId("wsone")
                         .setGoogleUserEmail(Optional.of("darth@a.com"))
                         .setNumberOfSeatsReserved(3)
+                        .create()
                 );
         emailSaga.eventAdded(reservationOne);
 
-        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(AbstractReservationAdded.builder()
+        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(WorkshopReservation.builder()
                         .setSystemTimeInMillis(System.currentTimeMillis())
                         .setRevisionId(3L)
                         .setEmail("luke@a.com")
@@ -372,6 +394,7 @@ public class EmailSagaTest {
                         .setWorkshopId("wsone")
                         .setGoogleUserEmail(Optional.of("luke@a.com"))
                         .setNumberOfSeatsReserved(1)
+                        .create()
                 );
         emailSaga.eventAdded(reservationTwo);
         emailSaga.eventAdded(new SystemBootstrapDone(4L));

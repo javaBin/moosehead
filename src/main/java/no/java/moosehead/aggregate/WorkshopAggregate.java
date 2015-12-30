@@ -2,6 +2,7 @@ package no.java.moosehead.aggregate;
 
 import no.java.moosehead.commands.*;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -94,13 +95,14 @@ public class WorkshopAggregate implements EventSubscription {
 
             switch (addReservationCommand.getAuthorEnum()) {
                 case ADMIN:
-                    return new ReservationAddedByAdmin(AbstractReservationAdded.builder()
+                    return new ReservationAddedByAdmin(WorkshopReservation.builder()
                                     .setSystemTimeInMillis(System.currentTimeMillis())
                                     .setRevisionId(nextRevision())
                                     .setEmail(addReservationCommand.getEmail())
                                     .setFullname(addReservationCommand.getFullname())
                                     .setWorkshopId(addReservationCommand.getWorkshopId())
                                     .setNumberOfSeatsReserved(addReservationCommand.getNumberOfSeatsReserved())
+                                    .create()
                             );
                 case USER:
                     WorkshopTypeEnum workshopTypeEnum = workshop.get().getWorkshopData().map(WorkshopData::getWorkshopTypeEnum).orElse(WorkshopTypeEnum.NORMAL_WORKSHOP);
@@ -108,7 +110,7 @@ public class WorkshopAggregate implements EventSubscription {
                     if (addReservationCommand.getNumberOfSeatsReserved() > maxNumberOfSeatsToReserve || addReservationCommand.getNumberOfSeatsReserved() < 1 ) {
                         throw new ReservationCanNotBeAddedException("Too many/few seats reserved [" + addReservationCommand.getNumberOfSeatsReserved() + "]");
                     }
-                    return new ReservationAddedByUser(AbstractReservationAdded.builder()
+                    return new ReservationAddedByUser(WorkshopReservation.builder()
                                     .setSystemTimeInMillis(System.currentTimeMillis())
                                     .setRevisionId(nextRevision())
                                     .setEmail(addReservationCommand.getEmail())
@@ -116,6 +118,7 @@ public class WorkshopAggregate implements EventSubscription {
                                     .setWorkshopId(addReservationCommand.getWorkshopId())
                                     .setGoogleUserEmail(addReservationCommand.getGoogleEmail())
                                     .setNumberOfSeatsReserved(addReservationCommand.getNumberOfSeatsReserved())
+                                    .create()
                             );
                 default:
                     throw new ReservationCanNotBeAddedException("Reservation cannot be added", new IllegalArgumentException("AuthorEnum + " + AuthorEnum.SYSTEM + " is not supported"));
