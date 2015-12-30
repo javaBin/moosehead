@@ -192,9 +192,9 @@ public class WorkshopControllerTest {
         verify(workshopAggregate).createEvent(any(AddReservationCommand.class));
         AddReservationCommand value = resCmndCapture.getValue();
 
-        assertThat(value.getEmail()).isEqualTo("darth@deathstar.com");
-        assertThat(value.getFullname()).isEqualTo("Darth Vader");
-        assertThat(value.getWorkshopId()).isEqualTo("one");
+        assertThat(value.getWorkshopReservation().getEmail()).isEqualTo("darth@deathstar.com");
+        assertThat(value.getWorkshopReservation().getFullname()).isEqualTo("Darth Vader");
+        assertThat(value.getWorkshopReservation().getWorkshopId()).isEqualTo("one");
     }
 
     @Test

@@ -80,7 +80,7 @@ public class WorkshopAggregate implements EventSubscription {
     }
 
     public AbstractReservationAdded createEvent(AddReservationCommand addReservationCommand) {
-        Optional<WorkshopAddedEvent> workshop = getWorkshop(addReservationCommand.getWorkshopId());
+        Optional<WorkshopAddedEvent> workshop = getWorkshop(addReservationCommand.getWorkshopReservation().getWorkshopId());
         if (workshop.isPresent()) {
             if (OffsetDateTime.now().isBefore(computeOpenTime(workshop.get()))) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
@@ -89,35 +89,26 @@ public class WorkshopAggregate implements EventSubscription {
             if (reservation.isPresent()) {
                 emailSender.sendEmailConfirmation(reservation.get().getEmail(),reservation.get().getReservationToken(),workshop.get().getWorkshopId());
                 throw new ReservationCanNotBeAddedException(String.format(
-                        "You have already tried to register with email [%s]. You need to click the link in the email to reserve your spot. We have now sent you the email again in case the first one did not reach you.",addReservationCommand.getEmail())
+                        "You have already tried to register with email [%s]. You need to click the link in the email to reserve your spot. We have now sent you the email again in case the first one did not reach you.",addReservationCommand.getWorkshopReservation().getEmail())
                 );
             }
 
             switch (addReservationCommand.getAuthorEnum()) {
                 case ADMIN:
-                    return new ReservationAddedByAdmin(WorkshopReservation.builder()
+                    return new ReservationAddedByAdmin(addReservationCommand.getWorkshopReservation().copy()
                                     .setSystemTimeInMillis(System.currentTimeMillis())
                                     .setRevisionId(nextRevision())
-                                    .setEmail(addReservationCommand.getEmail())
-                                    .setFullname(addReservationCommand.getFullname())
-                                    .setWorkshopId(addReservationCommand.getWorkshopId())
-                                    .setNumberOfSeatsReserved(addReservationCommand.getNumberOfSeatsReserved())
                                     .create()
                             );
                 case USER:
                     WorkshopTypeEnum workshopTypeEnum = workshop.get().getWorkshopData().map(WorkshopData::getWorkshopTypeEnum).orElse(WorkshopTypeEnum.NORMAL_WORKSHOP);
                     int maxNumberOfSeatsToReserve = workshopTypeEnum.equals(WorkshopTypeEnum.KIDSAKODER_WORKSHOP)?Configuration.maxNumberOfSeatsToReserve():1;
-                    if (addReservationCommand.getNumberOfSeatsReserved() > maxNumberOfSeatsToReserve || addReservationCommand.getNumberOfSeatsReserved() < 1 ) {
-                        throw new ReservationCanNotBeAddedException("Too many/few seats reserved [" + addReservationCommand.getNumberOfSeatsReserved() + "]");
+                    if (addReservationCommand.getWorkshopReservation().getNumberOfSeatsReserved() > maxNumberOfSeatsToReserve || addReservationCommand.getWorkshopReservation().getNumberOfSeatsReserved() < 1 ) {
+                        throw new ReservationCanNotBeAddedException("Too many/few seats reserved [" + addReservationCommand.getWorkshopReservation().getNumberOfSeatsReserved() + "]");
                     }
-                    return new ReservationAddedByUser(WorkshopReservation.builder()
+                    return new ReservationAddedByUser(addReservationCommand.getWorkshopReservation().copy()
                                     .setSystemTimeInMillis(System.currentTimeMillis())
                                     .setRevisionId(nextRevision())
-                                    .setEmail(addReservationCommand.getEmail())
-                                    .setFullname(addReservationCommand.getFullname())
-                                    .setWorkshopId(addReservationCommand.getWorkshopId())
-                                    .setGoogleUserEmail(addReservationCommand.getGoogleEmail())
-                                    .setNumberOfSeatsReserved(addReservationCommand.getNumberOfSeatsReserved())
                                     .create()
                             );
                 default:
@@ -214,8 +205,8 @@ public class WorkshopAggregate implements EventSubscription {
     }
 
     private Optional<ReservationAddedByUser> getReservation(AddReservationCommand reservationAdded) {
-        return getReservationsForWorkshop(reservationAdded.getWorkshopId())
-                .filter(reservation -> reservation.getEmail().equals(reservationAdded.getEmail()))
+        return getReservationsForWorkshop(reservationAdded.getWorkshopReservation().getWorkshopId())
+                .filter(reservation -> reservation.getEmail().equals(reservationAdded.getWorkshopReservation().getEmail()))
                 .findFirst();
     }
 

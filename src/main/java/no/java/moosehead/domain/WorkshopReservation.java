@@ -46,6 +46,19 @@ public class WorkshopReservation {
         return new Builder();
     }
 
+    public Builder copy() {
+        return builder()
+            .setEmail(email)
+            .setFullname(fullname)
+            .setWorkshopId(workshopId)
+            .setReservationToken(reservationToken)
+            .setNumberOfSeatsReserved(numberOfSeatsReserved)
+            .setAdditionalInfo(additionalInfo)
+            .setSystemTimeInMillis(systemTimeInMillis)
+            .setRevisionId(revisionId)
+            .setGoogleUserEmail(googleUserEmail);
+    }
+
     public static class Builder {
         private String email;
         private String fullname;

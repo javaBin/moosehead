@@ -13,30 +13,12 @@ public class AddReservationCommand {
         this.authorEnum = authorEnum;
     }
 
-    public String getWorkshopId() {
-        return workshopReservation.getWorkshopId();
+    public WorkshopReservation getWorkshopReservation() {
+        return workshopReservation;
     }
-
-    public String getEmail() {
-        return workshopReservation.getEmail();
-    }
-
-    public String getFullname() {
-        return workshopReservation.getFullname();
-    }
-
 
     public AuthorEnum getAuthorEnum() {
         return authorEnum;
-    }
-
-    public Optional<String> getGoogleEmail() {
-        return workshopReservation.getGoogleUserEmail();
-    }
-
-
-    public int getNumberOfSeatsReserved() {
-        return workshopReservation.getNumberOfSeatsReserved();
     }
 
     public String toString() {
