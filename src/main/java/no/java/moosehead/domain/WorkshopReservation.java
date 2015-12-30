@@ -3,6 +3,7 @@ package no.java.moosehead.domain;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
 import org.jsonbuddy.JsonObject;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class WorkshopReservation {
@@ -142,5 +143,20 @@ public class WorkshopReservation {
 
     public Optional<String> getGoogleUserEmail() {
         return googleUserEmail;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkshopReservation{" +
+                "email='" + email + '\'' +
+                ", fullname='" + fullname + '\'' +
+                ", workshopId='" + workshopId + '\'' +
+                ", reservationToken='" + reservationToken + '\'' +
+                ", numberOfSeatsReserved=" + numberOfSeatsReserved +
+                ", additionalInfo=" + additionalInfo +
+                ", systemTimeInMillis=" + systemTimeInMillis +
+                ", revisionId=" + revisionId +
+                ", googleUserEmail=" + googleUserEmail +
+                '}';
     }
 }

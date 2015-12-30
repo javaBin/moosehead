@@ -2,9 +2,9 @@ package no.java.moosehead.projections;
 
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.domain.WorkshopReservation;
-import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.ReservationAddedByAdmin;
 import no.java.moosehead.repository.WorkshopData;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class WorkshopTest {
 

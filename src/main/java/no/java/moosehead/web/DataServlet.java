@@ -7,6 +7,7 @@ import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.projections.Participant;
 import org.jsonbuddy.JsonArray;
 import org.jsonbuddy.JsonFactory;
@@ -155,7 +156,15 @@ public class DataServlet extends HttpServlet {
             return Optional.of(ParticipantActionResult.error("Invalid number of reservations"));
         }
         Optional<String> googleEmail = readGoogleMail(session);
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.USER, googleEmail, numReservations);
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setWorkshopId(workshopid)
+                .setEmail(email)
+                .setFullname(fullname)
+                .setGoogleUserEmail(googleEmail)
+                .setNumberOfSeatsReserved(numReservations)
+                .setAdditionalInfo(additionalInfo.orElse(null))
+                .create();
+        ParticipantActionResult reservation = participantApi.reservation(workshopReservation,AuthorEnum.USER);
 
         return Optional.of(reservation);
     }

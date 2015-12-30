@@ -1,6 +1,7 @@
 package no.java.moosehead.api;
 
 import no.java.moosehead.commands.AuthorEnum;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.web.Configuration;
 import org.jsonbuddy.JsonArray;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public interface ParticipantApi {
     public WorkshopInfo getWorkshop(String workshopid);
     public List<WorkshopInfo> workshops();
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname, AuthorEnum authorEnum, Optional<String> googleEmail, int numReservations);
+    public ParticipantActionResult reservation(WorkshopReservation workshopReservation,AuthorEnum authorEnum);
     public ParticipantActionResult confirmEmail(String token);
     public ParticipantActionResult cancellation(String reservationId, AuthorEnum authorEnum);
     public List<ParticipantReservation> myReservations(String email);

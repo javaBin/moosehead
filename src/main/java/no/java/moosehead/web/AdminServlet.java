@@ -7,6 +7,7 @@ import no.java.moosehead.api.WorkshopInfo;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.repository.WorkshopData;
 import org.jsonbuddy.*;
 
@@ -210,7 +211,12 @@ public class AdminServlet  extends HttpServlet {
         if (workshopid == null || email == null || fullname == null) {
             return Optional.of(ParticipantActionResult.error("Name and email must be present without spesial characters"));
         }
-        ParticipantActionResult reservation = participantApi.reservation(workshopid, email, fullname, AuthorEnum.ADMIN, Optional.empty(), 1);
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setWorkshopId(workshopid)
+                .setEmail(email)
+                .setFullname(fullname)
+                .create();
+        ParticipantActionResult reservation = participantApi.reservation(workshopReservation, AuthorEnum.ADMIN);
 
         return Optional.of(reservation);
     }

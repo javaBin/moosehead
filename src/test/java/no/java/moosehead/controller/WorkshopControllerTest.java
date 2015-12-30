@@ -179,7 +179,12 @@ public class WorkshopControllerTest {
 
         when(workshopListProjection.isEmailConfirmed("darth@deathstar.com")).thenReturn(false);
 
-        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", AuthorEnum.USER, Optional.empty(), 1);
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setWorkshopId("one")
+                .setEmail("darth@deathstar.com")
+                .setFullname("Darth Vader")
+                .create();
+        ParticipantActionResult result = workshopController.reservation(workshopReservation,AuthorEnum.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.CONFIRM_EMAIL);
 
@@ -196,7 +201,12 @@ public class WorkshopControllerTest {
     public void shouldReturnErrorIfAggregateThrowsError() throws Exception {
         doThrow(new MoosheadException("This is errormessage")).when(workshopAggregate).createEvent(any(AddReservationCommand.class));
 
-        ParticipantActionResult result = workshopController.reservation("one", "darth@deathstar.com", "Darth Vader", AuthorEnum.USER, Optional.empty(), 1);
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setWorkshopId("one")
+                .setEmail("darth@deathstar.com")
+                .setFullname("Darth Vader")
+                .create();
+        ParticipantActionResult result = workshopController.reservation(workshopReservation,AuthorEnum.USER);
 
         assertThat(result.getStatus()).isEqualTo(ParticipantActionResult.Status.ERROR);
         assertThat(result.getErrormessage()).isEqualTo("This is errormessage");

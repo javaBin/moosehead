@@ -5,6 +5,7 @@ import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.aggregate.WorkshopNotFoundException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.*;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.AbstractReservationCancelled;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
@@ -81,8 +82,8 @@ public class WorkshopController implements ParticipantApi,AdminApi {
     }
 
     @Override
-    public ParticipantActionResult reservation(String workshopid, String email, String fullname, AuthorEnum authorEnum, Optional<String> googleEmail, int numReservations) {
-        AddReservationCommand arc = new AddReservationCommand(email,fullname,workshopid, authorEnum, googleEmail, numReservations);
+    public ParticipantActionResult reservation(WorkshopReservation workshopReservation, AuthorEnum authorEnum) {
+        AddReservationCommand arc = new AddReservationCommand(workshopReservation,authorEnum);
         AbstractReservationAdded event;
 
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();

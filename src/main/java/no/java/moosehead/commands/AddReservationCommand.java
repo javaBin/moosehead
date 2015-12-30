@@ -1,54 +1,46 @@
 package no.java.moosehead.commands;
 
+import no.java.moosehead.domain.WorkshopReservation;
+
 import java.util.Optional;
 
 public class AddReservationCommand {
-    private final String email;
-    private final String fullname;
-    private final String workshopId;
+    private final WorkshopReservation workshopReservation;
     private final AuthorEnum authorEnum;
-    private final Optional<String> googleEmail;
-    private final int numberOfSeatsReserved;
 
-    public AddReservationCommand(String email, String fullname, String workshopId, AuthorEnum authorEnum, Optional<String> googleEmail, int numberOfSeatsReserved) {
-        this.email = email;
-        this.fullname = fullname;
-        this.workshopId = workshopId;
+    public AddReservationCommand(WorkshopReservation workshopReservation, AuthorEnum authorEnum) {
+        this.workshopReservation = workshopReservation;
         this.authorEnum = authorEnum;
-        this.googleEmail = googleEmail;
-        this.numberOfSeatsReserved = numberOfSeatsReserved;
     }
 
     public String getWorkshopId() {
-        return workshopId;
+        return workshopReservation.getWorkshopId();
     }
 
     public String getEmail() {
-        return email;
+        return workshopReservation.getEmail();
     }
 
     public String getFullname() {
-        return fullname;
+        return workshopReservation.getFullname();
     }
 
-    public String toString() {
-        return "AddReservationCommand for workshop:" + workshopId +
-                " for user:" + fullname +
-                " with email:" + email +
-                " by " + authorEnum.name() +
-                " googlemail: " + googleEmail;
-    }
 
     public AuthorEnum getAuthorEnum() {
         return authorEnum;
     }
 
     public Optional<String> getGoogleEmail() {
-        return googleEmail;
+        return workshopReservation.getGoogleUserEmail();
     }
 
 
     public int getNumberOfSeatsReserved() {
-        return numberOfSeatsReserved;
+        return workshopReservation.getNumberOfSeatsReserved();
     }
+
+    public String toString() {
+        return "AddReservationCommand for workshop author enumn :" + authorEnum + " info: " + workshopReservation;
+    }
+
 }
