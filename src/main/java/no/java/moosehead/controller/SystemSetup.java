@@ -128,8 +128,8 @@ public class SystemSetup {
                     ws.getParticipants().stream()
                             .filter(pa -> pa.isEmailConfirmed() && !pa.isWaiting())
                             .forEach(pa -> {
-                                SystemSetup.instance().emailSender().send(EmailType.WELCOME,pa.getEmail(),new Hashtable<>());
-                                System.out.println(pa.getWorkshopId() + ";" + pa.getEmail());
+                                SystemSetup.instance().emailSender().send(EmailType.WELCOME,pa.getWorkshopReservation().getEmail(),new Hashtable<>());
+                                System.out.println(pa.getWorkshopId() + ";" + pa.getWorkshopReservation().getEmail());
                             });
                 });
 
@@ -163,7 +163,7 @@ public class SystemSetup {
 
     public EmailSender emailSender() {
         return emailSender;
-    };
+    }
 
     public TokenGenerator revisionGenerator() {
         return tokenGenerator;

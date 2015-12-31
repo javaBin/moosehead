@@ -111,7 +111,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
         }
 
         Participant participant = optByReservationId.get();
-        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getEmail(), participant.getWorkshopId(), authorEnum);
+        CancelReservationCommand cancelReservationCommand = new CancelReservationCommand(participant.getWorkshopReservation().getEmail(), participant.getWorkshopId(), authorEnum);
         AbstractReservationCancelled event;
         WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
         synchronized (workshopAggregate) {
@@ -157,7 +157,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                     ParticipantReservationStatus status = !pa.isEmailConfirmed() ?
                             ParticipantReservationStatus.NOT_CONFIRMED :
                             waitingListNumber <= 0 ? ParticipantReservationStatus.HAS_SPACE : ParticipantReservationStatus.WAITING_LIST;
-                    return new ParticipantReservation(pa.getEmail(), pa.getWorkshopId(), name, status, pa.getNumberOfSeatsReserved(), opwl);
+                    return new ParticipantReservation(pa.getWorkshopReservation().getEmail(), pa.getWorkshopId(), name, status, pa.getNumberOfSeatsReserved(), opwl);
                 })
                 .collect(Collectors.toList());
     }
@@ -205,7 +205,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
     private ParticipantActionResult readStatus(String token) {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
         Optional<Workshop> workshopOptional = workshops.stream()
-                .filter(ws -> ws.getParticipants().stream().filter(pa -> token.equals(pa.getReservationToken())).findAny().isPresent())
+                .filter(ws -> ws.getParticipants().stream().filter(pa -> token.equals(pa.getWorkshopReservation().getReservationToken())).findAny().isPresent())
                 .findAny();
         if (!workshopOptional.isPresent()) {
             return ParticipantActionResult.error("Internal error : Did not find reservation " + token);
@@ -213,7 +213,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
         Workshop workshop = workshopOptional.get();
         String workshopInfo = workshop.getWorkshopData().infoText();
         Participant participant = workshop.getParticipants().stream()
-                .filter(pa -> token.equals(pa.getReservationToken()))
+                .filter(pa -> token.equals(pa.getWorkshopReservation().getReservationToken()))
                 .findAny().get();
 
         int waitingListNumber = workshop.waitingListNumber(participant);

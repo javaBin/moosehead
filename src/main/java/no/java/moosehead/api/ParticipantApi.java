@@ -40,13 +40,14 @@ public interface ParticipantApi {
     public static JsonObject participantAsAdminJson(Participant participant) {
         JsonObject partObj = JsonFactory.jsonObject();
 
-        partObj.put("email", participant.getEmail());
+        partObj.put("email", participant.getWorkshopReservation().getEmail());
         partObj.put("numberOfSeats", participant.getNumberOfSeatsReserved());
-        partObj.put("name", participant.getName());
+        partObj.put("name", participant.getWorkshopReservation().getFullname());
         partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
         partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
         partObj.put("isWaiting",participant.isWaiting());
-        String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getReservationToken();
+        partObj.put("additionalInfo",participant.getWorkshopReservation().getAdditionalInfo());
+        String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getWorkshopReservation().getReservationToken();
         partObj.put("cancelLink",cancelLink);
         return partObj;
     }
@@ -54,9 +55,9 @@ public interface ParticipantApi {
     public static JsonObject participantAsJson(Participant participant) {
         JsonObject partObj = JsonFactory.jsonObject();
 
-        partObj.put("email", participant.getEmail());
+        partObj.put("email", participant.getWorkshopReservation().getEmail());
         partObj.put("numberOfSeats", participant.getNumberOfSeatsReserved());
-        partObj.put("name", participant.getName());
+        partObj.put("name", participant.getWorkshopReservation().getFullname());
         partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
         partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
         partObj.put("isWaiting",participant.isWaiting());

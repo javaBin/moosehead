@@ -220,7 +220,7 @@ public class WorkshopControllerTest {
         when(workshopAggregate.createEvent(cancelReservationCommandArgumentCaptor.capture())).thenReturn(reservationCancelledByUser);
 
         Participant participant = mock(Participant.class);
-        when(participant.getEmail()).thenReturn("darth@deathstar.com");
+        when(participant.getWorkshopReservation()).thenReturn(WorkshopReservation.builder().setEmail("darth@deathstar.com").create());
         when(participant.getWorkshopId()).thenReturn("one");
 
         when(workshopListProjection.findByReservationToken("ReservasjonsToken")).thenReturn(Optional.of(participant));
@@ -264,7 +264,7 @@ public class WorkshopControllerTest {
         doThrow(new MoosheadException("This is errormessage")).when(workshopAggregate).createEvent(any(CancelReservationCommand.class));
 
         Participant participant = mock(Participant.class);
-        when(participant.getEmail()).thenReturn("darth@deathstar.com");
+        when(participant.getWorkshopReservation()).thenReturn(WorkshopReservation.builder().setEmail("darth@deathstar.com").create());
         when(participant.getWorkshopId()).thenReturn("one");
 
         when(workshopListProjection.findByReservationToken("ReservasjonsToken")).thenReturn(Optional.of(participant));
@@ -282,7 +282,7 @@ public class WorkshopControllerTest {
         when(workshopAggregate.createEvent(confirmEmailCommandArgumentCaptor.capture())).thenReturn(emailConfirmedByUser);
         Workshop workshop = mock(Workshop.class);
         Participant participant = mock(Participant.class);
-        when(participant.getReservationToken()).thenReturn("Dribbledrobbletoken");
+        when(participant.getWorkshopReservation()).thenReturn(WorkshopReservation.builder().setReservationToken("Dribbledrobbletoken").create());
         when(workshop.getParticipants()).thenReturn(Collections.singletonList(participant));
         when(workshop.waitingListNumber(participant)).thenReturn(0);
         WorkshopData wsdata = mock(WorkshopData.class);

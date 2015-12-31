@@ -246,10 +246,10 @@ public class AdminServlet  extends HttpServlet {
                         .filter(ap -> {
                             return b.getParticipants().stream()
                                     .filter(pa -> (pa.isEmailConfirmed() && !pa.isWaiting()))
-                                    .filter(bp -> ap.getEmail().equals(bp.getEmail()))
+                                    .filter(bp -> ap.getWorkshopReservation().getEmail().equals(bp.getWorkshopReservation().getEmail()))
                                     .findAny().isPresent();
                         })
-                        .map(pa -> pa.getEmail())
+                        .map(pa -> pa.getWorkshopReservation().getEmail())
                         .collect(Collectors.toList());
                 JsonObject duplReport = JsonFactory.jsonObject();
                 duplReport.put("wsa", a.getId());
@@ -301,8 +301,8 @@ public class AdminServlet  extends HttpServlet {
         jsonObject.put("participants", JsonArray.fromNodeList(workshop.getParticipants().stream().
                 map(pa -> {
                     JsonObject json = JsonFactory.jsonObject();
-                    json.put("name", pa.getName());
-                    json.put("email", pa.getEmail());
+                    json.put("name", pa.getWorkshopReservation().getFullname());
+                    json.put("email", pa.getWorkshopReservation().getEmail());
                     json.put("numberOfSeats", pa.getNumberOfSeatsReserved());
                     json.put("isEmailConfirmed", pa.isEmailConfirmed());
                     return json;

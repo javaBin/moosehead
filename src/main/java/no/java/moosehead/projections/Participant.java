@@ -1,72 +1,62 @@
 package no.java.moosehead.projections;
 
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.AbstractReservationAdded;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
+import org.jsonbuddy.JsonObject;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
 public class Participant {
-    private final String name;
-    private final String email;
     private boolean emailConfirmed;
     private Workshop workshop;
-    private String reservationToken;
     private OffsetDateTime confirmedAt;
+    private WorkshopReservation workshopReservation;
     private int numberOfSeatsReserved;
 
 
-    private Participant(String email, String fullname, int numberOfSeatsReserved, Workshop workshop, boolean emailConfirmed, String reservationToken, long eventMillis) {
-        if (email == null) {
+    private Participant(WorkshopReservation workshopReservation,Workshop workshop, boolean emailConfirmed) {
+        if (workshopReservation == null) {
+            throw new NullPointerException("WorkshopReservation can not be null");
+        }
+        if (workshopReservation.getEmail() == null) {
             throw new NullPointerException("Email can not be null");
         }
-        if (numberOfSeatsReserved <1) {
+        if (workshopReservation.getNumberOfSeatsReserved() <1) {
             throw new IllegalArgumentException("numberOfSeatsReserved can not be less than 1");
         }
-        this.numberOfSeatsReserved = numberOfSeatsReserved;
+        this.workshopReservation = workshopReservation;
         this.workshop = workshop;
-        this.reservationToken = reservationToken;
-        this.name = fullname;
-        this.email = email;
         this.emailConfirmed = emailConfirmed;
         if (emailConfirmed) {
-            this.confirmedAt = systemMillisToOffsetTime(eventMillis);
+            this.confirmedAt = systemMillisToOffsetTime(workshopReservation.getSystemTimeInMillis());
         }
+        this.numberOfSeatsReserved = workshopReservation.getNumberOfSeatsReserved();
     }
 
     public static Participant confirmedParticipant(AbstractReservationAdded reservationAdded,Workshop workshop) {
-        return new Participant(reservationAdded.getEmail(),
-                reservationAdded.getFullname(),
-                reservationAdded.getNumberOfSeatsReserved(),
+        return new Participant(reservationAdded.getWorkshopReservation(),
                 workshop,
-                true,
-                reservationAdded.getReservationToken(),
-                reservationAdded.getSystemTimeInMillis());
+                true);
     }
 
     public static Participant unconfirmedParticipant(ReservationAddedByUser reservationAddedByUser,Workshop workshop) {
-        return new Participant(reservationAddedByUser.getEmail(),
-                reservationAddedByUser.getFullname(),
-                reservationAddedByUser.getNumberOfSeatsReserved(),
+        return new Participant(reservationAddedByUser.getWorkshopReservation(),
                 workshop,
-                false,
-                reservationAddedByUser.getReservationToken(),
-                reservationAddedByUser.getSystemTimeInMillis());
+                false);
     }
 
     public static Participant dummyParticipant(String email) {
-        return new Participant(email, null, 1, null, false, "token", 0);
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setEmail(email)
+                .setNumberOfSeatsReserved(1)
+                .setReservationToken("token")
+                .create();
+        return new Participant(workshopReservation,null,false);
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
 
     public void confirmEmail(EmailConfirmedByUser emailConfirmedByUser) {
         long confirmedAtMillis = emailConfirmedByUser.getSystemTimeInMillis();
@@ -101,7 +91,7 @@ public class Participant {
 
         Participant that = (Participant) o;
 
-        if (!email.equals(that.email)) return false;
+        if (!workshopReservation.getEmail().equals(that.workshopReservation.getEmail())) return false;
 
         return true;
     }
@@ -112,7 +102,7 @@ public class Participant {
 
     @Override
     public int hashCode() {
-        return email.hashCode();
+        return workshopReservation.getEmail().hashCode();
     }
 
     public Optional<OffsetDateTime> getConfirmedAt() {
@@ -123,11 +113,12 @@ public class Participant {
         return numberOfSeatsReserved;
     }
 
-    public String getReservationToken() {
-        return reservationToken;
-    }
 
     public void reduceReservedSeats(int numSpotsCancelled) {
         numberOfSeatsReserved-=numSpotsCancelled;
+    }
+
+    public WorkshopReservation getWorkshopReservation() {
+        return workshopReservation;
     }
 }

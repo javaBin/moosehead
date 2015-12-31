@@ -46,7 +46,7 @@ public class WorkshopListProjection implements EventSubscription {
     private void handleEmailConfirmedByUser(EmailConfirmedByUser emailConfirmedByUser) {
         List<Participant> toConfirm = workshops.stream()
                 .flatMap(ws -> ws.getParticipants().stream())
-                .filter(participant -> participant.getEmail().equals(emailConfirmedByUser.getEmail()))
+                .filter(participant -> participant.getWorkshopReservation().getEmail().equals(emailConfirmedByUser.getEmail()))
                 .collect(Collectors.toList());
 
         for (Participant part : toConfirm) {
@@ -58,7 +58,7 @@ public class WorkshopListProjection implements EventSubscription {
     private void handleReservationCancelled(AbstractReservationCancelled reservationCancelled) {
         Workshop workshop = findWorkshop(reservationCancelled.getWorkshopId());
         Optional<Participant> participantOptional = workshop.getParticipants().stream()
-                .filter(participant -> participant.getEmail().equals(reservationCancelled.getEmail()))
+                .filter(participant -> participant.getWorkshopReservation().getEmail().equals(reservationCancelled.getEmail()))
                 .findAny();
         if (!participantOptional.isPresent()) {
             return;
@@ -126,14 +126,14 @@ public class WorkshopListProjection implements EventSubscription {
     public Optional<Participant> findByReservationToken(String reservationToken) {
         Optional<Participant>  op = workshops.stream()
                 .flatMap(ws -> ws.getParticipants().stream())
-                .filter(pa -> pa.getReservationToken().equals(reservationToken))
+                .filter(pa -> pa.getWorkshopReservation().getReservationToken().equals(reservationToken))
                 .findFirst();
         return op;
     }
     public List<Participant> findAllReservations(String email) {
         return workshops.stream()
                 .flatMap(ws -> ws.getParticipants().stream())
-                .filter(pa -> pa.getEmail().equals(email))
+                .filter(pa -> pa.getWorkshopReservation().getEmail().equals(email))
                 .collect(Collectors.toList());
     }
 }

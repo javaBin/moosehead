@@ -59,7 +59,7 @@ public class Workshop {
         }
         int pos = notConfirmed.indexOf(participant);
         if (pos == -1) {
-            throw new IllegalArgumentException("Participant not found when confirming " + participant.getEmail());
+            throw new IllegalArgumentException("Participant not found when confirming " + participant.getWorkshopReservation().getEmail());
         }
         notConfirmed.remove(pos);
         confirmed.add(participant);

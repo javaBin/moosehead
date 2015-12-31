@@ -71,7 +71,7 @@ public class WorkshopListProjectionTest {
         List<Participant> participants = workshopListProjection.getWorkshops().get(0).getParticipants();
         assertThat(participants).hasSize(1);
         Participant participant = participants.get(0);
-        assertThat(participant.getEmail()).isEqualToIgnoringCase("a@a.com");
+        assertThat(participant.getWorkshopReservation().getEmail()).isEqualToIgnoringCase("a@a.com");
         assertThat(participant.isEmailConfirmed()).isFalse();
 
     }
@@ -176,8 +176,8 @@ public class WorkshopListProjectionTest {
 
         List<Participant> participants = workshopListProjection.getWorkshops().get(0).getParticipants();
         assertThat(participants).hasSize(2);
-        assertThat(participants.get(0).getEmail()).isEqualTo("b@a.com");
-        assertThat(participants.get(1).getEmail()).isEqualTo("a@a.com");
+        assertThat(participants.get(0).getWorkshopReservation().getEmail()).isEqualTo("b@a.com");
+        assertThat(participants.get(1).getWorkshopReservation().getEmail()).isEqualTo("a@a.com");
 
     }
 
