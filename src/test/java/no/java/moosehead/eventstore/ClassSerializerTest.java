@@ -4,6 +4,7 @@ import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.repository.WorkshopData;
+import org.jsonbuddy.JsonFactory;
 import org.junit.*;
 
 import java.util.Optional;
@@ -55,10 +56,24 @@ public class ClassSerializerTest {
         WorkshopData workshopData = new WorkshopData("id", "title", "description", null, null, Optional.empty(), WorkshopTypeEnum.KIDSAKODER_WORKSHOP);
         WorkshopAddedByAdmin workshopAddedByAdmin = new WorkshopAddedByAdmin(1L, 1L, "id", 30, null, null, workshopData);
         String asString = classSerializer.asString(workshopAddedByAdmin);
-        System.out.println(asString);
         WorkshopAddedByAdmin copy = (WorkshopAddedByAdmin) classSerializer.asObject(asString);
         assertThat(copy.getWorkshopData().get().getWorkshopTypeEnum()).isEqualTo(WorkshopTypeEnum.KIDSAKODER_WORKSHOP);
+    }
 
+    @Test
+    public void shouldHandleJsonContent() throws Exception {
+        ClassSerializer classSerializer = new ClassSerializer();
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setWorkshopId("3")
+                .setAdditionalInfo(JsonFactory.jsonObject().put("shirts", JsonFactory.jsonArray().add(JsonFactory.jsonObject().put("size", "small"))))
+                .create();
+        ReservationAddedByUser reservationAddedByUser = new ReservationAddedByUser(workshopReservation);
+
+        String asString = classSerializer.asString(reservationAddedByUser);
+
+        ReservationAddedByUser copy = (ReservationAddedByUser) classSerializer.asObject(asString);
+
+        assertThat(copy.getAdditionalInfo().requiredArray("shirts").objectStream().findAny().get().requiredString("size")).isEqualTo("small");
 
     }
 }

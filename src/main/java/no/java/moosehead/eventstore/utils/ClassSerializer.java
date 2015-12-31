@@ -1,6 +1,8 @@
 package no.java.moosehead.eventstore.utils;
 
 import no.java.moosehead.eventstore.core.AbstractEvent;
+import org.jsonbuddy.JsonNode;
+import org.jsonbuddy.parse.JsonParser;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
@@ -129,19 +131,32 @@ public class ClassSerializer {
         } else if (type.isEnum()) {
             value = Enum.valueOf((Class<Enum>) type,fieldValue);
         } else {
-            value = fieldValue
-                    .replaceAll("&amp","&")
-                    .replaceAll("&semi", ";")
-                    .replaceAll("&eq", "=")
-                    .replaceAll("&lt", "<")
-                    .replaceAll("&gt", ">");
+            value = backFromEncoding(fieldValue);
         }
         return value;
+    }
+
+    private String backFromEncoding(String fieldValue) {
+        return fieldValue
+                .replaceAll("&amp","&")
+                .replaceAll("&semi", ";")
+                .replaceAll("&eq", "=")
+                .replaceAll("&lt", "<")
+                .replaceAll("&gt", ">");
     }
 
     private String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "<null>";
+        }
+        if (fieldValue instanceof JsonNode) {
+            StringBuilder sb = new StringBuilder("<json;");
+            JsonNode jsonNode = (JsonNode) fieldValue;
+            String str = jsonNode.toJson();
+            str = replaceSpecialCharacters(str);
+            sb.append(str);
+            sb.append(">");
+            return sb.toString();
         }
         if (fieldValue instanceof Object[]) {
             Object[] arr=(Object[]) fieldValue;
@@ -201,16 +216,20 @@ public class ClassSerializer {
         }
         String packageName = fieldValue.getClass().getPackage().getName();
         if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName) || "java.time".equals(packageName)) {
-            return fieldValue.toString()
-                    .replaceAll("&","&amp")
-                    .replaceAll(";","&semi")
-                    .replaceAll("<","&lt")
-                    .replaceAll(">","&gt")
-                    .replaceAll("=","&eq");
+            return replaceSpecialCharacters(fieldValue);
         }
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
         return "<" + classname + fieldsCode + ">";
+    }
+
+    private String replaceSpecialCharacters(Object fieldValue) {
+        return fieldValue.toString()
+                .replaceAll("&","&amp")
+                .replaceAll(";","&semi")
+                .replaceAll("<","&lt")
+                .replaceAll(">","&gt")
+                .replaceAll("=","&eq");
     }
 
     /**
@@ -342,6 +361,10 @@ public class ClassSerializer {
             }
             Object res = objectValueFromString(valType[1], aClass);
             return Optional.of(res);
+        }
+        if ("json".equals(parts[0])) {
+            JsonNode jsonNode = JsonParser.parse(backFromEncoding(parts[1]));
+            return jsonNode;
         }
 
         return internalAsObject(fieldValue);
