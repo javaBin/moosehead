@@ -46,7 +46,9 @@ public interface ParticipantApi {
         partObj.put("isEmailConfirmed", participant.isEmailConfirmed());
         partObj.put("confirmedAt", participant.getConfirmedAt().map(ca -> ca.toString()).orElse("-"));
         partObj.put("isWaiting",participant.isWaiting());
-        partObj.put("additionalInfo",participant.getWorkshopReservation().getAdditionalInfo());
+        String tshirts = participant.getWorkshopReservation().getAdditionalInfo().arrayValue("tshirts").orElse(JsonFactory.jsonArray())
+                .objectStream().map(jsonObject -> jsonObject.requiredString("size")).reduce((a, b) -> a + ", " + b).orElse("NA");
+        partObj.put("tshirts",tshirts);
         String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getWorkshopReservation().getReservationToken();
         partObj.put("cancelLink",cancelLink);
         return partObj;

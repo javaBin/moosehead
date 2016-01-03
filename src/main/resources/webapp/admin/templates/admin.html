@@ -9,7 +9,7 @@
             <p>Status: {{workshop.status}}</p>
             <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
             <ul ng-repeat="participant in workshop.participants">
-                <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}}
+                <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}} Tshirts: {{participant.tshirts}}
                     <a ng-href="{{participant.cancelLink}}">Cancel reservation</a></a>
                     <span ng-show="participant.numberOfSeats > 1">Partially cancel <input type="number" ng-model="participant.numCancel" placeholder="Seats to cancel"/><button ng-click="partCancel(workshop.id,participant)">Partially cancel</button> {{participant.message}}</span>
                 </li>
