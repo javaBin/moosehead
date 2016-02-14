@@ -12,14 +12,16 @@ public class WorkshopInfo {
     private List<Participant> participants;
     private WorkshopStatus status;
     private WorkshopTypeEnum workshopTypeEnum;
+    private int numberOfSeats;
 
-    public WorkshopInfo(String id, String title, String description, List<Participant> participants, WorkshopStatus status, WorkshopTypeEnum workshopTypeEnum) {
+    public WorkshopInfo(String id, String title, String description, List<Participant> participants, WorkshopStatus status, WorkshopTypeEnum workshopTypeEnum, int numberOfSeats) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.participants = participants;
         this.status = status;
         this.workshopTypeEnum = workshopTypeEnum;
+        this.numberOfSeats = numberOfSeats;
     }
 
     public String getId() {
@@ -44,5 +46,9 @@ public class WorkshopInfo {
 
     public WorkshopTypeEnum getWorkshopTypeEnum() {
         return workshopTypeEnum;
+    }
+
+    public int getNumberOfSeats() {
+        return numberOfSeats;
     }
 }

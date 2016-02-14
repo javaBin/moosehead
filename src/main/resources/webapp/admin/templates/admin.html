@@ -6,6 +6,7 @@
         <p>The partially cancel will cancel that many spaces (Have three spots, selct 2 to cancel => Have one spot left). Mail will not be sent to that participant, but will be sent to any from the waiting list that receives a spot.</p>
         <div ng-repeat="workshop in workshops">
             <h2>{{workshop.title}}</h2>
+            <p>Total spots: {{workshop.numberOfSeats}}</p>
             <p>Status: {{workshop.status}}</p>
             <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
             <ul ng-repeat="participant in workshop.participants">

@@ -22,16 +22,18 @@ public interface ParticipantApi {
 
     public static JsonObject asAdminJson(WorkshopInfo workshop) {
         JsonObject jsonObject = JsonFactory.jsonObject();
-            jsonObject.put("id", workshop.getId());
-            jsonObject.put("title", workshop.getTitle());
-            jsonObject.put("description", workshop.getDescription());
-            jsonObject.put("status", workshop.getStatus().name());
-            jsonObject.put("workshopType", Optional.ofNullable(workshop.getWorkshopTypeEnum()).map(Object::toString).orElse(null));
+        jsonObject.put("id", workshop.getId());
+        jsonObject.put("title", workshop.getTitle());
+        jsonObject.put("description", workshop.getDescription());
+        jsonObject.put("status", workshop.getStatus().name());
+        jsonObject.put("workshopType", Optional.ofNullable(workshop.getWorkshopTypeEnum()).map(Object::toString).orElse(null));
+        jsonObject.put("numberOfSeats",workshop.getNumberOfSeats());
 
-            List<JsonObject> partList = workshop.getParticipants().stream().sequential()
-                    .map(ParticipantApi::participantAsAdminJson)
-                    .collect(Collectors.toList());
-            jsonObject.put("participants", JsonArray.fromNodeList(partList));
+        List<JsonObject> partList = workshop.getParticipants().stream().sequential()
+                .map(ParticipantApi::participantAsAdminJson)
+                .collect(Collectors.toList());
+        jsonObject.put("participants", JsonArray.fromNodeList(partList));
+
 
         return jsonObject;
 

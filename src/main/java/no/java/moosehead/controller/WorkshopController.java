@@ -39,7 +39,7 @@ public class WorkshopController implements ParticipantApi,AdminApi {
     private WorkshopInfo createWorkshopInfo(Workshop ws) {
         WorkshopData wd = ws.getWorkshopData();
         WorkshopStatus status = computeWorkshopStatus(ws);
-        return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum());
+        return new WorkshopInfo(wd.getId(), wd.getTitle(), wd.getDescription(), ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum(),ws.getNumberOfSeats());
     }
 
     @Override
