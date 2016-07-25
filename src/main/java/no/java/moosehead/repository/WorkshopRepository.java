@@ -1,9 +1,7 @@
 package no.java.moosehead.repository;
 
+import net.hamnaberg.json.*;
 import net.hamnaberg.json.Collection;
-import net.hamnaberg.json.Item;
-import net.hamnaberg.json.Link;
-import net.hamnaberg.json.Property;
 import net.hamnaberg.json.extension.Tuple2;
 import net.hamnaberg.json.parser.CollectionParser;
 import no.java.moosehead.commands.WorkshopTypeEnum;
@@ -46,7 +44,16 @@ public class WorkshopRepository implements EventSubscription {
                     Map<String, Property> spMap = dasm._1;
                     net.hamnaberg.funclite.Optional<Link> startsAndEnds = dasm._2;
                     String title = spMap.get("title").getValue().get().asString();
-                    String summary = spMap.get("summary").getValue().get().asString();
+
+                    Property summaryprop = spMap.get("summary");
+                    String summary;
+                    if (summaryprop != null) {
+                        net.hamnaberg.funclite.Optional<Value> sumval = summaryprop.getValue();
+                        summary = sumval.map(Value::asString).getOrElse(title);
+                    } else {
+                        summary = title;
+                    }
+
                     String slug = spMap.get("slug").getValue().get().asString();
                     if (startsAndEnds.isSome()) {
                         String[] dates = startsAndEnds.get().getPrompt().get().split("\\+");
