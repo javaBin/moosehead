@@ -69,7 +69,7 @@ if [ $ENV == "prod" ]; then
 	HOST="2014.javazone.no"
 	BASE="/home/javabin/web/moosehead"
 elif [ $ENV == "test" ]; then
-	HOST="test.2014.javazone.no"
+	HOST="test.javazone.no"
 	BASE="/home/javabin/web/moosehead"
 else
 	fail "Det du sa gav null mening!"
