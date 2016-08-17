@@ -271,6 +271,41 @@ public class WorkshopAggregateTest {
     }
 
     @Test
+    public void reReservationsAfterCancellingIsOk() throws Exception {
+        eventstore.addEvent(new WorkshopAddedBySystem(System.currentTimeMillis(),1L, w1, 0));
+        WorkshopReservation workshopReservation = WorkshopReservation.builder()
+                .setEmail("bla@email")
+                .setFullname("Donnie Darko")
+                .setWorkshopId(w1)
+                .setGoogleUserEmail(Optional.empty())
+                .setNumberOfSeatsReserved(1)
+                .create();
+        AddReservationCommand cmd = new AddReservationCommand(workshopReservation,AuthorEnum.USER);
+        AbstractReservationAdded reservationAddedByUser =  workshopAggregate.createEvent(cmd);
+
+        eventstore.addEvent(reservationAddedByUser);
+
+        CancelReservationCommand cancel = new CancelReservationCommand("bla@email",w1, AuthorEnum.USER);
+        AbstractReservationCancelled rcbu = workshopAggregate.createEvent(cancel);
+
+        assertThat(rcbu).isNotNull();
+
+        assertThat(reservationAddedByUser.getWorkshopId()).isEqualTo(w1);
+        eventstore.addEvent(rcbu);
+        workshopReservation = WorkshopReservation.builder()
+                .setEmail("bla@email")
+                .setFullname("Donnie Darko")
+                .setWorkshopId(w1)
+                .setGoogleUserEmail(Optional.empty())
+                .setNumberOfSeatsReserved(1)
+                .create();
+        AddReservationCommand cmd2 = new AddReservationCommand(workshopReservation,AuthorEnum.USER);
+        AbstractReservationAdded reservationAddedByUser2 =  workshopAggregate.createEvent(cmd2);
+        assertThat(reservationAddedByUser2.getWorkshopId()).isEqualTo(w1);
+    }
+
+
+    @Test
     public void sameEmailIsNotAllowedToReserveTwice() throws Exception {
         EmailSender emailSender = mock(EmailSender.class);
         workshopAggregate.setEmailSender(emailSender);
