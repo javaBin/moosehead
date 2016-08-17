@@ -2,7 +2,6 @@ package no.java.moosehead.aggregate;
 
 import no.java.moosehead.commands.*;
 import no.java.moosehead.controller.SystemSetup;
-import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -85,7 +84,7 @@ public class WorkshopAggregate implements EventSubscription {
             if (OffsetDateTime.now().isBefore(computeOpenTime(workshop.get()))) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
             }
-            Optional<ReservationAddedByUser> reservation = getReservation(addReservationCommand);
+            Optional<ReservationAddedByUser> reservation = getActiveReservationIfPresent(addReservationCommand);
             if (reservation.isPresent()) {
                 emailSender.sendEmailConfirmation(reservation.get().getEmail(),reservation.get().getReservationToken(),workshop.get().getWorkshopId());
                 throw new ReservationCanNotBeAddedException(String.format(
@@ -190,24 +189,26 @@ public class WorkshopAggregate implements EventSubscription {
                .map(event ->(WorkshopAddedEvent) event);
     }
 
-    private Stream<ReservationAddedByUser> getReservationsForWorkshop(String workshopId) {
-        return eventArrayList
-                .parallelStream()
-                .filter(event -> event instanceof ReservationAddedByUser)
-                .map(event -> (ReservationAddedByUser) event)
-                .filter(reservation -> reservation.getWorkshopId().equals(workshopId));
-    }
-
     private Optional<WorkshopAddedEvent> getWorkshop(String workshopId) {
         return getAllWorkshops()
                 .filter(workshop -> workshop.getWorkshopId().equals(workshopId))
                 .findFirst();
     }
 
-    private Optional<ReservationAddedByUser> getReservation(AddReservationCommand reservationAdded) {
-        return getReservationsForWorkshop(reservationAdded.getWorkshopReservation().getWorkshopId())
-                .filter(reservation -> reservation.getEmail().equals(reservationAdded.getWorkshopReservation().getEmail()))
-                .findFirst();
+    private Optional<ReservationAddedByUser> getActiveReservationIfPresent(AddReservationCommand reservationAdded) {
+
+        Optional<UserWorkshopEvent> lastEvent =
+                userWorkshopEvents(reservationAdded.getWorkshopReservation().getWorkshopId(),
+                reservationAdded.getWorkshopReservation().getEmail())
+                        .map(uw -> (UserWorkshopEvent)uw)
+                        .reduce((a, b) -> b);
+
+        if (lastEvent.isPresent() && lastEvent.get() instanceof ReservationAddedByUser){
+            return Optional.of((ReservationAddedByUser)lastEvent.get());
+        }else{
+            return Optional.empty();
+        }
+
     }
 
     public EmailConfirmedByUser createEvent(ConfirmEmailCommand confirmEmailCommand) {
