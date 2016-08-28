@@ -53,6 +53,7 @@ public interface ParticipantApi {
         partObj.put("tshirts",tshirts);
         String cancelLink = Configuration.mooseheadLocation() + "/#/cancel/" + participant.getWorkshopReservation().getReservationToken();
         partObj.put("cancelLink",cancelLink);
+        partObj.put("hasShownUp",participant.isHasShownUp());
         partObj.put("reservationToken",participant.getWorkshopReservation().getReservationToken());
         return partObj;
     }

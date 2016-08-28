@@ -1,6 +1,7 @@
 package no.java.moosehead.projections;
 
 import no.java.moosehead.controller.SystemSetup;
+import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.EventSubscription;
@@ -24,7 +25,22 @@ public class WorkshopListProjection implements EventSubscription {
             handleReservationCancelled((AbstractReservationCancelled) event);
         } else if (event instanceof EmailConfirmedByUser) {
             handleEmailConfirmedByUser((EmailConfirmedByUser) event);
+        } else if (event instanceof ShowUpRegisteredByAdmin) {
+            handleShowUp((ShowUpRegisteredByAdmin) event);
         }
+    }
+
+    private void handleShowUp(ShowUpRegisteredByAdmin showUpRegisteredByAdmin) {
+        Optional<Participant> participantOptional = workshops.stream()
+                .flatMap(ws -> ws.getParticipants().stream())
+                .filter(part -> showUpRegisteredByAdmin.getReservationToken()
+                        .equals(Optional.ofNullable(part.getWorkshopReservation()).map(WorkshopReservation::getReservationToken).orElse(null)))
+                .findAny();
+        if (!participantOptional.isPresent()) {
+            System.out.println("Warning did not find reservation with token " + showUpRegisteredByAdmin.getReservationToken() + ". Ignoring");
+            return;
+        }
+        participantOptional.get().setHasShownUp(showUpRegisteredByAdmin.isShownUp());
     }
 
     private void handleWorkshopAdded(WorkshopAddedEvent workshopAdded) {

@@ -15,6 +15,7 @@ public class Participant {
     private OffsetDateTime confirmedAt;
     private WorkshopReservation workshopReservation;
     private int numberOfSeatsReserved;
+    private boolean hasShownUp = false;
 
 
     private Participant(WorkshopReservation workshopReservation,Workshop workshop, boolean emailConfirmed) {
@@ -120,5 +121,14 @@ public class Participant {
 
     public WorkshopReservation getWorkshopReservation() {
         return workshopReservation;
+    }
+
+    public boolean isHasShownUp() {
+        return hasShownUp;
+    }
+
+    public Participant setHasShownUp(boolean hasShownUp) {
+        this.hasShownUp = hasShownUp;
+        return this;
     }
 }
