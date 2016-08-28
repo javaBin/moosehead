@@ -60,5 +60,16 @@ angular.module('mooseheadModule')
                         }
                     });
             };
+
+            $scope.alterShowUp = function(participant) {
+                var data = {
+                    reservationToken : participant.reservationToken,
+                    hasShownUp: participant.hasShownUp
+                };
+                $http({method: "POST", url: "data/shownUp",data: data})
+                    .success(function(result) {
+
+                    });
+            }
         }]);
 
