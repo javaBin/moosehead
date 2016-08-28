@@ -12,6 +12,10 @@ public class ShowUpRegisteredByAdmin extends AbstractEvent {
         this.reservationToken = reservationToken;
     }
 
+    public ShowUpRegisteredByAdmin() {
+
+    }
+
     public boolean isShownUp() {
         return shownUp;
     }

@@ -240,4 +240,8 @@ public class WorkshopAggregate implements EventSubscription {
     public void setEmailSender(EmailSender emailSender) {
         this.emailSender = emailSender;
     }
+
+    public ShowUpRegisteredByAdmin createEvent(ShownUpRegisteredCommand shownUpRegisteredCommand) {
+        return new ShowUpRegisteredByAdmin(System.currentTimeMillis(),nextRevision(),shownUpRegisteredCommand.isShownUp(),shownUpRegisteredCommand.getReservationToken());
+    }
 }

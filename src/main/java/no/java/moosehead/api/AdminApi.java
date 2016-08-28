@@ -10,4 +10,6 @@ public interface AdminApi {
     ParticipantActionResult createWorkshop(WorkshopData workshopData,Instant startTime,Instant endTime,Instant openTime,int maxParticipants);
 
     ParticipantActionResult partialCancel(String email, String workshopid, int numSpotCanceled);
+
+    ParticipantActionResult registerShowUp(String reservationToken, boolean shownUp);
 }

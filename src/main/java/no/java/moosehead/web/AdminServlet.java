@@ -99,6 +99,8 @@ public class AdminServlet  extends HttpServlet {
             apiResult = addWorkshop(jsonInput);
         } else if ("/partialCancel".equals(pathInfo)) {
             apiResult = partialCancel(jsonInput);
+        } else if ("/shownUp".equals(pathInfo)) {
+            apiResult = registerShowUp(jsonInput);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
             return;
@@ -114,6 +116,20 @@ public class AdminServlet  extends HttpServlet {
             result.put("message",errormessage);
         }
         result.toJson(resp.getWriter());
+    }
+
+    private Optional<ParticipantActionResult> registerShowUp(JsonObject jsonInput) {
+        Optional<String> reservationToken = jsonInput.stringValue("reservationToken");
+        if (!reservationToken.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value reservationToken"));
+        }
+        Optional<Boolean> shownUp = jsonInput.booleanValue("hasShownUp");
+        if (!shownUp.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value shownUp"));
+        }
+        ParticipantActionResult participantActionResult = adminApi.registerShowUp(reservationToken.get(), shownUp.get());
+        return Optional.of(participantActionResult);
+
     }
 
     private Optional<ParticipantActionResult> partialCancel(JsonObject jsonInput) {

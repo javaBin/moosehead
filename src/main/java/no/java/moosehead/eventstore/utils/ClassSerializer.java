@@ -110,6 +110,8 @@ public class ClassSerializer {
             value = fieldValue.charAt(0);
         } else if (double.class.equals(type) || Double.class.equals(type)) {
             value = Double.parseDouble(fieldValue);
+        } else if (boolean.class.equals(type) || Boolean.class.equals(type)) {
+            value = Boolean.parseBoolean(fieldValue);
         } else if (Date.class.equals(type)) {
             try {
                 value = dateFormat.parse(fieldValue);

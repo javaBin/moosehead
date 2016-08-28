@@ -6,10 +6,7 @@ import no.java.moosehead.aggregate.WorkshopNotFoundException;
 import no.java.moosehead.api.*;
 import no.java.moosehead.commands.*;
 import no.java.moosehead.domain.WorkshopReservation;
-import no.java.moosehead.eventstore.AbstractReservationAdded;
-import no.java.moosehead.eventstore.AbstractReservationCancelled;
-import no.java.moosehead.eventstore.EmailConfirmedByUser;
-import no.java.moosehead.eventstore.WorkshopAddedEvent;
+import no.java.moosehead.eventstore.*;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
 import no.java.moosehead.repository.WorkshopData;
@@ -198,6 +195,28 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                 return ParticipantActionResult.error(e.getMessage());
             }
             SystemSetup.instance().eventstore().addEvent(event);
+        }
+        return ParticipantActionResult.ok();
+    }
+
+    @Override
+    public ParticipantActionResult registerShowUp(String reservationToken, boolean shownUp) {
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+            Optional<Participant> participantOptional = SystemSetup.instance().workshopListProjection().getWorkshops().stream()
+                    .flatMap(ws -> ws.getParticipants().stream())
+                    .filter(pa -> reservationToken.equals(Optional.ofNullable(pa.getWorkshopReservation()).map(WorkshopReservation::getReservationToken).orElse(null)))
+                    .findAny();
+            if (!participantOptional.isPresent()) {
+                return ParticipantActionResult.error("Did not find participant with reservationToken" + reservationToken);
+            }
+            if (participantOptional.get().isHasShownUp() == shownUp) {
+                return ParticipantActionResult.error("Shown up status already set");
+            }
+            ShownUpRegisteredCommand shownUpRegisteredCommand = new ShownUpRegisteredCommand(reservationToken, shownUp);
+            ShowUpRegisteredByAdmin event = workshopAggregate.createEvent(shownUpRegisteredCommand);
+            SystemSetup.instance().eventstore().addEvent(event);
+
         }
         return ParticipantActionResult.ok();
     }
