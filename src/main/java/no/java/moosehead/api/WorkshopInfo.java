@@ -51,4 +51,11 @@ public class WorkshopInfo {
     public int getNumberOfSeats() {
         return numberOfSeats;
     }
+
+    public int computeShownUps() {
+        return participants.stream()
+                .filter(Participant::isHasShownUp)
+                .mapToInt(Participant::getNumberOfSeatsReserved)
+                .sum();
+    }
 }

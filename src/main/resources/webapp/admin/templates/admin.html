@@ -8,6 +8,7 @@
             <h2>{{workshop.title}}</h2>
             <p>Total spots: {{workshop.numberOfSeats}}</p>
             <p>Status: {{workshop.status}}</p>
+            <p>Shown up: {{workshop.numShownUps}}</p>
             <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>
             <ul ng-repeat="participant in workshop.participants">
                 <li>{{queNum(workshop,participant)}}. {{participant.name}} - {{participant.email}} - status: {{isConfirmed(participant)}} ({{participant.confirmedAt}}) - seats reserved: {{participant.numberOfSeats}} Tshirts: {{participant.tshirts}}
