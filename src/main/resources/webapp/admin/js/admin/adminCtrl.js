@@ -71,5 +71,23 @@ angular.module('mooseheadModule')
 
                     });
             }
+
+            $scope.showWaitingListStart = function (workshop,index) {
+                var placesLeft = workshop.numberOfSeats;
+                for (var ind=0;ind<=index;ind++) {
+                    var mySpots = workshop.participants[ind].numberOfSeats;
+                    if (placesLeft < mySpots) {
+                        if (ind === index) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+
+                    }
+                    placesLeft = placesLeft - mySpots;
+                }
+
+                return false;
+            }
         }]);
 
