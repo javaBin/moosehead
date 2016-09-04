@@ -88,6 +88,25 @@ angular.module('mooseheadModule')
                 }
 
                 return false;
-            }
+            };
+
+            $scope.partClass = function (workshop,index) {
+                var placesLeft = workshop.numberOfSeats;
+                for (var ind=0;ind<=index;ind++) {
+                    var mySpots = workshop.participants[ind].numberOfSeats;
+                        if (ind === index) {
+                        if (placesLeft < mySpots) {
+                            return "redtext";
+                        } else {
+                            return "";
+                        }
+
+                    }
+                    placesLeft = placesLeft - mySpots;
+                }
+
+                return "";
+
+            };
         }]);
 
