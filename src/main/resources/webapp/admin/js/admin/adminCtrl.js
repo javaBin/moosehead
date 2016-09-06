@@ -69,6 +69,9 @@ angular.module('mooseheadModule')
                 $http({method: "POST", url: "data/shownUp",data: data})
                     .success(function(result) {
 
+                    }).error(function(data, status, headers, config) {
+                        alert("Failed to update");
+                        console.log(data);
                     });
             }
 
