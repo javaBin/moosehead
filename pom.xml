@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.jsonbuddy</groupId>
             <artifactId>jsonbuddy</artifactId>
-            <version>0.7.0</version>
+            <version>0.8.0</version>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
@@ -93,6 +93,20 @@
             <artifactId>json-collection</artifactId>
             <version>3.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1212.jre7</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>4.0.3</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

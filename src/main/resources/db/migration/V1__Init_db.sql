@@ -1,0 +1,4 @@
+CREATE TABLE EVENT(
+  id BIGINT PRIMARY KEY,
+  payload text
+);

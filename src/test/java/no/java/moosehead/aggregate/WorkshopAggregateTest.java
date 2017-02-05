@@ -4,7 +4,7 @@ import no.java.moosehead.commands.*;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.*;
-import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.core.FilehandlerEventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.repository.WorkshopData;
@@ -34,7 +34,7 @@ public class WorkshopAggregateTest {
     private final String w2 = "W2";
     private final String w1 = "W1";
 
-    private Eventstore eventstore;
+    private FilehandlerEventstore eventstore;
     private WorkshopAggregate workshopAggregate;
 
     @Before
@@ -43,7 +43,7 @@ public class WorkshopAggregateTest {
         TokenGenerator tokenGenerator = new TokenGenerator();
         Mockito.when(systemSetup.revisionGenerator()).thenReturn(tokenGenerator);
         SystemSetup.setSetup(systemSetup);
-        eventstore = new Eventstore(new FileHandler());
+        eventstore = new FilehandlerEventstore(new FileHandler());
         workshopAggregate = new WorkshopAggregate();
         eventstore.addEventSubscriber(workshopAggregate);
 

@@ -1,41 +1,42 @@
 package no.java.moosehead.eventstore.core;
 
+import no.java.moosehead.aggregate.WorkshopAggregate;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.eventstore.WorkshopAddedBySystem;
+import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.eventstore.system.SystemBootstrapDone;
-import no.java.moosehead.eventstore.utils.ClassSerializer;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
+import no.java.moosehead.web.Configuration;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class Eventstore {
+public interface Eventstore {
 
-    private FileHandler fileHandler;
-    private ClassSerializer classSerializer = new ClassSerializer();
-    private ArrayList<AbstractEvent> eventstorage = new ArrayList<>();
-    private ArrayList<EventSubscription> eventSubscribers = new ArrayList<>();
+    void addEventSubscriber(EventSubscription eventSubscription);
 
-    /**
-     * Will persist all events. Boostraps the eventstore with events from the file.
-     * Events will be passed to listeners when they subscribe to the EventStore.
-     * @param fileHandler
-     */
-    public Eventstore(FileHandler fileHandler) {
-        this.fileHandler = fileHandler;
-        initEventStoreWithFileHandler();
+    List<AbstractEvent> getEventstorageCopy();
+
+    void addEvent(AbstractEvent event);
+
+    default long numberOfWorkshops() {
+        return getEventstorageCopy().stream().filter(ae -> ae instanceof WorkshopAddedBySystem).count();
     }
 
-    public Eventstore() {
-
+    static Eventstore create() {
+        if (Configuration.dbName() != null) {
+            return new DbEventStore();
+        }
+        if (Configuration.eventstoreFilename() != null) {
+            return new FilehandlerEventstore(new FileHandler(Configuration.eventstoreFilename()));
+        }
+        return new FilehandlerEventstore();
     }
 
-    public void playbackEventsToSubscribers() {
+    default void playbackEventsToSubscribers() {
+        List<AbstractEvent> eventstorage = getEventstorageCopy();
         for (AbstractEvent event: eventstorage) {
-            for (EventSubscription eventSubscribers : this.eventSubscribers) {
+            for (EventSubscription eventSubscribers : getEventSubscribers()) {
                 eventSubscribers.eventAdded(event);
             }
         }
@@ -46,58 +47,5 @@ public class Eventstore {
         addEvent(new SystemBootstrapDone(tokenGenerator.nextRevisionId()));
     }
 
-
-    public void addEvent(AbstractEvent event) {
-        //System.out.println("Added event " + event.getClass() + "->" + event.getRevisionId());
-        if ((!(event instanceof TransientEvent)) && fileHandler != null) {
-            fileHandler.writeToFile(classSerializer.asString(event) + "\n");
-        }
-
-        eventstorage.add(event);
-        for (EventSubscription eventSubscribers : this.eventSubscribers) {
-            eventSubscribers.eventAdded(event);
-        }
-    }
-
-    public int numberOfEvents() {
-        return eventstorage.size();
-    }
-
-    public int numberOfListeners() {
-        return eventSubscribers.size();
-    }
-
-    public void addEventSubscriber(EventSubscription eventSubscriber) {
-        eventSubscribers.add(eventSubscriber);
-    }
-
-    /**
-     * Reads the file and creates Events
-     */
-    private void initEventStoreWithFileHandler() {
-        try {
-            String line;
-
-            fileHandler.openFileForInput();
-            BufferedReader buffStream = new BufferedReader(fileHandler.getInputStreamReader());
-            while((line = buffStream.readLine()) != null) {
-                AbstractEvent ev = classSerializer.asObject(line);
-                eventstorage.add(ev);
-            }
-            buffStream.close();
-            fileHandler.closeInputFile();
-
-            fileHandler.openFileForOutput();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public long numberOfWorkshops() {
-        return eventstorage.stream().filter(ae -> ae instanceof WorkshopAddedBySystem).count();
-    }
-
-    public List<AbstractEvent> getEventstorageCopy() {
-        return new ArrayList<>(eventstorage);
-    }
+    List<EventSubscription> getEventSubscribers();
 }

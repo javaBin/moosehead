@@ -5,6 +5,7 @@ import no.java.moosehead.commands.AddWorkshopCommand;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.eventstore.WorkshopAddedEvent;
 import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.core.FilehandlerEventstore;
 import no.java.moosehead.eventstore.utils.FileHandler;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.projections.Workshop;
@@ -41,11 +42,8 @@ public class SystemSetup {
         }
         initLoaded = true;
         tokenGenerator = new TokenGenerator();
-        if (Configuration.eventstoreFilename() != null) {
-            eventstore = new Eventstore(new FileHandler(Configuration.eventstoreFilename()));
-        } else {
-            eventstore = new Eventstore();
-        }
+        eventstore = Eventstore.create();
+
         workshopRepository = new WorkshopRepository();
         workshopAggregate = new WorkshopAggregate();
         workshopListProjection = new WorkshopListProjection();

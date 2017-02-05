@@ -170,6 +170,38 @@ public class Configuration {
         return readConf("eventstoreFilename", null);
     }
 
+    public static String dbServer() {
+        return readConf("dbServer", "localhost");
+    }
+
+    public static String dbName() {
+        return readConf("dbName", null);
+    }
+
+
+    public static String dbUser() {
+        return readConf("dbUser", null);
+    }
+
+    public static String dbPassword() {
+        return readConf("dbPassword", null);
+    }
+
+    public static int dbPort() {
+        return Integer.parseInt(readConf("dbPort","5432"));
+    }
+
+    public static int maxDbConnections() {
+        return Integer.parseInt(readConf("maxDbConnections","10"));
+    }
+
+    public static boolean cleanDb() {
+        return "true".equals(readConf("cleanDb","false"));
+    }
+
+
+
+
     public static boolean isProdEnviroment() {
         return "false".equals(readConf("testenv", "true"));
     }

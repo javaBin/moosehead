@@ -1,5 +1,6 @@
 package no.java.moosehead.web;
 
+import no.java.moosehead.database.Postgres;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
@@ -11,6 +12,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.Configuration.ClassList;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.flywaydb.core.Flyway;
 
 import java.io.File;
 import java.net.URL;
@@ -39,6 +41,8 @@ public class WebServer {
 
     private void start() throws Exception {
         Server server = new Server(port);
+
+        initDb();
 
         ClassList classlist = ClassList.setServerDefault(server);
         classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration","org.eclipse.jetty.annotations.AnnotationConfiguration");
@@ -78,6 +82,20 @@ public class WebServer {
         server.start();
 
         System.out.println(server.getURI() + " at " + LocalDateTime.now());
+    }
+
+    private void initDb() {
+        if (Configuration.dbName() == null) {
+            return;
+        }
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(Postgres.source());
+        if (Configuration.cleanDb()) {
+            System.out.println("Cleaning db");
+            flyway.clean();
+        }
+        flyway.migrate();
+
     }
 
     private boolean isDevEnviroment() {

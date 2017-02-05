@@ -10,7 +10,7 @@ import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.eventstore.EmailConfirmedByUser;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.ReservationCancelledByUser;
-import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.core.FilehandlerEventstore;
 import no.java.moosehead.eventstore.utils.TokenGenerator;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.projections.Workshop;
@@ -38,7 +38,7 @@ public class WorkshopControllerTest {
     private WorkshopController workshopController;
     private WorkshopListProjection workshopListProjection;
     private WorkshopAggregate workshopAggregate;
-    private Eventstore eventstore;
+    private FilehandlerEventstore eventstore;
     private final String w1 = "W1";
 
     @Before
@@ -50,7 +50,7 @@ public class WorkshopControllerTest {
         when(systemSetup.workshopListProjection()).thenReturn(workshopListProjection);
         workshopAggregate = mock(WorkshopAggregate.class);
         when(systemSetup.workshopAggregate()).thenReturn(workshopAggregate);
-        eventstore = mock(Eventstore.class);
+        eventstore = mock(FilehandlerEventstore.class);
         when(systemSetup.eventstore()).thenReturn(eventstore);
         TokenGenerator tokenGenerator = new TokenGenerator();
         when(systemSetup.revisionGenerator()).thenReturn(tokenGenerator);

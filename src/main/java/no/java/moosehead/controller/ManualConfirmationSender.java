@@ -3,6 +3,7 @@ package no.java.moosehead.controller;
 import no.java.moosehead.eventstore.ReservationAddedByUser;
 import no.java.moosehead.eventstore.core.AbstractEvent;
 import no.java.moosehead.eventstore.core.Eventstore;
+import no.java.moosehead.eventstore.core.FilehandlerEventstore;
 import no.java.moosehead.saga.EmailSender;
 
 import java.io.*;
