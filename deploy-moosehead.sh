@@ -66,7 +66,7 @@ if [ $ENV != "test" -a $ENV != "prod" ]; then
 fi
 
 if [ $ENV == "prod" ]; then
-	HOST="2014.javazone.no"
+	HOST="javazone.no"
 	BASE="/home/javabin/web/moosehead"
 elif [ $ENV == "test" ]; then
 	HOST="test.javazone.no"
