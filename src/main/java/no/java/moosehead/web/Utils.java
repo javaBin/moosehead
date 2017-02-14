@@ -37,7 +37,7 @@ public class Utils {
             return null;
         }
         for (char c : value.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || " -_@./:".indexOf(c) != -1) {
+            if (Character.isLetterOrDigit(c) || " -_@.,/:".indexOf(c) != -1) {
                 continue;
             }
             return null;
