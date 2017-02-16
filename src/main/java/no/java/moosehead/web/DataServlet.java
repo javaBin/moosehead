@@ -46,6 +46,9 @@ public class DataServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.addHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+        resp.addHeader("Pragma", "no-cache"); // HTTP 1.0.
+        resp.addDateHeader("Expires", 0); // Proxies.
         if ("/workshopList".equals(req.getPathInfo())) {
             resp.setContentType("text/json");
             resp.addHeader("Access-Control-Allow-Origin", "*");
