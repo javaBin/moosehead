@@ -99,16 +99,13 @@ public class Configuration {
     }
 
     public static Optional<String> emsEventLocation() {
-        String emsEventLocation = readConf("emsEventLocation", "http://test.2014.javazone.no/ems/server/events/9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f/sessions");
+        String emsEventLocation = readConf("emsEventLocation", "null");
         if ("null".equals(emsEventLocation)) {
             return Optional.empty();
         }
         return Optional.of(emsEventLocation);
     }
 
-    public static String loginConfigLocation() {
-        return readConf("loginConfigLocation", "realm.properties");
-    }
 
     public static int placesPerWorkshop() {
         return Integer.parseInt(readConf("placesPerWorkshop", "30"));
@@ -244,5 +241,9 @@ public class Configuration {
 
     public static long emailSleepTime() {
         return Long.parseLong(readConf("emailSleepTime","5000"));
+    }
+
+    public static boolean isDevEnviroment() {
+        return "true".equals(readConf("devEnviroment","true"));
     }
 }

@@ -58,7 +58,7 @@ public class WebServer {
 
         setupLogging();
 
-        if (isDevEnviroment()) {
+        if (Configuration.isDevEnviroment()) {
             // Development ie running in ide
             System.out.println("Warning: You are running in your IDE!!!");
             webAppContext.setResourceBase("src/main/resources/webapp");
@@ -98,9 +98,6 @@ public class WebServer {
 
     }
 
-    private boolean isDevEnviroment() {
-        return new File("pom.xml").exists();
-    }
 
     private void setupLogging() {
         //LogManager.getRootLogger().setLevel(Level.INFO);
@@ -108,28 +105,6 @@ public class WebServer {
         //LogManager.getLogger("org.eclipse.jetty.security").setLevel(Level.TRACE);
     }
 
-    private ConstraintSecurityHandler setupSecurity(Server server, WebAppContext theContextToSecure) {
-        LoginService loginService = new HashLoginService("MooseRealm",  Configuration.loginConfigLocation());
-        server.addBean(loginService);
-
-        Constraint constraint = new Constraint();
-        constraint.setAuthenticate(true);
-        constraint.setRoles(new String[]{"adminrole"});
-
-        ConstraintMapping mapping = new ConstraintMapping();
-        mapping.setPathSpec("/admin/*");
-        mapping.setConstraint(constraint);
-
-        ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-        security.setConstraintMappings(Collections.singletonList(mapping));
-        security.setRealmName("MooseRealm");
-        security.setAuthenticator(new BasicAuthenticator());
-        security.setLoginService(loginService);
-
-        security.setHandler(theContextToSecure);
-
-        return security;
-    }
 
     private static int getPort(int defaultPort) {
         Integer serverPort = Configuration.serverPort();
