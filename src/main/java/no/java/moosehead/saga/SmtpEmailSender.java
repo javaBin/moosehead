@@ -40,9 +40,10 @@ public class SmtpEmailSender extends EmailSender {
                     emailMessage = emailMessages.poll();
                 }
                 try {
+                    System.out.println("Sending email to " + emailMessage.to);
                     sendEmail(emailMessage.type,emailMessage.message,emailMessage.to);
                 } catch (EmailException e) {
-                    e.printStackTrace();
+                    System.out.println("Mail send failed: " + e.getMessage());
                 }
 
             }

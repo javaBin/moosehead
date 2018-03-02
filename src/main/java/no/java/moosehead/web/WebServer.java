@@ -81,7 +81,7 @@ public class WebServer {
 
         server.start();
 
-        System.out.println(server.getURI() + " at " + LocalDateTime.now());
+        System.out.println("Starting at " + LocalDateTime.now());
     }
 
     private void initDb() {
