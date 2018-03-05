@@ -38,7 +38,7 @@ public abstract class EmailSender {
         send(emailType, to, values);
     }
 
-    private static String formatInstant(Instant instant) {
+    public static String formatInstant(Instant instant) {
         OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.ofHours(2));
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE MMMM d'th,' 'at' HH:mm");
         return dateTimeFormatter.format(offsetDateTime);

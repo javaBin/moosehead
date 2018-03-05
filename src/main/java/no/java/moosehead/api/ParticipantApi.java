@@ -30,6 +30,8 @@ public interface ParticipantApi {
         jsonObject.put("workshopType", Optional.ofNullable(workshop.getWorkshopTypeEnum()).map(Object::toString).orElse(null));
         jsonObject.put("numberOfSeats",workshop.getNumberOfSeats());
         jsonObject.put("numShownUps",workshop.computeShownUps());
+        jsonObject.put("startTime",workshop.workshopStartDate());
+
 
         List<JsonObject> partList = workshop.getParticipants().stream().sequential()
                 .map(ParticipantApi::participantAsAdminJson)

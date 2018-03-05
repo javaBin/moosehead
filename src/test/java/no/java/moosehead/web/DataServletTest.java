@@ -4,6 +4,7 @@ import no.java.moosehead.api.*;
 import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.domain.WorkshopReservation;
+import no.java.moosehead.repository.WorkshopData;
 import org.jsonbuddy.JsonArray;
 import org.jsonbuddy.JsonFactory;
 import org.jsonbuddy.JsonObject;
@@ -51,8 +52,17 @@ public class DataServletTest {
         when(req.getMethod()).thenReturn("GET");
         when(req.getPathInfo()).thenReturn("/workshopList");
 
-        WorkshopInfo one = new WorkshopInfo("1", "Ws one", "desc", null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10);
-        WorkshopInfo two = new WorkshopInfo("2", "Ws two", "desc", null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10);
+        WorkshopData wsdOne = mock(WorkshopData.class);
+        when(wsdOne.getId()).thenReturn("1");
+        when(wsdOne.getTitle()).thenReturn("Ws one");
+        when(wsdOne.getDescription()).thenReturn("desc");
+        WorkshopInfo one = new WorkshopInfo(wsdOne, null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10);
+
+        WorkshopData wsdTwo = mock(WorkshopData.class);
+        when(wsdTwo.getId()).thenReturn("2");
+        when(wsdTwo.getTitle()).thenReturn("Ws two");
+        when(wsdTwo.getDescription()).thenReturn("desc");
+        WorkshopInfo two = new WorkshopInfo(wsdTwo, null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10);
 
         when(participantApi.workshops()).thenReturn(Arrays.asList(one, two));
 

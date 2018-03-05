@@ -2,8 +2,11 @@ package no.java.moosehead.api;
 
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.projections.Participant;
+import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.saga.EmailSender;
 
 import java.util.List;
+import java.util.Optional;
 
 public class WorkshopInfo {
     private String id;
@@ -13,15 +16,17 @@ public class WorkshopInfo {
     private WorkshopStatus status;
     private WorkshopTypeEnum workshopTypeEnum;
     private int numberOfSeats;
+    private WorkshopData workshopData;
 
-    public WorkshopInfo(String id, String title, String description, List<Participant> participants, WorkshopStatus status, WorkshopTypeEnum workshopTypeEnum, int numberOfSeats) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
+    public WorkshopInfo(WorkshopData workshopData, List<Participant> participants, WorkshopStatus status, WorkshopTypeEnum workshopTypeEnum, int numberOfSeats) {
+        this.id = workshopData.getId();
+        this.title = workshopData.getTitle();
+        this.description = workshopData.getDescription();
         this.participants = participants;
         this.status = status;
         this.workshopTypeEnum = workshopTypeEnum;
         this.numberOfSeats = numberOfSeats;
+        this.workshopData = workshopData;
     }
 
     public String getId() {
@@ -57,5 +62,9 @@ public class WorkshopInfo {
                 .filter(Participant::isHasShownUp)
                 .mapToInt(Participant::getNumberOfSeatsReserved)
                 .sum();
+    }
+
+    public String workshopStartDate() {
+        return Optional.ofNullable(workshopData.getStartTime()).map(EmailSender::formatInstant).orElse("Not set");
     }
 }
