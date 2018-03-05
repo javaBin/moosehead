@@ -8,7 +8,9 @@ import no.java.moosehead.commands.AuthorEnum;
 import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.domain.WorkshopReservation;
+import no.java.moosehead.projections.Participant;
 import no.java.moosehead.repository.WorkshopData;
+import no.java.moosehead.saga.EmailSender;
 import org.jsonbuddy.*;
 
 import javax.servlet.ServletException;
@@ -31,11 +33,14 @@ import static no.java.moosehead.web.Utils.*;
 public class AdminServlet  extends HttpServlet {
     private ParticipantApi participantApi;
     private AdminApi adminApi;
+    private EmailSender emailSender;
 
     @Override
     public void init() throws ServletException {
         participantApi = SystemSetup.instance().workshopController();
         adminApi = SystemSetup.instance().workshopController();
+        emailSender = SystemSetup.instance().emailSender();
+
     }
 
     @Override
@@ -101,6 +106,8 @@ public class AdminServlet  extends HttpServlet {
             apiResult = partialCancel(jsonInput);
         } else if ("/shownUp".equals(pathInfo)) {
             apiResult = registerShowUp(jsonInput);
+        } else if ("/resendConfirmation".equals(pathInfo)) {
+            apiResult = resendConfirmation(jsonInput);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
             return;
@@ -116,6 +123,33 @@ public class AdminServlet  extends HttpServlet {
             result.put("message",errormessage);
         }
         result.toJson(resp.getWriter());
+    }
+
+    private Optional<ParticipantActionResult> resendConfirmation(JsonObject jsonInput) {
+        Optional<String> reservationToken = jsonInput.stringValue("reservationToken");
+        if (!reservationToken.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value reservationToken"));
+        }
+        Optional<String> workshopid = jsonInput.stringValue("workshopid");
+        if (!workshopid.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value workshopid"));
+        }
+        List<WorkshopInfo> workshops = participantApi.workshops();
+        Optional<WorkshopInfo> optionalWorkshopInfo = workshops.stream().filter(ws -> ws.getId().equals(workshopid.get())).findAny();
+        if (!optionalWorkshopInfo.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Unknown workshop id " + workshopid.get()));
+        }
+        List<Participant> participants = optionalWorkshopInfo.get().getParticipants();
+        Optional<Participant> optionalParticipant = participants.stream()
+                .filter(participant -> participant.getWorkshopReservation().getReservationToken().equals(reservationToken.get()))
+                .findAny();
+        if (!optionalParticipant.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Unknown reservation token " + reservationToken.get()));
+        }
+        Participant participant = optionalParticipant.get();
+        WorkshopReservation reservation = participant.getWorkshopReservation();
+        emailSender.sendEmailConfirmation(reservation.getEmail(),reservation.getReservationToken(),workshopid.get());
+        return Optional.of(ParticipantActionResult.ok());
     }
 
     private Optional<ParticipantActionResult> registerShowUp(JsonObject jsonInput) {

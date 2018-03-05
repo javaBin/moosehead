@@ -61,6 +61,22 @@ angular.module('mooseheadModule')
                     });
             };
 
+            $scope.resendConfirmation = function (workshopid,participant) {
+                var payload = {
+                    reservationToken: participant.reservationToken,
+                    workshopid : workshopid
+                };
+                $http({method: "POST", url: "data/resendConfirmation",data: payload})
+                    .success(function(result) {
+                        if (result.status === "OK") {
+                            participant.message = "Done";
+                        } else {
+                            participant.message = result.message;
+                        }
+                    });
+
+            };
+
             $scope.alterShowUp = function(participant) {
                 var data = {
                     reservationToken : participant.reservationToken,
