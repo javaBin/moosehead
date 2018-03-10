@@ -244,4 +244,8 @@ public class WorkshopAggregate implements EventSubscription {
     public ShowUpRegisteredByAdmin createEvent(ShownUpRegisteredCommand shownUpRegisteredCommand) {
         return new ShowUpRegisteredByAdmin(System.currentTimeMillis(),nextRevision(),shownUpRegisteredCommand.isShownUp(),shownUpRegisteredCommand.getReservationToken());
     }
+
+    public WorkshopSizeChangedByAdmin createWorkshopSizeChangedByAdminEvent(String workshopid, int numSpaes) {
+        return new WorkshopSizeChangedByAdmin(System.currentTimeMillis(),nextRevision(),workshopid,numSpaes);
+    }
 }

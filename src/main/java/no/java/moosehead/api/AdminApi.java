@@ -12,4 +12,6 @@ public interface AdminApi {
     ParticipantActionResult partialCancel(String email, String workshopid, int numSpotCanceled);
 
     ParticipantActionResult registerShowUp(String reservationToken, boolean shownUp);
+
+    ParticipantActionResult changeWorkshopSize(String workshopid,int updatedNumberOfSpaces);
 }

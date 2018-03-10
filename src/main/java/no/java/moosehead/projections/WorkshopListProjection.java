@@ -27,7 +27,14 @@ public class WorkshopListProjection implements EventSubscription {
             handleEmailConfirmedByUser((EmailConfirmedByUser) event);
         } else if (event instanceof ShowUpRegisteredByAdmin) {
             handleShowUp((ShowUpRegisteredByAdmin) event);
+        } else if (event instanceof WorkshopSizeChangedByAdmin) {
+            handleWorkshopSizeChanged((WorkshopSizeChangedByAdmin) event);
         }
+    }
+
+    private void handleWorkshopSizeChanged(WorkshopSizeChangedByAdmin workshopSizeChangedByAdmin) {
+        Workshop workshop = findWorkshop(workshopSizeChangedByAdmin.getWorkshopid());
+        workshop.updateSeats(workshopSizeChangedByAdmin.getNumspaces());
     }
 
     private void handleShowUp(ShowUpRegisteredByAdmin showUpRegisteredByAdmin) {

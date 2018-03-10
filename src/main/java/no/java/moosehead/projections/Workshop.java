@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Workshop {
     private WorkshopData workshopData;
-    private final int numberOfSeats;
+    private int numberOfSeats;
     private List<Participant> confirmed = new ArrayList<>();
     private List<Participant> notConfirmed = new ArrayList<>();
 
@@ -38,6 +38,7 @@ public class Workshop {
     public int getNumberOfSeats() {
         return numberOfSeats;
     }
+
 
     public void removeParticipant(String email) {
         Participant dummy = Participant.dummyParticipant(email);
@@ -87,5 +88,9 @@ public class Workshop {
         } else {
             return  pos + 1 - fullIndex;
         }
+    }
+
+    public void updateSeats(int numberOfSeats) {
+        this.numberOfSeats = numberOfSeats;
     }
 }

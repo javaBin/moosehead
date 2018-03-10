@@ -67,4 +67,11 @@ public class WorkshopInfo {
     public String workshopStartDate() {
         return Optional.ofNullable(workshopData.getStartTime()).map(EmailSender::formatInstant).orElse("Not set");
     }
+
+    public int numberOfParticipants() {
+        return participants.stream()
+                .mapToInt(Participant::getNumberOfSeatsReserved)
+                .sum();
+    }
+
 }

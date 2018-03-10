@@ -221,6 +221,31 @@ public class WorkshopController implements ParticipantApi,AdminApi {
         return ParticipantActionResult.ok();
     }
 
+    @Override
+    public ParticipantActionResult changeWorkshopSize(String workshopid, int updatedNumberOfSpaces) {
+        WorkshopAggregate workshopAggregate = SystemSetup.instance().workshopAggregate();
+        synchronized (workshopAggregate) {
+
+            Optional<WorkshopInfo> optionalWorkshopInfo = workshops().stream()
+                    .filter(ws -> ws.getId().equals(workshopid))
+                    .findAny();
+            if (!optionalWorkshopInfo.isPresent()) {
+                return ParticipantActionResult.error("Internal error : Did not find workshop " + workshopid);
+            }
+            if (updatedNumberOfSpaces <= 0) {
+                return ParticipantActionResult.error("Size of workshop must be greater than zero");
+            }
+            WorkshopInfo workshopInfo = optionalWorkshopInfo.get();
+            if (workshopInfo.getNumberOfSeats() > updatedNumberOfSpaces && workshopInfo.numberOfParticipants() > updatedNumberOfSpaces) {
+                return ParticipantActionResult.error("Can not reduce size while spots are already canceled");
+            }
+            WorkshopSizeChangedByAdmin workshopSizeChangedByAdminEvent = workshopAggregate.createWorkshopSizeChangedByAdminEvent(workshopid, updatedNumberOfSpaces);
+            SystemSetup.instance().eventstore().addEvent(workshopSizeChangedByAdminEvent);
+
+        }
+        return ParticipantActionResult.ok();
+    }
+
     private ParticipantActionResult readStatus(String token) {
         List<Workshop> workshops = SystemSetup.instance().workshopListProjection().getWorkshops();
         Optional<Workshop> workshopOptional = workshops.stream()
