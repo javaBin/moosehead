@@ -35,11 +35,13 @@ public class EmailSaga implements EventSubscription {
     }
     private static class WorkshopReservationInfo {
         private int spacesLeft;
+        private int totalSize;
         private List<ReservationInfo> spaces = new LinkedList<>();
         private List<ReservationInfo> waitingList = new LinkedList<>();
 
         private WorkshopReservationInfo(int spacesLeft) {
             this.spacesLeft = spacesLeft;
+            this.totalSize = spacesLeft;
         }
     }
 
@@ -140,6 +142,30 @@ public class EmailSaga implements EventSubscription {
                 return;
             }
             partCancel(reservationPartallyCancelled);
+        }
+        if (event instanceof WorkshopSizeChangedByAdmin) {
+            WorkshopSizeChangedByAdmin workshopSizeChangedByAdmin = (WorkshopSizeChangedByAdmin) event;
+            WorkshopReservationInfo workshopReservationInfo = participants.get(workshopSizeChangedByAdmin.getWorkshopid());
+            int newPlaces = workshopSizeChangedByAdmin.getNumspaces() - workshopReservationInfo.totalSize;
+            workshopReservationInfo.spacesLeft = workshopReservationInfo.spacesLeft + newPlaces;
+            workshopReservationInfo.totalSize = workshopSizeChangedByAdmin.getNumspaces();
+            while (workshopReservationInfo.spacesLeft > 0) {
+                if (workshopReservationInfo.waitingList.isEmpty()) {
+                    break;
+                }
+                ReservationInfo reservationInfo = workshopReservationInfo.waitingList.get(0);
+                if (reservationInfo.spacesReserved > workshopReservationInfo.spacesLeft) {
+                    break;
+                }
+                workshopReservationInfo.waitingList.remove(0);
+                workshopReservationInfo.spaces.add(reservationInfo);
+                workshopReservationInfo.spacesLeft -= reservationInfo.spacesReserved;
+                if (sagaIsInitialized) {
+                    EmailSender emailSender = SystemSetup.instance().emailSender();
+                    emailSender.sendReservationConfirmation(reservationInfo.res.getEmail(),workshopSizeChangedByAdmin.getWorkshopid(),reservationInfo.res.getReservationToken());
+                }
+            }
+
         }
     }
 

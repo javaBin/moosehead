@@ -372,6 +372,47 @@ public class EmailSagaTest {
     }
 
     @Test
+    public void shouldBeAbleToExtendSizeOfWorkshop() {
+        emailSaga.eventAdded(new SystemBootstrapDone(1L));
+        emailSaga.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "wsone", 2));
+
+        ReservationAddedByUser reservationOne = new ReservationAddedByUser(WorkshopReservation.builder()
+                .setSystemTimeInMillis(System.currentTimeMillis())
+                .setRevisionId(2L)
+                .setEmail("luke@a.com")
+                .setFullname("Luke")
+                .setWorkshopId("wsone")
+                .setGoogleUserEmail(Optional.of("luke@a.com"))
+                .setNumberOfSeatsReserved(2)
+                .create()
+        );
+        emailSaga.eventAdded(reservationOne);
+        verify(emailSender).sendReservationConfirmation("luke@a.com", "wsone", reservationOne.getReservationToken());
+
+        ReservationAddedByUser reservationTwo = new ReservationAddedByUser(WorkshopReservation.builder()
+                .setSystemTimeInMillis(System.currentTimeMillis())
+                .setRevisionId(3L)
+                .setEmail("darth@a.com")
+                .setFullname("Darth")
+                .setWorkshopId("wsone")
+                .setGoogleUserEmail(Optional.of("darth@a.com"))
+                .setNumberOfSeatsReserved(1)
+                .create()
+        );
+        emailSaga.eventAdded(reservationTwo);
+
+        verify(emailSender).sendWaitingListInfo("darth@a.com", "wsone");
+
+        WorkshopSizeChangedByAdmin sizeChangedByAdmin = new WorkshopSizeChangedByAdmin(System.currentTimeMillis(), 4L, "wsone", 10);
+        emailSaga.eventAdded(sizeChangedByAdmin);
+
+
+        verify(emailSender).sendReservationConfirmation("darth@a.com", "wsone",reservationTwo.getReservationToken());
+
+
+    }
+
+    @Test
     public void shouldSendConfirmationWhenParticallyCanceled() throws Exception {
         emailSaga.eventAdded(new WorkshopAddedByAdmin(System.currentTimeMillis(), 1L, "wsone", 3));
         ReservationAddedByUser reservationOne = new ReservationAddedByUser(WorkshopReservation.builder()
