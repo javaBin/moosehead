@@ -7,6 +7,7 @@
         <div ng-repeat="workshop in workshops">
             <h2>{{workshop.title}}</h2>
             <p>Total spots: {{workshop.numberOfSeats}}</p>
+            <p>Update spots: <input type="number" ng-model="numspots" placeholder="Updated number"><button ng-click="updateNumSpots(workshop,numspots)">Update num spots</button><span ng-model="updateResult"></span></p>
             <p>Status: {{workshop.status}}</p>
             <p>Shown up: {{workshop.numShownUps}}</p>
             <p><a ng-href="../#/list/{{workshop.id}}">Workshop list</a></p>

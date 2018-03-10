@@ -108,6 +108,8 @@ public class AdminServlet  extends HttpServlet {
             apiResult = registerShowUp(jsonInput);
         } else if ("/resendConfirmation".equals(pathInfo)) {
             apiResult = resendConfirmation(jsonInput);
+        } else if ("/updateWorkshopSize".equals(pathInfo)) {
+            apiResult = updateWorkshopSize(jsonInput);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
             return;
@@ -123,6 +125,19 @@ public class AdminServlet  extends HttpServlet {
             result.put("message",errormessage);
         }
         result.toJson(resp.getWriter());
+    }
+
+    private Optional<ParticipantActionResult> updateWorkshopSize(JsonObject jsonInput) {
+        Optional<String> workshopid = jsonInput.stringValue("workshopid");
+        Optional<Integer> numSpots = jsonInput.stringValue("numspots").map(Integer::parseInt);
+        if (!workshopid.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value workshopid"));
+        }
+        if (!numSpots.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value numspots"));
+        }
+        ParticipantActionResult participantActionResult = adminApi.changeWorkshopSize(workshopid.get(), numSpots.get());
+        return Optional.of(participantActionResult);
     }
 
     private Optional<ParticipantActionResult> resendConfirmation(JsonObject jsonInput) {

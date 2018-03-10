@@ -89,7 +89,25 @@ angular.module('mooseheadModule')
                         alert("Failed to update");
                         console.log(data);
                     });
-            }
+            };
+
+            $scope.updateNumSpots = function (workshop,numspots) {
+                var payload = {
+                    workshopid : workshop.id,
+                    numspots: numspots
+                };
+                $http({method: "POST", url: "data/updateWorkshopSize",data: payload})
+                    .success(function(result) {
+                        if (result.status === 'OK') {
+                            window.location.reload();
+                        } else {
+                            window.alert(result.errormessage);
+                        }
+                    }).error(function(data, status, headers, config) {
+                        alert("Failed to update");
+                        console.log(data);
+                    });
+            };
 
             $scope.showWaitingListStart = function (workshop,index) {
                 var placesLeft = workshop.numberOfSeats;
