@@ -34,7 +34,8 @@ angular.module('mooseheadModule')
                     endTime: $scope.endTime,
                     openTime: $scope.openTime,
                     maxParticipants: $scope.maxParticipants,
-                    workshopType: $scope.workshopType
+                    workshopType: $scope.workshopType,
+                    sleepingpillurl: $scope.sleepingpill
                 };
 
                 $http({

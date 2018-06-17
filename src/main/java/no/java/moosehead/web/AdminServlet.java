@@ -12,6 +12,7 @@ import no.java.moosehead.projections.Participant;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.saga.EmailSender;
 import org.jsonbuddy.*;
+import org.jsonbuddy.parse.JsonParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,12 +20,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static no.java.moosehead.web.Utils.*;
@@ -200,6 +205,10 @@ public class AdminServlet  extends HttpServlet {
         if (errormessage.isPresent()) {
             return Optional.of(ParticipantActionResult.error(errormessage.get()));
         }
+        Optional<String> sleepingpillurl = jsonInput.stringValue("sleepingpillurl").filter(s -> !s.trim().isEmpty());
+        if (sleepingpillurl.isPresent()) {
+            return createFromSleepingpull(sleepingpillurl.get(),readInstantField(jsonInput, "openTime"),Integer.parseInt(readField(jsonInput, "maxParticipants")));
+        }
         WorkshopData workshopData = new WorkshopData(
                 readField(jsonInput, "slug"),
                 readField(jsonInput, "title"),
@@ -220,41 +229,132 @@ public class AdminServlet  extends HttpServlet {
         return Optional.of(result);
     }
 
+    private static class WorkshopToCreate {
+        private String slug;
+        private String title;
+        private String description;
+        private Instant startTime;
+        private Instant endTime;
+
+        private static WorkshopToCreate fromJson(JsonObject sessionobject) {
+            WorkshopToCreate result = new WorkshopToCreate();
+            result.title = sessionobject.requiredString("title");
+            result.slug = createSlug(result.title);
+            result.description = sessionobject.requiredString("abstract");
+            result.startTime = instantFromSleepingpillDate(sessionobject.requiredString("startTime"));
+            result.endTime = instantFromSleepingpillDate(sessionobject.requiredString("endTime"));
+            return result;
+        }
+    }
+
+    private static Instant instantFromSleepingpillDate(String datestr) {
+        return LocalDateTime.parse(datestr).toInstant(ZoneOffset.ofHours(2));
+    }
+
+    private static String createSlug(String title) {
+        StringBuilder result = new StringBuilder();
+        for (Character c : title.toLowerCase().toCharArray()) {
+            if (Character.isLetterOrDigit(c)) {
+                result.append(c);
+            }
+            if (Character.isWhitespace(c)) {
+                result.append("_");
+            }
+        }
+        if (result.toString().isEmpty()) {
+            result.append("xxxx");
+        }
+        return result.toString();
+    }
+
+    private Optional<ParticipantActionResult> createFromSleepingpull(String sleepingPillUrl, Instant openTime, int maxParticipants) {
+        JsonObject sleepingpillobj;
+        try {
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL(sleepingPillUrl).openConnection();
+            try (InputStream is = urlConnection.getInputStream()) {
+                sleepingpillobj = JsonParser.parseToObject(is);
+            }
+        } catch (IOException e) {
+            return Optional.of(ParticipantActionResult.error("Error reading from sleepingpill"));
+        }
+        List<WorkshopToCreate> collect = sleepingpillobj.requiredArray("sessions").objectStream()
+                .filter(sessobj -> Optional.of("workshop").equals(sessobj.stringValue("format")))
+                .map(WorkshopToCreate::fromJson)
+                .collect(Collectors.toList());
+        for (WorkshopToCreate workshopToCreate : collect) {
+            WorkshopData workshopData = new WorkshopData(
+                    workshopToCreate.slug,
+                    workshopToCreate.title,
+                    workshopToCreate.description,
+                    workshopToCreate.startTime,
+                    workshopToCreate.endTime,
+                    Optional.of(openTime),
+                    WorkshopTypeEnum.NORMAL_WORKSHOP
+            );
+            ParticipantActionResult result = adminApi.createWorkshop(
+                    workshopData,
+                    workshopToCreate.startTime,
+                    workshopToCreate.endTime,
+                    openTime,
+                    maxParticipants
+            );
+
+        }
+        return Optional.of(ParticipantActionResult.ok());
+    }
+
     private Optional<String> validateRequiredAddWorkshopFields(JsonObject jsonInput) {
-        List<String> requiredItems = Arrays.asList("slug",
-                "title",
-                "description",
-                "startTime",
-                "endTime",
-                "openTime",
-                "maxParticipants",
-                "workshopType");
+        Optional<String> sleepingpillurl = jsonInput.stringValue("sleepingpillurl").filter(s -> !s.trim().isEmpty());
+
+        List<String> requiredItems;
+        if (sleepingpillurl.isPresent()) {
+            requiredItems = Arrays.asList(
+                    "openTime",
+                    "maxParticipants");
+        } else {
+            requiredItems = Arrays.asList("slug",
+                    "title",
+                    "description",
+                    "startTime",
+                    "endTime",
+                    "openTime",
+                    "maxParticipants",
+                    "workshopType");
+        }
         for (String required : requiredItems) {
             String value = readField(jsonInput,required);
             if (value == null || value.trim().isEmpty()) {
                 return Optional.of(String.format("Field %s is required", required));
             }
         }
-        List<String> dateFields = Arrays.asList(
-                "startTime",
-                "endTime",
-                "openTime");
+        List<String> dateFields;
+        if (sleepingpillurl.isPresent()) {
+            dateFields = Collections.singletonList("openTime");
+        } else {
+            dateFields = Arrays.asList(
+                    "startTime",
+                    "endTime",
+                    "openTime");
+        }
         for (String dateField : dateFields) {
             if (!Utils.toInstant(readField(jsonInput,dateField)).isPresent()) {
                 return Optional.of(String.format("Field %s must have date format dd/MM-yyyy HH:mm", dateField));
             }
-
-        }
-        if (!readInstantField(jsonInput,"openTime").isBefore(readInstantField(jsonInput,"startTime"))) {
-            return Optional.of("Open time must be before start time");
-        }
-        if (!readInstantField(jsonInput,"startTime").isBefore(readInstantField(jsonInput,"endTime"))) {
-            return Optional.of("Start time must be before end time");
         }
         try {
             Integer.parseInt(readField(jsonInput,"maxParticipants"));
         } catch (NumberFormatException e) {
             return Optional.of("Max participants must be numeric");
+        }
+        if (sleepingpillurl.isPresent()) {
+            return Optional.empty();
+        }
+
+        if (!readInstantField(jsonInput,"openTime").isBefore(readInstantField(jsonInput,"startTime"))) {
+            return Optional.of("Open time must be before start time");
+        }
+        if (!readInstantField(jsonInput,"startTime").isBefore(readInstantField(jsonInput,"endTime"))) {
+            return Optional.of("Start time must be before end time");
         }
         try {
             WorkshopTypeEnum.valueOf(readField(jsonInput,"workshopType"));
