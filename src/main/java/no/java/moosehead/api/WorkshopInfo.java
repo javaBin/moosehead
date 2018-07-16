@@ -76,7 +76,11 @@ public class WorkshopInfo {
     }
 
     public Optional<Instant> registrationOpensAt() {
-        return workshopData.getRegistrationOpens();
+        Optional<Instant> registrationOpens = workshopData.getRegistrationOpens();
+        if (registrationOpens == null) {
+            return Optional.empty();
+        }
+        return registrationOpens;
     }
 
 }
