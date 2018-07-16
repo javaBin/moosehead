@@ -11,9 +11,12 @@ import javax.servlet.ServletInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalField;
+import java.util.Locale;
 import java.util.Optional;
 
 public class Utils {
@@ -69,4 +72,13 @@ public class Utils {
         Instant instant = dateTime.toInstant(ZoneOffset.ofHours(2));
         return Optional.of(instant);
     }
+
+    public static String formatInstant(Instant instant) {
+        LocalDateTime dateTime = instant.atOffset(ZoneOffset.ofHours(2)).toLocalDateTime();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String month = dateTime.getMonth().toString().toLowerCase();
+        month = month.substring(0,1).toUpperCase() + month.substring(1);
+        return String.format("%s %dth at %s", month,dateTime.getDayOfMonth(),dateTimeFormatter.format(dateTime));
+    }
+
 }

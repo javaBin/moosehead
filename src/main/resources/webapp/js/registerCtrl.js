@@ -29,7 +29,7 @@ angular.module('mooseheadModule')
                     $scope.showForm = false;
                     $scope.showMessage = true;
                 } else if ($scope.workshop.status === "NOT_OPENED") {
-                    $scope.message = "Registration has not opened yet. Come back later.";
+                    $scope.message = "Registration opens " + $scope.workshop.opensAt;
                     $scope.showForm = false;
                     $scope.showMessage = true;
                 } else if ($scope.workshop.status === "CLOSED") {

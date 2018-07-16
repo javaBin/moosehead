@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -117,7 +118,9 @@ public class DataServlet extends HttpServlet {
 
     private void printWorkshops(HttpServletResponse resp) throws IOException {
         List<WorkshopInfo> workshops = participantApi.workshops();
+
         List<JsonObject> jsons = workshops.stream().map(workshop -> {
+
                     JsonObject jsonObject = JsonFactory.jsonObject();
                     jsonObject.put("id", workshop.getId());
                     jsonObject.put("title", workshop.getTitle());
@@ -125,8 +128,12 @@ public class DataServlet extends HttpServlet {
                     jsonObject.put("status", workshop.getStatus().name());
                     int maxReservationSpaces = workshop.getWorkshopTypeEnum() == WorkshopTypeEnum.KIDSAKODER_WORKSHOP ? Configuration.maxNumberOfSeatsToReserve() : 1;
                     jsonObject.put("maxReservations", maxReservationSpaces);
+
+                    Optional<Instant> instant = workshop.registrationOpensAt();
+                    instant.ifPresent(opens -> jsonObject.put("opensAt",Utils.formatInstant(opens)));
+
                     return jsonObject;
-                }
+            }
         ).collect(Collectors.toList());
         PrintWriter writer = resp.getWriter();
         JsonArray.fromNodeList(jsons).toJson(writer);

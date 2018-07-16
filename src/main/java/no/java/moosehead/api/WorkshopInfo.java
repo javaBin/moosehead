@@ -5,6 +5,7 @@ import no.java.moosehead.projections.Participant;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.saga.EmailSender;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +73,10 @@ public class WorkshopInfo {
         return participants.stream()
                 .mapToInt(Participant::getNumberOfSeatsReserved)
                 .sum();
+    }
+
+    public Optional<Instant> registrationOpensAt() {
+        return workshopData.getRegistrationOpens();
     }
 
 }
