@@ -1,18 +1,21 @@
-Hi,
+<html>
+<body>
+<p>Hi,</p>
 
-Thank you for signing up to the JavaZone workshop "#workshop#".
+<p>Thank you for signing up to the JavaZone workshop &quot;#workshop#&quot;.</p>
 
-You have been given a place at this workshop.
+<p>You have been given a place at this workshop.</p>
 
-The workshop starts #starts#. Please show up at least five minutes before the workshop starts. If you don't show up on time, we might give your spot to someone else.
+<p>The workshop starts #starts#. Please show up at least five minutes before the workshop starts. If you don't show up on time, we might give your spot to someone else.</p>
 
-If you, for some reason, won't be able to attend, please cancel your reservation by clicking the following link so we can give your spot to someone else:
-#mooseheadLocation#/#/cancel/#token#
+<p>If you, for some reason, won't be able to attend, please cancel your reservation by clicking the following link so we can give your spot to someone else:</p>
+<p><a href="#mooseheadLocation#/#/cancel/#token#">Cancel</a><p>
 
-To see the status of your registration(s), visit the page:
-#mooseheadLocation#/#/showMyReservations/#to#
+<p>To see the status of your registration(s), visit the page:</p>
+<p><a href="#mooseheadLocation#/#/showMyReservations/#to#">Show my reservations</a></p>
 
-If you have any questions, please contact us at program@java.no
+<p>If you have any questions, please contact us at program@java.no</p>
 
-Best regards,
-JavaZone
+<p>Best regards, JavaZone</p>
+</body>
+</html>

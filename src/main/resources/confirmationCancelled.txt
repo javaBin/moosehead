@@ -1,13 +1,16 @@
-Hi,
+<html>
+<body>
+<p>Hi,</p>
 
-Your cancellation of your attendence to the JavaZone workshop "#workshop#" has been registered.
+<p>Your cancellation of your attendence to the JavaZone workshop &quot;#workshop#&quot; has been registered.</p>
 
-Thanks for letting us know!
+<p>Thanks for letting us know!</p>
 
-To see the status of your registration(s), visit the page:
-#mooseheadLocation#/#/showMyReservations/#to#
+<p>To see the status of your registration(s), visit the page:</p>
+<p><a href="#mooseheadLocation#/#/showMyReservations/#to#">Show registrations</a></p>
 
-If you have any questions, please contact us at program@java.no
+<p>If you have any questions, please contact us at program@java.no</p>
 
-Best regards,
-JavaZone
+<p>Best regards, JavaZone</p>
+</body>
+</html>

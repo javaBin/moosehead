@@ -1,5 +1,7 @@
 package no.java.moosehead.web;
 
+import no.java.moosehead.saga.EmailSender;
+
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -245,5 +247,9 @@ public class Configuration {
 
     public static boolean isDevEnviroment() {
         return "true".equals(readConf("devEnviroment","true"));
+    }
+
+    public static String sendGridKey() {
+        return readConf("sendGridKey",null);
     }
 }

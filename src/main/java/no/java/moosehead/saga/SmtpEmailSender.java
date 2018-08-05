@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class SmtpEmailSender extends EmailSender {
-    private static class EmailMessage {
+    public static class EmailMessage {
 
         public final EmailType type;
         public final String message;
@@ -71,16 +71,29 @@ public class SmtpEmailSender extends EmailSender {
     private void sendEmail(EmailType type, String message, String to) throws EmailException {
         String subject = type.getSubject();
         if (!Configuration.isProdEnviroment()) {
-            message = "[This message is just a test. Please disregard and delete]\n" + message;
+            int index = message.indexOf("<body>");
+            if (index == -1) {
+                message = "[This message is just a test. Please disregard and delete]\n" + message;
+            } else {
+                StringBuilder newMess = new StringBuilder(message);
+                index = index + "<body>".length();
+                newMess.insert(index,"<p>[This message is just a test. Please disregard and delete]</p>");
+                message = newMess.toString();
+            }
             subject = "[TEST] " + subject;
         }
 
+        sendSingleMail(message, to, subject);
+    }
+
+    protected void sendSingleMail(String message, String to, String subject) throws EmailException {
         SimpleEmail mail = new SimpleEmail();
         mail.setHostName(Configuration.smtpServer());
         mail.setFrom("program@java.no");
         mail.addTo(to);
         mail.setSubject(subject);
-        mail.setMsg(message);
+        String contentType = message.contains("<body>") ? "text/html" : "text/plain";
+        mail.setContent(message,contentType);
 
         if (Configuration.useMailSSL()) {
             mail.setSSLOnConnect(true);
@@ -103,7 +116,6 @@ public class SmtpEmailSender extends EmailSender {
 
         mail.send();
     }
-
 
 
 }

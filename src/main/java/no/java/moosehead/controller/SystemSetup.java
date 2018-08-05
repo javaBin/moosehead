@@ -52,7 +52,7 @@ public class SystemSetup {
         eventstore.addEventSubscriber(new EmailSaga());
         eventstore.addEventSubscriber(workshopRepository);
         workshopController = new WorkshopController();
-        emailSender = Configuration.smtpServer() != null ? new SmtpEmailSender() : new DummyEmailSender();
+        emailSender = Configuration.sendGridKey() != null ? new SendGridEmailSender(Configuration.sendGridKey()) : Configuration.smtpServer() != null ? new SmtpEmailSender() : new DummyEmailSender();
         workshopAggregate.setEmailSender(emailSender);
 
         if (eventstore.numberOfWorkshops() == 0L) {
