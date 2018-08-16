@@ -10,6 +10,7 @@ import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.projections.Participant;
 import org.jsonbuddy.JsonArray;
+import org.jsonbuddy.JsonBoolean;
 import org.jsonbuddy.JsonFactory;
 import org.jsonbuddy.JsonObject;
 import org.jsonbuddy.parse.JsonParseException;
@@ -71,6 +72,12 @@ public class DataServlet extends HttpServlet {
     }
 
     private void printTeacherList(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        JsonObject userAccess = (JsonObject) req.getSession().getAttribute("user");
+        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBoolean) jn).booleanValue()).orElse(false))) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         String workshop = req.getParameter("workshop");
         if (workshop == null || workshop.isEmpty()) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Workshop not found");
