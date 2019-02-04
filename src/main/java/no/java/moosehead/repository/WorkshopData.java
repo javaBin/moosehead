@@ -74,7 +74,7 @@ public class WorkshopData {
         res.append(" (Start time: ");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM-yyy HH:mm");
         String datestr = Optional.ofNullable(getStartTime())
-                .map(st -> dateTimeFormatter.format(st.atOffset(ZoneOffset.ofHours(2))))
+                .map(st -> dateTimeFormatter.format(st.atOffset(ZoneOffset.ofHours(1))))
                 .orElse("Unknown");
         res.append(datestr);
         res.append(")");
