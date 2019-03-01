@@ -21,7 +21,7 @@ public class SmtpEmailSender extends EmailSender {
         }
     }
 
-    private final transient LinkedList<EmailMessage> messages = setupQue();
+    private final LinkedList<EmailMessage> messages = setupQue();
 
     private LinkedList<EmailMessage> setupQue() {
         LinkedList<EmailMessage> emailMessages = new LinkedList<>();

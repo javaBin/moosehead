@@ -7,16 +7,16 @@ import org.apache.commons.mail.EmailException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class SendGridEmailSender extends SmtpEmailSender {
+public class SendGridEmailSender extends EmailSender {
     private final String sendgridKey;
 
     public SendGridEmailSender(String sendgridKey) {
         this.sendgridKey = sendgridKey;
     }
 
-    @Override
-    protected void sendSingleMail(String message, String to, String subject) throws EmailException {
+    private void sendSingleMail(String message, String to, String subject) throws EmailException {
         List<String> bccRec = new ArrayList<>();
 
         String bcc = Configuration.bccTo();
@@ -52,5 +52,18 @@ public class SendGridEmailSender extends SmtpEmailSender {
         }
 
 
+    }
+
+    @Override
+    public void send(EmailType type, String to, Map<String, String> values) {
+        values.put("to", to);
+        values.put("mooseheadLocation", Configuration.mooseheadLocation());
+
+        String message = readFromTemplate(type, values);
+        try {
+            sendSingleMail(message,to,type.getSubject());
+        } catch (EmailException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
