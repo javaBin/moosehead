@@ -76,6 +76,9 @@ public class AdminServlet  extends HttpServlet {
             printAllInfo(resp);
         } else if ("/duplreservations".equals(req.getPathInfo())) {
             printDuplicate(resp);
+        } else if ("/status".equals(req.getPathInfo())) {
+            resp.setContentType("text/json");
+            JsonFactory.jsonObject().put("emailSender",SystemSetup.instance().emailSender().getClass().toString()).toJson(resp.getWriter());
         } else  {
             resp.getWriter().print("" +
                     "<html>Protected Admin API:<ul>" +
