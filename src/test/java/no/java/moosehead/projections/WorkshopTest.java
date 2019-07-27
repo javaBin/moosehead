@@ -103,8 +103,8 @@ public class WorkshopTest {
 
     @Test
     public void testWorkshopInfoText() throws Exception {
-        Instant start = LocalDateTime.of(2018, 4, 20, 14, 0, 0).atOffset(ZoneOffset.ofHours(1)).toInstant();
-        Instant end = LocalDateTime.of(2018, 4, 20, 15, 0, 0).atOffset(ZoneOffset.ofHours(1)).toInstant();
+        Instant start = LocalDateTime.of(2018, 4, 20, 14, 0, 0).atOffset(ZoneOffset.ofHours(2)).toInstant();
+        Instant end = LocalDateTime.of(2018, 4, 20, 15, 0, 0).atOffset(ZoneOffset.ofHours(2)).toInstant();
         WorkshopData workshopData = new WorkshopData("xx", "Juggling workshop", "Learn to juggle", start, end, Optional.empty(), WorkshopTypeEnum.NORMAL_WORKSHOP);
         assertThat(workshopData.infoText()).isEqualTo("Juggling workshop (Start time: 20/04-2018 14:00)");
     }
