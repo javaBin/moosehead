@@ -1,7 +1,5 @@
 package no.java.moosehead.web;
 
-import no.java.moosehead.saga.EmailSender;
-
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
