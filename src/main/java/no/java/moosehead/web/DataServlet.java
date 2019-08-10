@@ -135,6 +135,9 @@ public class DataServlet extends HttpServlet {
                     jsonObject.put("status", workshop.getStatus().name());
                     int maxReservationSpaces = workshop.getWorkshopTypeEnum() == WorkshopTypeEnum.KIDSAKODER_WORKSHOP ? Configuration.maxNumberOfSeatsToReserve() : 1;
                     jsonObject.put("maxReservations", maxReservationSpaces);
+                    jsonObject.put("start",workshop.workshopStartDate());
+                    jsonObject.put("duration",workshop.workshopStartDate());
+                    jsonObject.put("onWaitingList",workshop.getNumberOnWaitingList());
 
                     Optional<Instant> instant = workshop.registrationOpensAt();
                     instant.ifPresent(opens -> jsonObject.put("opensAt",Utils.formatInstant(opens)));

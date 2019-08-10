@@ -5,6 +5,7 @@ import no.java.moosehead.projections.Participant;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.saga.EmailSender;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +19,9 @@ public class WorkshopInfo {
     private WorkshopTypeEnum workshopTypeEnum;
     private int numberOfSeats;
     private WorkshopData workshopData;
+    private int numberOnWaitingList;
 
-    public WorkshopInfo(WorkshopData workshopData, List<Participant> participants, WorkshopStatus status, WorkshopTypeEnum workshopTypeEnum, int numberOfSeats) {
+    public WorkshopInfo(WorkshopData workshopData, List<Participant> participants, WorkshopStatus status, WorkshopTypeEnum workshopTypeEnum, int numberOfSeats, int numberOnWaitingList) {
         this.id = workshopData.getId();
         this.title = workshopData.getTitle();
         this.description = workshopData.getDescription();
@@ -28,6 +30,7 @@ public class WorkshopInfo {
         this.workshopTypeEnum = workshopTypeEnum;
         this.numberOfSeats = numberOfSeats;
         this.workshopData = workshopData;
+        this.numberOnWaitingList = numberOnWaitingList;
     }
 
     public String getId() {
@@ -58,6 +61,10 @@ public class WorkshopInfo {
         return numberOfSeats;
     }
 
+    public int getNumberOnWaitingList() {
+        return numberOnWaitingList;
+    }
+
     public int computeShownUps() {
         return participants.stream()
                 .filter(Participant::isHasShownUp)
@@ -67,6 +74,11 @@ public class WorkshopInfo {
 
     public String workshopStartDate() {
         return Optional.ofNullable(workshopData.getStartTime()).map(EmailSender::formatInstant).orElse("Not set");
+    }
+
+    public String duration() {
+        long minutes = Duration.between(workshopData.getStartTime(),workshopData.getEndTime()).getSeconds()/60L;
+        return minutes + "minutes";
     }
 
     public int numberOfParticipants() {

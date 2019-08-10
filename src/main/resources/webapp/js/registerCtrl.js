@@ -9,6 +9,8 @@ angular.module('mooseheadModule')
             $scope.userObject = {};
             $scope.loggedIn = false;
             $scope.showNotConfirmed = false;
+            $scope.showWorkshopFull = false;
+            $scope.numOnWaitingList = 0;
 
             $http({method: "GET", url: "data/userLogin"})
                 .success(function(userobj) {
@@ -40,6 +42,10 @@ angular.module('mooseheadModule')
                     $scope.showVeryFull = true;
                 }
                 $scope.showMultiReservations = $scope.workshop.maxReservations > 1;
+                if ($scope.workshop.onWaitingList >= 0) {
+                    $scope.numOnWaitingList = $scope.workshop.onWaitingList;
+                    $scope.showWorkshopFull = true;
+                }
             });
 
             $scope.reloadCaptcha = function() {

@@ -56,13 +56,13 @@ public class DataServletTest {
         when(wsdOne.getId()).thenReturn("1");
         when(wsdOne.getTitle()).thenReturn("Ws one");
         when(wsdOne.getDescription()).thenReturn("desc");
-        WorkshopInfo one = new WorkshopInfo(wsdOne, null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10);
+        WorkshopInfo one = new WorkshopInfo(wsdOne, null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10,0);
 
         WorkshopData wsdTwo = mock(WorkshopData.class);
         when(wsdTwo.getId()).thenReturn("2");
         when(wsdTwo.getTitle()).thenReturn("Ws two");
         when(wsdTwo.getDescription()).thenReturn("desc");
-        WorkshopInfo two = new WorkshopInfo(wsdTwo, null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10);
+        WorkshopInfo two = new WorkshopInfo(wsdTwo, null, WorkshopStatus.FREE_SPOTS, WorkshopTypeEnum.NORMAL_WORKSHOP,10,0);
 
         when(participantApi.workshops()).thenReturn(Arrays.asList(one, two));
 

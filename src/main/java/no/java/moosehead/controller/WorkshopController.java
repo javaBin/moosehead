@@ -14,6 +14,7 @@ import no.java.moosehead.repository.WorkshopRepository;
 import no.java.moosehead.web.Configuration;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,7 +37,8 @@ public class WorkshopController implements ParticipantApi,AdminApi {
     private WorkshopInfo createWorkshopInfo(Workshop ws) {
         WorkshopData wd = ws.getWorkshopData();
         WorkshopStatus status = computeWorkshopStatus(ws);
-        return new WorkshopInfo(wd, ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum(),ws.getNumberOfSeats());
+        int onWaitingList = computeNumberOnWaitingList(ws,status);
+        return new WorkshopInfo(wd, ws.getParticipants(), status,ws.getWorkshopData().getWorkshopTypeEnum(),ws.getNumberOfSeats(),onWaitingList);
     }
 
     @Override
@@ -46,6 +48,18 @@ public class WorkshopController implements ParticipantApi,AdminApi {
                 .map(this::createWorkshopInfo)
                 .collect(Collectors.toList())
         ;
+    }
+
+    private int computeNumberOnWaitingList(Workshop ws,WorkshopStatus workshopStatus) {
+        if (!EnumSet.of(WorkshopStatus.FULL,WorkshopStatus.VERY_FULL).contains(workshopStatus)) {
+            return -1;
+        }
+        int confirmedParticipants = ws.getParticipants().stream()
+                .filter(Participant::isEmailConfirmed)
+                .mapToInt(Participant::getNumberOfSeatsReserved)
+                .sum();
+        int seatsLeft = ws.getNumberOfSeats() - confirmedParticipants;
+        return Integer.max(seatsLeft*-1,0);
     }
 
     protected WorkshopStatus computeWorkshopStatus(Workshop ws) {
