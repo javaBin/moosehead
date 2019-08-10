@@ -35,17 +35,17 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.3.0.v20150612</version>
+            <version>9.4.19.v20190610</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-plus</artifactId>
-            <version>9.3.0.v20150612</version>
+            <version>9.4.19.v20190610</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-annotations</artifactId>
-            <version>9.3.0.v20150612</version>
+            <version>9.4.19.v20190610</version>
         </dependency>
 
 
