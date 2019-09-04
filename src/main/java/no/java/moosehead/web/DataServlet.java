@@ -9,11 +9,13 @@ import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.projections.Participant;
+import no.java.moosehead.projections.Workshop;
 import org.jsonbuddy.JsonArray;
 import org.jsonbuddy.JsonBoolean;
 import org.jsonbuddy.JsonFactory;
 import org.jsonbuddy.JsonObject;
 import org.jsonbuddy.parse.JsonParseException;
+import org.jsonbuddy.pojo.JsonGenerator;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -25,8 +27,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static no.java.moosehead.web.Utils.readField;
@@ -51,17 +52,21 @@ public class DataServlet extends HttpServlet {
         resp.addHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
         resp.addHeader("Pragma", "no-cache"); // HTTP 1.0.
         resp.addDateHeader("Expires", 0); // Proxies.
-        if ("/workshopList".equals(req.getPathInfo())) {
+        String pathInfo = req.getPathInfo();
+        if ("/workshopList".equals(pathInfo)) {
             resp.setContentType("text/json");
             resp.addHeader("Access-Control-Allow-Origin", "*");
             printWorkshops(resp);
-        } else if ("/myReservations".equals(req.getPathInfo())) {
+        } else if ("/myReservations".equals(pathInfo)) {
             resp.setContentType("text/json");
             printMyReservations(req,resp);
-        } else if ("/teacherList".equals(req.getPathInfo())) {
+        } else if ("/teacherList".equals(pathInfo)) {
             resp.setContentType("text/json");
             printTeacherList(req, resp);
-        } else if ("/userLogin".equals(req.getPathInfo())) {
+        } else if ("/reservationsByEmail".equals(pathInfo)) {
+            resp.setContentType("application/json");
+            printReservationsByEmail(req,resp);
+        } else if ("/userLogin".equals(pathInfo)) {
             resp.setContentType("text/json");
             JsonObject node = (JsonObject) req.getSession().getAttribute("user");
             resp.getWriter().append(Optional.ofNullable(node).map(Object::toString).orElse("{}"));
@@ -69,6 +74,37 @@ public class DataServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
 
+    }
+
+    private void printReservationsByEmail(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        JsonObject userAccess = (JsonObject) req.getSession().getAttribute("user");
+        if (Configuration.secureAdmin() && (userAccess == null || !userAccess.value("admin").map(jn -> ((JsonBoolean) jn).booleanValue()).orElse(false))) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        List<WorkshopInfo> workshops = participantApi.workshops();
+        JsonObject allReservations = new JsonObject();
+        for (WorkshopInfo workshopInfo : workshops) {
+            if (workshopInfo.getWorkshopTypeEnum() != WorkshopTypeEnum.NORMAL_WORKSHOP) {
+                continue;
+            }
+            int spacesLeft = workshopInfo.getNumberOfSeats();
+            for (Participant participant : workshopInfo.getParticipants()) {
+                String email = participant.getWorkshopReservation().getEmail();
+                JsonArray wslist = allReservations.arrayValue(email).orElseGet(() -> {
+                    JsonArray newList = new JsonArray();
+                    allReservations.put(email,newList);
+                    return newList;
+                });
+                wslist.add(workshopInfo.getId());
+                spacesLeft--;
+                if (spacesLeft <= 0) {
+                    break;
+                }
+            }
+        }
+
+        allReservations.toJson(resp.getWriter());
     }
 
     private void printTeacherList(HttpServletRequest req, HttpServletResponse resp) throws IOException {
