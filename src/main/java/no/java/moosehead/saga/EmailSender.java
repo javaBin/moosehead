@@ -85,8 +85,9 @@ public abstract class EmailSender {
     }
 
     protected String readFromTemplate(EmailType type, Map<String, String> values) {
+        String templateName = WorkshopTypeEnum.fromValue(values.get("workshopType")).map(wt -> type.getSpecialHandling().get(wt)).orElse(type.getTemplate());
         String template;
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(type.getTemplate())) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(templateName)) {
             template = toString(is);
         } catch (IOException e) {
             throw new RuntimeException(e);

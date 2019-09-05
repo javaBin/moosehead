@@ -112,6 +112,8 @@ public class AdminServlet  extends HttpServlet {
             apiResult = addWorkshop(jsonInput);
         } else if ("/partialCancel".equals(pathInfo)) {
             apiResult = partialCancel(jsonInput);
+        } else if ("/resendReservationConfirmEmail".equals(pathInfo)) {
+            apiResult = resendAllReservationCondirmations(jsonInput);
         } else if ("/shownUp".equals(pathInfo)) {
             apiResult = registerShowUp(jsonInput);
         } else if ("/resendConfirmation".equals(pathInfo)) {
@@ -134,6 +136,8 @@ public class AdminServlet  extends HttpServlet {
         }
         result.toJson(resp.getWriter());
     }
+
+
 
     private Optional<ParticipantActionResult> updateWorkshopSize(JsonObject jsonInput) {
         Optional<String> workshopid = jsonInput.stringValue("workshopid");
@@ -172,6 +176,31 @@ public class AdminServlet  extends HttpServlet {
         Participant participant = optionalParticipant.get();
         WorkshopReservation reservation = participant.getWorkshopReservation();
         emailSender.sendEmailConfirmation(reservation.getEmail(),reservation.getReservationToken(),workshopid.get());
+        return Optional.of(ParticipantActionResult.ok());
+    }
+
+    private Optional<ParticipantActionResult> resendAllReservationCondirmations(JsonObject jsonInput) {
+        Optional<String> workshopidOpt = jsonInput.stringValue("workshopid");
+        if (!workshopidOpt.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Required value workshopid"));
+        }
+        String workshopid = workshopidOpt.get();
+        List<WorkshopInfo> workshops = participantApi.workshops();
+        Optional<WorkshopInfo> optionalWorkshopInfo = workshops.stream().filter(ws -> ws.getId().equals(workshopid)).findAny();
+        if (!optionalWorkshopInfo.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Unknown workshop id " + workshopid));
+        }
+        WorkshopInfo workshopInfo = optionalWorkshopInfo.get();
+        List<Participant> participants = workshopInfo.getParticipants();
+        int spacesLeft = workshopInfo.getNumberOfSeats();
+        for (Participant participant : participants) {
+            spacesLeft-=participant.getNumberOfSeatsReserved();
+            if (spacesLeft < 0) {
+                break;
+            }
+            WorkshopReservation reservation = participant.getWorkshopReservation();
+            emailSender.sendReservationConfirmation(reservation.getEmail(),workshopid,reservation.getReservationToken());
+        }
         return Optional.of(ParticipantActionResult.ok());
     }
 
