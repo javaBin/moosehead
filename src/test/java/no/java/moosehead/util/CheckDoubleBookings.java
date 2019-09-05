@@ -26,7 +26,7 @@ public class CheckDoubleBookings {
 
     }
 
-    private static JsonObject readRegistrations(String filname) throws Exception {
+    public static JsonObject readRegistrations(String filname) throws Exception {
         JsonObject result;
         try (InputStream is = new FileInputStream(filname)) {
             result = JsonParser.parseToObject(is);

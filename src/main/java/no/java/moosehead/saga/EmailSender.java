@@ -1,5 +1,6 @@
 package no.java.moosehead.saga;
 
+import no.java.moosehead.commands.WorkshopTypeEnum;
 import no.java.moosehead.controller.SystemSetup;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
@@ -14,9 +15,29 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class EmailSender {
+    private static Map<String,String> preperationsTexts = readPreperationsText();
+
+    private static Map<String, String> readPreperationsText() {
+        String prepfilecontent;
+        try (InputStream is = EmailSender.class.getClassLoader().getResourceAsStream("preperations.html")) {
+            prepfilecontent = toString(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Map<String, String> result = new HashMap<>();
+        for (String line : prepfilecontent.split("\n")) {
+            if (line.trim().isEmpty() || line.startsWith("#")) {
+                continue;
+            }
+            int pos = line.indexOf("=");
+            result.put(line.substring(0,pos),line.substring(pos+1));
+        }
+        return result;
+    }
+
     public abstract void send(EmailType type,String to,Map<String,String> values);
 
-    public final void sendEmailConfirmation(String to,String token,String workshopId) {
+    public final void sendEmailConfirmation(String to, String token, String workshopId) {
         sendWorkshopInfo(to,workshopId,EmailType.CONFIRM_EMAIL,token);
     }
 
@@ -32,11 +53,22 @@ public abstract class EmailSender {
         Map<String, String> values = new HashMap<>();
         values.put("workshop",wstitle);
         values.put("starts",start);
+        workshopData.ifPresent(wd -> values.put("workshopType",wd.getWorkshopTypeEnum().toString()));
         if (token != null) {
             values.put("token",token);
         }
+        readPreperations(workshopData,workshopId).ifPresent(prep -> values.put("preparation",prep));
+
         send(emailType, to, values);
     }
+
+    private Optional<String> readPreperations(Optional<WorkshopData> workshopData, String workshopId) {
+        if (workshopData.map(wd -> wd.getWorkshopTypeEnum()).orElse(null) != WorkshopTypeEnum.NORMAL_WORKSHOP) {
+            return Optional.empty();
+        }
+        return Optional.of(Optional.ofNullable(preperationsTexts.get(workshopId)).orElse("Please bring your laptop"));
+    }
+
 
     public static String formatInstant(Instant instant) {
         OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.ofHours(2));
