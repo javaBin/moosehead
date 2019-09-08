@@ -1,7 +1,37 @@
 angular.module('mooseheadModule')
     .controller('AdminCtrl', ['$scope', '$http','$location',
         function($scope, $http, $location) {
+            var filterWorkshops = function(allWorkshops,filterText) {
+                var includeParticipant = function (partobj) {
+                    if (!filterText) {
+                        return true;
+                    }
+                    if (filterText.trim().length === 0) {
+                        return true;
+                    }
+                    if (partobj.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1) {
+                        return true;
+                    }
+                    if (partobj.email.toLowerCase().indexOf(filterText.toLowerCase()) !== -1) {
+                        return true;
+                    }
+                    return false;
+                };
+                var filteredWorkshops = [];
+                allWorkshops.forEach(function (wsvalue) {
+                    var cl = _.clone(wsvalue);
+                    cl.participants = [];
+                    wsvalue.participants.forEach(function (value) {
+                        if (includeParticipant(value)) {
+                            cl.participants.push(value);
+                        }
+                    });
+                    filteredWorkshops.push(cl);
+                });
+                return filteredWorkshops;
+            };
             $scope.workshops = [];
+            $scope.allWorkshops = [];
             $scope.showNoAccess=false;
             $scope.needLogin = false;
             $scope.needAccess = false;
@@ -21,9 +51,14 @@ angular.module('mooseheadModule')
                     }
                     $http({method: "GET", url: "data/alldata"})
                         .success(function(value) {
-                            $scope.workshops = value;
+                            $scope.allWorkshops = value;
+                            $scope.workshops = filterWorkshops(value);
                         });
                 });
+
+            $scope.doAdminFilter = function() {
+                $scope.workshops = filterWorkshops($scope.allWorkshops,$scope.wsfilter);
+            };
 
             $scope.isConfirmed = function(participant) {
                 if (participant.isEmailConfirmed) {

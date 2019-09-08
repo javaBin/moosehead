@@ -3,7 +3,7 @@
         <p><a href="#/addWorkshop/">Add</a> another workshop</p>
         <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
         <p>The cancel link will take you to the same cancel page as given to the participants in their mail.</p>
-        <p>The partially cancel will cancel that many spaces (Have three spots, selct 2 to cancel => Have one spot left). Mail will not be sent to that participant, but will be sent to any from the waiting list that receives a spot.</p>
+        <p><input type="text" placeholder="filter" ng-model="wsfilter"><button ng-click="doAdminFilter()">Do filter</button></p>
         <div ng-repeat="workshop in workshops">
             <h2>{{workshop.title}}</h2>
             <p>Total spots: {{workshop.numberOfSeats}}</p>
