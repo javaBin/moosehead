@@ -68,7 +68,8 @@ angular.module('mooseheadModule')
             };
 
             $scope.queNum = function(workshop,participant) {
-                var pos = workshop.participants.indexOf(participant);
+                var wsorg = _.findWhere($scope.allWorkshops,{id: workshop.id});
+                var pos = wsorg.participants.indexOf(participant);
                 return pos+1;
             };
 
