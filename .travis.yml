@@ -1,4 +1,6 @@
 language: java
+# remove line "dist: trusty" once oraclejdk8 is no longer required
+dist: trusty
 jdk:
 - oraclejdk8
 sudo: false
