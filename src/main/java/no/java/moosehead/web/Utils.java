@@ -9,10 +9,7 @@ import org.jsonbuddy.parse.JsonParser;
 
 import javax.servlet.ServletInputStream;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalField;
@@ -60,7 +57,7 @@ public class Utils {
 
     public static Optional<Instant> toInstant(String datestring) {
         if (datestring == null) {
-            return null;
+            return Optional.empty();
         }
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM-yyyy HH:mm");
         LocalDateTime dateTime;
@@ -69,12 +66,13 @@ public class Utils {
         } catch (DateTimeParseException e) {
             return Optional.empty();
         }
-        Instant instant = dateTime.toInstant(ZoneOffset.ofHours(2));
-        return Optional.of(instant);
+
+        final ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.of("Europe/Oslo"));
+        return Optional.of(zonedDateTime.toInstant());
     }
 
     public static String formatInstant(Instant instant) {
-        LocalDateTime dateTime = instant.atOffset(ZoneOffset.ofHours(2)).toLocalDateTime();
+        LocalDateTime dateTime  = instant.atZone(ZoneId.of("Europe/Oslo")).toLocalDateTime();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         String month = dateTime.getMonth().toString().toLowerCase();
         month = month.substring(0,1).toUpperCase() + month.substring(1);
