@@ -1,9 +1,7 @@
 package no.java.moosehead.web;
 
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -124,13 +122,12 @@ public class Configuration {
         return res;
     }
 
-    public static OffsetDateTime openTime() {
+    public static ZonedDateTime openTime() {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-        String defaultVal = LocalDateTime.now().atOffset(ZoneOffset.ofHours(2)).minusDays(2).format(format);
+        String defaultVal = LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).minusDays(2).format(format);
         String dateStr = readConf("openTime",defaultVal);
 
-        ZoneOffset offset = ZoneOffset.ofHours(2);
-        OffsetDateTime openstime = LocalDateTime.parse(dateStr, format).atOffset(offset);
+        ZonedDateTime openstime = LocalDateTime.parse(dateStr, format).atZone(ZoneId.of("Europe/Oslo"));
         return openstime;
     }
 

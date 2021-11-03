@@ -1,7 +1,6 @@
 package no.java.moosehead.eventstore;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 
 public class WorkshopAddedBySystem extends WorkshopAddedEvent {
 

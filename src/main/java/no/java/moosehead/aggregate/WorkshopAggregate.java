@@ -9,9 +9,7 @@ import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.saga.EmailSender;
 import no.java.moosehead.web.Configuration;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -81,7 +79,7 @@ public class WorkshopAggregate implements EventSubscription {
     public AbstractReservationAdded createEvent(AddReservationCommand addReservationCommand) {
         Optional<WorkshopAddedEvent> workshop = getWorkshop(addReservationCommand.getWorkshopReservation().getWorkshopId());
         if (workshop.isPresent()) {
-            if (OffsetDateTime.now().isBefore(computeOpenTime(workshop.get()))) {
+            if (ZonedDateTime.now().isBefore(computeOpenTime(workshop.get()))) {
                 throw new ReservationCanNotBeAddedException("Reservations has not opened yet for this workshop");
             }
             Optional<ReservationAddedByUser> reservation = getActiveReservationIfPresent(addReservationCommand);
@@ -120,7 +118,7 @@ public class WorkshopAggregate implements EventSubscription {
 
 
 
-    private OffsetDateTime computeOpenTime(WorkshopAddedEvent workshop) {
+    private ZonedDateTime computeOpenTime(WorkshopAddedEvent workshop) {
         Optional<WorkshopData> dataOptional = workshop.getWorkshopData();
         if (!dataOptional.isPresent()) {
             return Configuration.openTime();
@@ -130,7 +128,7 @@ public class WorkshopAggregate implements EventSubscription {
             return Configuration.openTime();
         }
 
-        OffsetDateTime opening = registrationOpens.get().atOffset(ZoneOffset.ofHours(2));
+        final ZonedDateTime opening = registrationOpens.get().atZone(ZoneId.of("Europe/Oslo"));
         return opening;
     }
 

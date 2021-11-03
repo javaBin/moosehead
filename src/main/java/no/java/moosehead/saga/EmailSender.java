@@ -6,9 +6,7 @@ import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.repository.WorkshopRepository;
 
 import java.io.*;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +69,7 @@ public abstract class EmailSender {
 
 
     public static String formatInstant(Instant instant) {
-        OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.ofHours(2));
+        ZonedDateTime offsetDateTime = instant.atZone(ZoneId.of("Europe/Oslo"));
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE MMMM d'th,' 'at' HH:mm");
         return dateTimeFormatter.format(offsetDateTime);
     }

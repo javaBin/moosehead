@@ -28,7 +28,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -280,7 +280,7 @@ public class AdminServlet  extends HttpServlet {
     }
 
     private static Instant instantFromSleepingpillDate(String datestr) {
-        return LocalDateTime.parse(datestr).toInstant(ZoneOffset.ofHours(2));
+        return LocalDateTime.parse(datestr).atZone(ZoneId.of("Europe/Oslo")).toInstant();
     }
 
     private static String createSlug(String title) {

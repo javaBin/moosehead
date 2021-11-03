@@ -27,6 +27,9 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,6 +73,15 @@ public class DataServlet extends HttpServlet {
             resp.setContentType("text/json");
             JsonObject node = (JsonObject) req.getSession().getAttribute("user");
             resp.getWriter().append(Optional.ofNullable(node).map(Object::toString).orElse("{}"));
+        } else if ("/status".equals(pathInfo)) {
+            resp.setContentType("text/json");
+            final JsonObject statusobj = JsonFactory.jsonObject()
+                    .put("localtime", LocalDateTime.now().toString())
+                    .put("zoneddate", ZonedDateTime.now().toString())
+                    .put("oslotime", LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toString())
+
+                    ;
+            statusobj.toJson(resp.getWriter());
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
