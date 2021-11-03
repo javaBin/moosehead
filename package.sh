@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mvn clean install
+
 BASEDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
 # resolve symlinks
@@ -10,29 +12,18 @@ while [ -h "$BASEDIR/$0" ]; do
 done
 cd ${BASEDIR}
 
-if [ -z ${1} ] || [ -z ${2} ]; then
-  echo "Usage: ${0} <env> <version>"
-  exit 1
-fi
-
 app=moosehead
-env=${1}
-version=${2}
 
 echo "> Assembling files"
 secret_properties_file="config.properties"
 
-ansible-vault decrypt "config/${env}.properties.encrypted" --output=${secret_properties_file}
+ansible-vault decrypt "config/prod.properties.encrypted" --output=${secret_properties_file}
 if [ ! -f ${secret_properties_file} ]; then
     echo "Something went wrong with decrypting secret properties. File ${secret_properties_file} is missing. Can't deploy..."
     exit 1
 fi
 
-cp ~/.m2/repository/no/java/${app}/${version}/${app}-${version}-jar-with-dependencies.jar ./app.jar
-if [ $? -ne 0 ]; then
-  rm -f ${secret_properties_file}
-  exit 1
-fi
+cp ./target/${app}-*-jar-with-dependencies.jar ./app.jar
 
 echo "> Packaging app"
 chmod 644 ${secret_properties_file}
