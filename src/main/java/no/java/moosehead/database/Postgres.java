@@ -1,8 +1,12 @@
 package no.java.moosehead.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import no.java.moosehead.web.Configuration;
 import org.postgresql.ds.PGPoolingDataSource;
 
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -10,27 +14,27 @@ public class Postgres {
     private Postgres() {
     }
 
-    private static volatile PGPoolingDataSource source;
+    private static volatile DataSource source;
 
-    public static PGPoolingDataSource source() {
+    public static DataSource source() {
         if (source != null) {
             return source;
         }
         return createSource();
     }
 
-    private synchronized static PGPoolingDataSource createSource() {
+    private synchronized static DataSource createSource() {
         if (source != null) {
             return source;
         }
-        source = new PGPoolingDataSource();
-        source.setDataSourceName("Postgres Data source");
-        source.setServerName(Configuration.dbServer());
-        source.setDatabaseName(Configuration.dbName());
-        source.setUser(Configuration.dbUser());
-        source.setPassword(Configuration.dbPassword());
-        source.setPortNumber(Configuration.dbPort());
-        source.setMaxConnections(Configuration.maxDbConnections());
+
+        HikariConfig hikariConfig = new HikariConfig();
+
+        hikariConfig.setJdbcUrl("jdbc:postgresql://" + Configuration.dbServer() + ":" + Configuration.dbPort() + "/" + Configuration.dbName());
+        hikariConfig.setUsername(Configuration.dbUser());
+        hikariConfig.setPassword(Configuration.dbPassword());
+        hikariConfig.setMaximumPoolSize(10);
+        source = new HikariDataSource(hikariConfig);
         return source;
     }
 

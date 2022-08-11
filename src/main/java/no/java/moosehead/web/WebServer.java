@@ -1,24 +1,16 @@
 package no.java.moosehead.web;
 
 import no.java.moosehead.database.Postgres;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
-import org.eclipse.jetty.security.LoginService;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.Configuration.ClassList;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.flywaydb.core.Flyway;
 
-import java.io.File;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class WebServer {
 
@@ -88,8 +80,7 @@ public class WebServer {
         if (Configuration.dbName() == null) {
             return;
         }
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(Postgres.source());
+        Flyway flyway = Flyway.configure().dataSource(Postgres.source()).load();
         if (Configuration.cleanDb()) {
             System.out.println("Cleaning db");
             flyway.clean();

@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: moosehead-prod
+    environment: mooseheadprod
 environment-defaults:
   moosehead-prod:
     branch: null
