@@ -20,7 +20,7 @@ public class StatusServlet extends HttpServlet {
                 .put("status", "ok")
                 .put("localtime",LocalDateTime.now().toString())
                 .put("instantnow", Instant.now().toString())
-                .put("opentime", Instant.now().toString())
+                .put("opentime", Configuration.openTime().toString())
                 .toJson(resp.getWriter());
     }
 }
