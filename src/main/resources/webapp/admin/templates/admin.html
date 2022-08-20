@@ -1,5 +1,7 @@
 <div>
     <span ng-show="!showNoAccess">
+        <p><input type="email" placeholder="email@somewhere.com" ng-model="testEmail"><button ng-click="doTestEmail()">Send test email</button></p>
+        <p>{{emailSendResult}}</p>
         <p><a href="#/addWorkshop/">Add</a> another workshop</p>
         <h1 ng-show="!showNoAccess">ADMIN: Workshops</h1>
         <p>The cancel link will take you to the same cancel page as given to the participants in their mail.</p>

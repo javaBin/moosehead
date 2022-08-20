@@ -11,6 +11,7 @@ import no.java.moosehead.domain.WorkshopReservation;
 import no.java.moosehead.projections.Participant;
 import no.java.moosehead.repository.WorkshopData;
 import no.java.moosehead.saga.EmailSender;
+import no.java.moosehead.saga.EmailType;
 import org.jsonbuddy.*;
 import org.jsonbuddy.parse.JsonParser;
 
@@ -120,6 +121,8 @@ public class AdminServlet  extends HttpServlet {
             apiResult = resendConfirmation(jsonInput);
         } else if ("/updateWorkshopSize".equals(pathInfo)) {
             apiResult = updateWorkshopSize(jsonInput);
+        } else if ("/sendtestmail".equals(pathInfo)) {
+            apiResult = sendTestEmail(jsonInput);
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"Illegal path");
             return;
@@ -137,6 +140,14 @@ public class AdminServlet  extends HttpServlet {
         result.toJson(resp.getWriter());
     }
 
+    private Optional<ParticipantActionResult> sendTestEmail(JsonObject jsonInput) {
+        Optional<String> email = jsonInput.stringValue("email");
+        if (!email.isPresent()) {
+            return Optional.of(ParticipantActionResult.error("Missing data email"));
+        }
+        SystemSetup.instance().emailSender().send(EmailType.TESTMAIL,email.get(),new Hashtable<>());
+        return Optional.of(ParticipantActionResult.ok());
+    }
 
 
     private Optional<ParticipantActionResult> updateWorkshopSize(JsonObject jsonInput) {

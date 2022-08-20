@@ -11,7 +11,11 @@ public enum EmailType {
     RESERVATION_CONFIRMED("confirmReservation.txt","Welcome to Javazone Workshop",new SpecialHandling(WorkshopTypeEnum.NORMAL_WORKSHOP,"confirmLate.html")),
     RESERVATION_CANCELLED("confirmationCancelled.txt","Javazone Workshop: Cancellation confirmed"),
     WAITING_LIST("waitingList.txt","Javazone Workshop: You are on the waiting list"),
-    WELCOME("welcome.txt","Javazone Workshop: Welcome");
+    WELCOME("welcome.txt","Javazone Workshop: Welcome"),
+
+    TESTMAIL("testmail.txt","Test from moosehead")
+    ;
+
 
 
     public static class SpecialHandling {

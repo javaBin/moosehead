@@ -59,6 +59,19 @@ angular.module('mooseheadModule')
             $scope.doAdminFilter = function() {
                 $scope.workshops = filterWorkshops($scope.allWorkshops,$scope.wsfilter);
             };
+            $scope.doTestEmail = function () {
+                const data = {
+                    email: $scope.testEmail
+                };
+                $http({method: "POST", url: "/admin/data/sendtestmail",data: data})
+                    .success(function(result) {
+                        if (result.status === "OK") {
+                            $scope.emailSendResult = "Email sent";
+                        } else {
+                            $scope.emailSendResult = result.message;
+                        }
+                    });
+            };
 
             $scope.isConfirmed = function(participant) {
                 if (participant.isEmailConfirmed) {
