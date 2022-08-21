@@ -30,13 +30,14 @@
             <input type="number" placeholder="Number of kids (1-{{workshop.maxReservations}})" min="1" max="{{workshop.maxReservations}}" ng-model="numReservations" id="numReservations" ng-change="numResChanged()"/>
 
         </p>
+        <!--
         <p ng-repeat="shirt in shirts">
             <select ng-model="shirt.size">
                 <option value="small">T-shirt small</option>
                 <option value="medium">T-shirt medium</option>
                 <option value="large">T-shirt large</option>
             </select>
-        </p>
+        </p>-->
         <p>
         	<!-- <label for="captcha">Are you a robot?</label> -->
         	<input type="text" ng-model="captcha" placeholder="Type the captcha text you see below" id="captcha"/>
