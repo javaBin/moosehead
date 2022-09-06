@@ -80,6 +80,11 @@ angular.module('mooseheadModule')
                     });
             };
 
+            $scope.hideAllWorkshops = function () {
+                $scope.workshops.forEach(function (workshop) {
+                    workshop.hideWorkshop = true;
+                });
+            };
             $scope.isConfirmed = function(participant) {
                 if (participant.isEmailConfirmed) {
                     return "Confirmed";
