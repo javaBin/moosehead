@@ -7,7 +7,8 @@
         <p>The cancel link will take you to the same cancel page as given to the participants in their mail.</p>
         <p><input type="text" placeholder="filter" ng-model="wsfilter"><button ng-click="doAdminFilter()">Do filter</button></p>
         <div ng-repeat="workshop in workshops">
-            <h2>{{workshop.title}}</h2>
+            <h2>{{workshop.title}} <button ng-click="showHideWorkshop(workshop)">HideShow</button></h2>
+            <div ng-hide="workshop.hideWorkshop">
             <p>Total spots: {{workshop.numberOfSeats}}</p>
             <p>Update spots: <input type="number" ng-model="numspots" placeholder="Updated number"><button ng-click="updateNumSpots(workshop,numspots)">Update num spots</button><span ng-model="updateResult"></span></p>
             <p>Status: {{workshop.status}}</p>
@@ -27,6 +28,7 @@
                     </li>
                 </span>
             </ul>
+            </div>
         </div>
     </span>
     <div ng-show="showNoAccess">

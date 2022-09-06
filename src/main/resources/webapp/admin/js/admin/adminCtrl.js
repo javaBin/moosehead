@@ -59,6 +59,13 @@ angular.module('mooseheadModule')
             $scope.doAdminFilter = function() {
                 $scope.workshops = filterWorkshops($scope.allWorkshops,$scope.wsfilter);
             };
+            $scope.showHideWorkshop = function(workshop){
+                if (workshop.hideWorkshop) {
+                    workshop.hideWorkshop = false;
+                } else {
+                    workshop.hideWorkshop = true;
+                }
+            };
             $scope.doTestEmail = function () {
                 const data = {
                     email: $scope.testEmail
